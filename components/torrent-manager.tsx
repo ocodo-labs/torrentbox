@@ -294,7 +294,7 @@ function TorrentManagerComponent() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <WifiOff className="h-6 w-6" />
-                Oops! We're having a moment
+                Oops! We&apos;re having a moment
               </CardTitle>
             </CardHeader>
             <CardContent>
