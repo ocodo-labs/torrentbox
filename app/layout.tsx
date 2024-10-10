@@ -15,8 +15,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "TraktorBox",
-  description: "Manage Traktor collection across your network",
+  title: "TorrentBox",
+  description: "Manage Torrents across your network",
 };
 
 export default function RootLayout({

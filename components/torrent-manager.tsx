@@ -60,7 +60,12 @@ function TorrentManagerComponent() {
 
   const fetchTorrents = async () => {
     try {
-      const response = await fetch('http://helios:5000/torrents/active')
+      const response = await fetch(
+        'http://helios:5000/torrents/active', 
+        {headers: {
+          "Content-Type": "application/json"
+        }}
+      )
       if (!response.ok) {
         throw new Error('Network response was not ok')
       }
@@ -92,7 +97,16 @@ function TorrentManagerComponent() {
 
   const fetchSuggestions = async (filename: string) => {
     try {
-      const response = await fetch(`http://helios:5000/torrents/suggest?filename=${encodeURIComponent(filename)}`)
+      const response = await fetch(
+        `http://helios:5000/torrents/suggest_names`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ filename: filename }),
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      )
       if (!response.ok) {
         throw new Error('Network response was not ok')
       }
@@ -105,35 +119,48 @@ function TorrentManagerComponent() {
   }
 
   const confirmRename = async () => {
+    console.log('Confirm Rename')
+
     if (currentTorrent || currentDownloaded) {
       if (!isDemo) {
+        const payload = {
+          filename: currentTorrent ? currentTorrent.name : currentDownloaded,
+          newname: newName,
+          torrent_id: currentTorrent?.id ? currentTorrent.id : ''
+        }
+
+        console.dir(payload)
+
         try {
-          const response = await fetch('http://helios:5000/torrents/rename', {
+          const response = await fetch('http://helios:5000/torrents/active/rename', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ filename: currentTorrent ? currentTorrent.name : currentDownloaded, newname: newName }),
-          })
+            body: JSON.stringify(payload),
+          });
+  
           if (!response.ok) {
-            throw new Error('Network response was not ok')
+            throw new Error('Network response was not ok');
           }
-          fetchTorrents()
+          fetchTorrents(); // Fetch updated torrents
         } catch (error) {
-          console.error('Error renaming torrent:', error)
+          console.error('Error renaming torrent:', error);
         }
       } else {
+        // Handle demo mode (update in state directly)
         if (currentTorrent) {
-          setTorrents(torrents.map(t => 
+          setTorrents(torrents.map(t =>
             t.id === currentTorrent.id ? { ...t, name: newName } : t
-          ))
+          ));
         } else if (currentDownloaded) {
-          setDownloadedTorrents(downloadedTorrents.map(t => 
+          setDownloadedTorrents(downloadedTorrents.map(t =>
             t === currentDownloaded ? newName : t
-          ))
+          ));
         }
       }
     }
-    setRenameDialogOpen(false)
-  }
+    setRenameDialogOpen(false); // Close the rename dialog
+  };
+ 
 
   const handleAction = (item: Torrent | string, action: ConfirmAction) => {
     if (typeof item === 'string') {
@@ -248,7 +275,7 @@ function TorrentManagerComponent() {
         <Button variant="ghost" size="icon" className="md:hidden">
           <Menu className="h-6 w-6" />
         </Button>
-        <h1 className="text-xl md:text-2xl font-bold">Torrent Manager</h1>
+        <h1 className="text-xl md:text-2xl font-bold">Torrent Box</h1>
         <Button
           variant="ghost"
           size="icon"
@@ -269,7 +296,7 @@ function TorrentManagerComponent() {
             <CardContent>
               <p className="text-muted-foreground mb-4">
                 Looks like we can't reach the torrent service right now. It's probably just taking a quick nap. 
-                Why not grab a coffee and try again in a bit?
+                Why not grab a refreshing beverage and try again in a little bit? (we'll try giving it a nudge to wake up.)
               </p>
               <div className="flex gap-4">
                 <Button onClick={fetchTorrents}>
