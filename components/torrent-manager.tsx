@@ -181,18 +181,22 @@ function TorrentManagerComponent() {
   const executeAction = async (action: ConfirmAction) => {
     if (currentTorrent || currentDownloaded) {
       if (!isDemo) {
-        try {
-          const response = await fetch(`http://helios:5000/torrents/${action}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: currentTorrent ? currentTorrent.id : currentDownloaded }),
-          })
-          if (!response.ok) {
-            throw new Error('Network response was not ok')
+        const torrent_id = currentTorrent?.id
+        if (torrent_id) {
+          try {
+            const response = await fetch(
+              `http://helios:5000/torrents/active/${action}?torrent_id=${torrent_id}`,
+              { headers: { 'Content-Type': 'application/json' } })
+
+            if (!response.ok) {
+              throw new Error('Network response was not ok')
+            }
+            fetchTorrents()
+          } catch (error) {
+            console.error(`Error ${action}ing torrent:`, error)
           }
-          fetchTorrents()
-        } catch (error) {
-          console.error(`Error ${action}ing torrent:`, error)
+        } else {
+          console.error(`Error torrent_id: ${torrent_id}`)
         }
       } else {
         if (currentTorrent) {
