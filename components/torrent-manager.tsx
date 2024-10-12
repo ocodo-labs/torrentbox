@@ -52,6 +52,8 @@ function TorrentManagerComponent() {
     setMounted(true)
     if (!isDemo) {
       fetchTorrents()
+      const id = setInterval(fetchTorrents, 3000);
+      return () => clearInterval(id);
     } else {
       setTorrents(generateFakeTorrents())
       setDownloadedTorrents(generateFakeDownloaded())
