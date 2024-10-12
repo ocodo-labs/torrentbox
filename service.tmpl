@@ -1,0 +1,17 @@
+[Unit]
+Description=${APP_NAME}
+After=network.target
+
+[Service]
+User=${USER}
+Group=${USER}
+WorkingDirectory=$PWD
+
+ExecStart=${EXEC_START}
+Environment=PATH=${PATH}
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
