@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Torrent, TorrentData } from '@/types/torrent'
 import { generateFakeDownloaded, generateFakeSuggestions, generateFakeTorrents } from '@/demo/fake'
-import { ConfirmAction } from '@/types/actions'
+import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from '@/types/actions'
 
 function DemoPanel({tryAgain, startDemo}) {
   return (
@@ -101,7 +101,8 @@ const TorrentsSection = ({
   expandedTorrent,
   toggleExpand,
   handleAction,
-  handleRename
+  handleRename,
+  handleSoftDelete,
 }) => {
   return (
     <section>
@@ -140,6 +141,9 @@ const TorrentsSection = ({
                         <TableCell>
                           <Button variant="ghost" size="icon" onClick={() => handleRename(torrent, filename)}>
                             <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleSoftDelete(torrent, filename)}>
+                            <Trash className="h-4 w-4" />
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -209,7 +213,7 @@ const ConfirmDialog = ({
         <Alert>
           <AlertTitle>Are you sure?</AlertTitle>
           <AlertDescription>
-            {confirmAction === 'remove' && 'This will remove the torrent from the list.'}
+            {confirmAction === 'remove' && 'This will deactivate the torrent and remove it from the list. Downloaded files will be kept.'}
             {confirmAction === 'delete' && 'This will delete the torrent completely.'}
             {confirmAction === 'moveToTV' && 'This will move the torrent to the TV shows folder.'}
             {confirmAction === 'moveToMovies' && 'This will move the torrent to the Movies folder.'}
@@ -218,9 +222,9 @@ const ConfirmDialog = ({
         <div className="flex items-center space-x-2">
           <Checkbox
               id="dontShowAgain"
-              checked={dontShowAgain[confirmAction as ConfirmAction]}
+              checked={dontShowAgain[confirmAction as ConfirmTorrentAction]}
               onCheckedChange={(checked) =>
-                setDontShowAgain(prev => ({ ...prev, [confirmAction as ConfirmAction]: checked as boolean }))
+                setDontShowAgain(prev => ({ ...prev, [confirmAction as ConfirmTorrentAction]: checked as boolean }))
               }
           />
           <label
@@ -232,26 +236,41 @@ const ConfirmDialog = ({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setConfirmDialogOpen(false)}>Cancel</Button>
-          <Button variant="destructive" onClick={() => executeAction(confirmAction as ConfirmAction)}>Confirm</Button>
+          <Button variant="destructive" onClick={() => executeAction(confirmAction as ConfirmTorrentAction)}>Confirm</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   )
 }
 
+class SoftDeletedFile {
+  torrent: string
+  fileIndex: number
+
+  constructor(torrent: string, fileIndex: number) {
+    this.torrent = torrent
+    this.fileIndex = fileIndex
+  }
+
+  isEqual(torrent: string, fileIndex: number): boolean {
+    return this.torrent == torrent && this.fileIndex == fileIndex
+  }
+}
+
 function TorrentManagerComponent() {
   const { theme, setTheme } = useTheme()
   const [torrents, setTorrents] = useState<Torrent[]>([])
-  const [downloadedFiles, setDownloadedTorrents] = useState<string[]>([])
+  const [torrentSoftDeletedFiles, setTorrentSoftDeletedFiles] = useState<SoftDeletedFile[]>([])
+  const [downloadedFiles, setDownloadedFiles] = useState<string[]>([])
   const [expandedTorrent, setExpandedTorrent] = useState<string | null>(null)
   const [renameDialogOpen, setRenameDialogOpen] = useState(false)
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
   const [currentTorrent, setCurrentTorrent] = useState<Torrent | null>(null)
   const [currentTorrentFilename, setCurrentTorrentFilename] = useState<string | null>(null)
-  const [currentDownloaded, setCurrentDownloaded] = useState<string | null>(null)
+  const [currentDownloadedFile, setCurrentDownloadedFile] = useState<string | null>(null)
   const [newName, setNewName] = useState('')
   const [suggestions, setSuggestions] = useState<string[]>([])
-  const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null)
+  const [confirmAction, setConfirmAction] = useState<ConfirmTorrentAction | null>(null)
   const [connectionError, setConnectionError] = useState(false)
   const [isDemo, setIsDemo] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -270,7 +289,7 @@ function TorrentManagerComponent() {
       return () => clearInterval(id);
     } else {
       setTorrents(generateFakeTorrents())
-      setDownloadedTorrents(generateFakeDownloaded())
+      setDownloadedFiles(generateFakeDownloaded())
     }
   }, [isDemo])
 
@@ -287,7 +306,7 @@ function TorrentManagerComponent() {
       }
       const data: TorrentData = await response.json()
       setTorrents(data.downloading)
-      setDownloadedTorrents(data.downloaded)
+      setDownloadedFiles(data.downloaded)
       setConnectionError(false)
     } catch (error) {
       console.error('Error fetching torrents:', error)
@@ -295,9 +314,19 @@ function TorrentManagerComponent() {
     }
   }
 
+  const handleSoftDelete = (torrent: Torrent, filename: string) => {
+    const index = torrent.files.findIndex(f => f[0] == filename )
+    const hash = torrent.id
+    const notSoftDeleted = torrentSoftDeletedFiles.findIndex(e => e.torrent == hash && e.fileIndex == index) == -1
+
+    if (notSoftDeleted) {
+      setTorrentSoftDeletedFiles([...torrentSoftDeletedFiles, new SoftDeletedFile(hash, index)])
+    }
+  }
+
   const handleRename = (item: Torrent | string, filename?: string) => {
     if (typeof item === 'string') {
-      setCurrentDownloaded(item)
+      setCurrentDownloadedFile(item)
       setNewName(item)
     } else {
       setCurrentTorrent(item)
@@ -350,19 +379,16 @@ function TorrentManagerComponent() {
   }
 
   const confirmRename = async () => {
-    if (currentTorrent || currentDownloaded) {
+    if (currentTorrent) {
       if (!isDemo) {
         const filename = currentTorrentFilename ||
-                         currentTorrent?.name ||
-                         currentDownloaded
+                         currentTorrent?.name
 
         const payload = {
           filename,
           newname: newName,
-          torrent_id: currentTorrent?.id ? currentTorrent.id : ''
+          torrent_id: currentTorrent.id
         }
-
-        console.dir(payload)
 
         try {
           const response = await fetch('http://helios:5000/torrents/active/rename', {
@@ -384,9 +410,9 @@ function TorrentManagerComponent() {
           setTorrents(torrents.map(t =>
             t.id === currentTorrent.id ? { ...t, name: newName } : t
           ));
-        } else if (currentDownloaded) {
-          setDownloadedTorrents(downloadedFiles.map(t =>
-            t === currentDownloaded ? newName : t
+        } else {
+          setDownloadedFiles(downloadedFiles.map(t =>
+            t === currentDownloadedFile ? newName : t
           ));
         }
       }
@@ -395,51 +421,57 @@ function TorrentManagerComponent() {
   };
 
 
-  const handleAction = (item: Torrent | string, action: ConfirmAction) => {
+  const handleAction = (item: Torrent | string, action: ConfirmTorrentAction) => {
     if (typeof item === 'string') {
-      setCurrentDownloaded(item)
+      setCurrentDownloadedFile(item)
       setCurrentTorrent(null)
     } else {
       setCurrentTorrent(item)
-      setCurrentDownloaded(null)
+      setCurrentDownloadedFile(null)
     }
     setConfirmAction(action)
     if (dontShowAgain[action]) {
-      executeAction(action)
+      executeTorrentAction(action)
     } else {
       setConfirmDialogOpen(true)
     }
   }
 
-  const executeAction = async (action: ConfirmAction) => {
-    if (currentTorrent || currentDownloaded) {
-      if (!isDemo) {
-        const torrent_id = currentTorrent?.id
-        if (torrent_id) {
-          try {
-            const response = await fetch(
-              `http://helios:5000/torrents/active/${action}?torrent_id=${torrent_id}`,
-              { headers: { 'Content-Type': 'application/json' } })
+  const torrentActionRequest = async (action: ConfirmTorrentAction) => {
+    if(currentTorrent) {
+      try {
+        const torrent_id = currentTorrent.id
+        const response = await fetch(
+          `http://helios:5000/torrents/active/${action}?torrent_id=${torrent_id}`,
+          { headers: { 'Content-Type': 'application/json' } })
 
-            if (!response.ok) {
-              throw new Error('Network response was not ok')
-            }
-            fetchTorrents()
-          } catch (error) {
-            console.error(`Error ${action}ing torrent:`, error)
-          }
-        } else {
-          console.error(`Error torrent_id: ${torrent_id}`)
+        if (!response.ok) {
+          throw new Error('Network response was not ok')
         }
-      } else {
-        if (currentTorrent) {
-          setTorrents(torrents.filter(t => t.id !== currentTorrent.id))
-        } else if (currentDownloaded) {
-          setDownloadedTorrents(downloadedFiles.filter(t => t !== currentDownloaded))
-        }
+        fetchTorrents()
+      } catch (error) {
+        console.error(`Error ${action}ing torrent:`, error)
       }
     }
+  }
+  
+  const executeTorrentAction = async (action: ConfirmTorrentAction) => {
+    if (currentTorrent) {
+      if (!isDemo) {
+        torrentActionRequest(action)
+      }
+      setTorrents(torrents.filter(t => t.id !== currentTorrent.id))
+    }
     setConfirmDialogOpen(false)
+  }
+
+  const executeDownloadedFileAction = async (action: ConfirmDownloadedFileAction) => {
+    if (currentDownloadedFile) {
+      const actionPath = action
+
+
+      setDownloadedFiles(downloadedFiles.filter(t => t !== currentDownloadedFile))
+    }
   }
 
   const toggleExpand = (id: string) => {
@@ -450,7 +482,7 @@ function TorrentManagerComponent() {
     setIsDemo(true)
     setConnectionError(false)
     setTorrents(generateFakeTorrents())
-    setDownloadedTorrents(generateFakeDownloaded())
+    setDownloadedFiles(generateFakeDownloaded())
   }
 
   if (!mounted) {
@@ -464,14 +496,15 @@ function TorrentManagerComponent() {
     {connectionError ? (
       <DemoPanel tryAgain={fetchTorrents} startDemo={startDemo}/>
     ) : (
-      <div className="space-y-8"
-      >            <TorrentsSection
-                       torrents={torrents}
-                       expandedTorrent={expandedTorrent}
-                       toggleExpand={toggleExpand}
-                       handleAction={handleAction}
-                       handleRename={handleRename}
-                   />
+      <div className="space-y-8">
+        <TorrentsSection
+            torrents={torrents}
+            expandedTorrent={expandedTorrent}
+            toggleExpand={toggleExpand}
+            handleAction={handleAction}
+            handleRename={handleRename}
+            handleSoftDelete={handleSoftDelete}
+        />
         <DownloadedSection
             downloadedFiles={downloadedFiles}
             handleAction={handleAction}
@@ -493,7 +526,7 @@ function TorrentManagerComponent() {
         confirmDialogOpen={confirmDialogOpen}
         setConfirmDialogOpen={setConfirmDialogOpen}
         confirmAction={confirmAction}
-        executeAction={executeAction}
+        executeAction={executeTorrentAction}
         dontShowAgain={dontShowAgain}
         setDontShowAgain={setDontShowAgain}
     />

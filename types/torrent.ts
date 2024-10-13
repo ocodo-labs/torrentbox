@@ -1,8 +1,10 @@
+
 class Torrent {
     id: string;
     name: string;
     percent: number;
     files: [string, number, number, number, boolean, number][];
+    softDeleted: number[];
 
     constructor({
         id,
@@ -19,6 +21,7 @@ class Torrent {
         this.name = name;
         this.percent = percent;
         this.files = files;
+        this.softDeleted = []
     }
 }
 

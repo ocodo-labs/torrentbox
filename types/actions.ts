@@ -1,3 +1,5 @@
-type ConfirmAction = 'remove' | 'delete' | 'moveToTV' | 'moveToMovies'
+type ConfirmTorrentAction = 'remove' | 'delete'
 
-export { ConfirmAction }
+type ConfirmDownloadedFileAction = 'filesDelete' | 'filesMoveMovies' | 'filesMoveTvshows'
+
+export { ConfirmTorrentAction, ConfirmDownloadedFileAction }

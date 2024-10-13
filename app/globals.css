@@ -2,48 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: "Helvetica Neue", sans-serif;
-}
-
-.openkey, .bpm {
-    border-radius: 1em;
-    color: var(--open-key-foregroud);
-    cursor: pointer;
-    padding: 0.2em 0.4em;
- }
-
-.bpm {
-  background-color: var(--bpm-background);
-}
-
-.openkey-1m { background-color: var(--openkey-1); }
-.openkey-2m { background-color: var(--openkey-2); }
-.openkey-3m { background-color: var(--openkey-3); }
-.openkey-4m { background-color: var(--openkey-4); }
-.openkey-5m { background-color: var(--openkey-5); }
-.openkey-6m { background-color: var(--openkey-6); }
-.openkey-7m { background-color: var(--openkey-7); }
-.openkey-8m { background-color: var(--openkey-8); }
-.openkey-9m { background-color: var(--openkey-9); }
-.openkey-10m { background-color: var(--openkey-10); }
-.openkey-11m { background-color: var(--openkey-11); }
-.openkey-12m { background-color: var(--openkey-12); }
-
-.openkey-1d { background-color: var(--openkey-1); }
-.openkey-2d { background-color: var(--openkey-2); }
-.openkey-3d { background-color: var(--openkey-3); }
-.openkey-4d { background-color: var(--openkey-4); }
-.openkey-5d { background-color: var(--openkey-5); }
-.openkey-6d { background-color: var(--openkey-6); }
-.openkey-7d { background-color: var(--openkey-7); }
-.openkey-8d { background-color: var(--openkey-8); }
-.openkey-9d { background-color: var(--openkey-9); }
-.openkey-10d { background-color: var(--openkey-10); }
-.openkey-11d { background-color: var(--openkey-11); }
-.openkey-12d { background-color: var(--openkey-12); }
-
-
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -52,8 +10,6 @@ body {
 
 @layer base {
   :root {
-    --bpm-background: hsla(20, 60%, 80%);
-    --open-key-foregroud: #000;
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
@@ -79,23 +35,9 @@ body {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
-    --openkey-1:  hsla(330,70%,60%,0.8);
-    --openkey-2:  hsla(300,70%,60%,0.8);
-    --openkey-3:  hsla(270,70%,60%,0.8);
-    --openkey-4:  hsla(240,70%,60%,0.8);
-    --openkey-5:  hsla(210,70%,60%,0.8);
-    --openkey-6:  hsla(180,70%,60%,0.8);
-    --openkey-7:  hsla(150,70%,60%,0.8);
-    --openkey-8:  hsla(120,70%,60%,0.8);
-    --openkey-9:  hsla(90,70%,60%,0.8);
-    --openkey-10: hsla(60,70%,60%,0.8);
-    --openkey-11: hsla(30,70%,60%,0.8);
-    --openkey-12: hsla(0,70%,60%,0.8);
   }
   .dark {
-    --bpm-background: #000;
-    --open-key-foregroud: #fff;
-    --background: 222.2 34% 4.9%;
+    --background: 0 0% 10%;
     --foreground: 210 20% 98%;
     --card: 222.2 24% 4.9%;
     --card-foreground: 210 20% 98%;
@@ -119,18 +61,6 @@ body {
     --chart-3: 30 20% 55%;
     --chart-4: 280 25% 60%;
     --chart-5: 340 25% 55%;
-    --openkey-1: hsla(330,70%,20%,0.8);
-    --openkey-2: hsla(300,70%,20%,0.8);
-    --openkey-3: hsla(270,70%,20%,0.8);
-    --openkey-4: hsla(240,70%,20%,0.8);
-    --openkey-5: hsla(210,70%,20%,0.8);
-    --openkey-6: hsla(180,70%,20%,0.8);
-    --openkey-7: hsla(150,70%,20%,0.8);
-    --openkey-8: hsla(120,70%,20%,0.8);
-    --openkey-9: hsla(90,70%,20%,0.8);
-    --openkey-10: hsla(60,70%,20%,0.8);
-    --openkey-11: hsla(30,70%,20%,0.8);
-    --openkey-12: hsla(0,70%,20%,0.8);
   }
 }
 
