@@ -1,10 +1,9 @@
 import { Torrent } from "@/types/torrent"
 import { ConfirmTorrentAction, ConfirmDownloadedFileAction } from "@/types/actions"
-import { Edit, X, Trash, ChevronUp, ChevronDown, Table } from "lucide-react"
+import { Edit, X, Trash, ChevronUp, ChevronDown } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
-import { TableBody } from "@/components/ui/table"
-import { TableRow, TableCell } from "@/components/ui/table"
+import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table"
 
 const TorrentFileRow = (props) => {
   const {

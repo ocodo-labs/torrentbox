@@ -86,7 +86,7 @@ function TorrentBox() {
     }
   }
 
-  const getTorrentSoftDeletedFiles = (torrent: Torrent) => {
+  const getTorrentSoftDeletedFiles = (torrent: Torrent): string[] => {
     const torrentName = torrent.name
     const indexes = torrentSoftDeletedFiles.
       filter((e: SoftDeletedFile) => e.torrent == torrent.id).
@@ -94,6 +94,8 @@ function TorrentBox() {
     const files = torrent.files.
       filter((e, index) => indexes.indexOf(index) == -1).
       map((e) => e[0])
+
+    return files
   }
 
   const handleRenameTorrent = (item: Torrent, filename?: string) => {
