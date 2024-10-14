@@ -2,8 +2,18 @@ import { Progress } from "@/components/ui/progress"
 import { Edit, Trash } from "lucide-react"
 import { Button } from "./ui/button"
 import { TableRow, TableCell } from "./ui/table"
+import { Torrent } from "@/types/torrent"
 
-const TorrentFileRow = (props) => {
+interface TorrentFileRowProps {
+  filename: string
+  size: number
+  downloaded: number
+  handleRename: (item: Torrent, filename: string) => void
+  handleSoftDelete: (torrent: Torrent, filename: string) => void
+  torrent: Torrent
+}
+
+const TorrentFileRow = (props: TorrentFileRowProps) => {
   const {
     filename,
     size,
