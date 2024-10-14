@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useLocalStorage } from '@/lib/use-local-storage'
 import { useTheme } from 'next-themes'
 import { Menu, Sun, Moon, Edit, Trash, X, ChevronDown, ChevronUp, Tv, Film } from 'lucide-react'
 import { Button } from "@/components/ui/button"
@@ -71,6 +72,8 @@ const TorrentsSection = ({
   handleAction,
   handleRename,
   handleSoftDelete,
+  softDeletedTorrentFiles,
+  isSoftDeletedFn,
 }) => {
   return (
     <section>
@@ -100,21 +103,23 @@ const TorrentsSection = ({
               <div className="mt-4 overflow-x-auto">
                 <Table>
                   <TableBody>
-                    {torrent.files.map(([filename, size, downloaded], index) => (
-                      <TableRow key={index}>
-                        <TableCell className="font-medium">
-                          {filename}
-                          <Progress value={(downloaded / size) * 100} className="w-full" />
-                        </TableCell>
-                        <TableCell>
-                          <Button variant="ghost" size="icon" onClick={() => handleRename(torrent, filename)}>
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleSoftDelete(torrent, filename)}>
-                            <Trash className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
+                    {torrent.files
+                            .filter((_, index) => !isSoftDeletedFn(torrent.id, index))
+                            .map(([filename, size, downloaded], index) => (
+                              <TableRow key={index}>
+                                <TableCell className="font-medium">
+                                  {filename}
+                                  <Progress value={(downloaded / size) * 100} className="w-full" />
+                                </TableCell>
+                                <TableCell>
+                                  <Button variant="ghost" size="icon" onClick={() => handleRename(torrent, filename)}>
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button variant="ghost" size="icon" onClick={() => handleSoftDelete(torrent, filename)}>
+                                    <Trash className="h-4 w-4" />
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
                     ))}
                   </TableBody>
                 </Table>
@@ -227,7 +232,7 @@ class SoftDeletedFile {
 function TorrentBox() {
   const { theme, setTheme } = useTheme()
   const [torrents, setTorrents] = useState<Torrent[]>([])
-  const [torrentSoftDeletedFiles, setTorrentSoftDeletedFiles] = useState<SoftDeletedFile[]>([])
+  const [torrentSoftDeletedFiles, setTorrentSoftDeletedFiles] = useLocalStorage('soft-deleted-files', [])
   const [downloadedFiles, setDownloadedFiles] = useState<string[]>([])
   const [expandedTorrent, setExpandedTorrent] = useState<string | null>(null)
   const [renameTorrentDialogOpen, setRenameTorrentDialogOpen] = useState(false)
@@ -243,11 +248,12 @@ function TorrentBox() {
   const [connectionError, setConnectionError] = useState(false)
   const [isDemo, setIsDemo] = useState(false)
   const [mounted, setMounted] = useState(false)
-  const [dontShowAgain, setDontShowAgain] = useState({
-    remove: false,
-    delete: false,
-    moveToTV: false,
-    moveToMovies: false,
+  const [dontShowAgain, setDontShowAgain] = useLocalStorage('dont-show-confirm-again' , {
+    'remove': false,
+    'delete': false,
+    'files/delete': false,
+    'files/move/tvshows': false,
+    'files/move/movies': false,
   })
 
   useEffect(() => {
@@ -283,49 +289,56 @@ function TorrentBox() {
     }
   }
 
+  const isSoftDeleted = (hash:string, index:number) => torrentSoftDeletedFiles.findIndex(e => e.torrent == hash && e.fileIndex == index) != -1
+
   const softDeleteTorrentSubFile = (torrent: Torrent, filename: string) => {
     const index = torrent.files.findIndex(f => f[0] == filename )
     const hash = torrent.id
-    const notSoftDeleted = torrentSoftDeletedFiles.findIndex(e => e.torrent == hash && e.fileIndex == index) == -1
 
-    if (notSoftDeleted) {
+    if (!isSoftDeleted(hash, index)) {
       setTorrentSoftDeletedFiles([...torrentSoftDeletedFiles, new SoftDeletedFile(hash, index)])
     }
   }
 
+  const handleRenameTorrent = (item: Torrent, filename?: string) => {
+    handleRename(item, filename)
+  }
+
+  const handleRenameDownloaded = (item: string) => {
+    handleRename(item)
+  }
+
   const handleRename = (item: Torrent | string, filename?: string) => {
     setRenameTorrentDialogOpen(true)
-    setTimeout(() => {
-      if (typeof item === 'string') {
-        setCurrentDownloadedFile(item)
-        setCurrentTorrent(null)
-        setCurrentTorrentFilename(null)
-        setNewName(item)
-      } else {
-        if (filename) {
-          setCurrentTorrentFilename(filename)
-        }
-        setCurrentTorrent(item)
-        setCurrentDownloadedFile(null)
-        setNewName(filename || item.name)
+    if (typeof item === 'string') {
+      setCurrentDownloadedFile(item)
+      setCurrentTorrent(null)
+      setCurrentTorrentFilename(null)
+      setNewName(item)
+    } else {
+      if (filename) {
+        setCurrentTorrentFilename(filename)
       }
-      if (!isDemo) {
-        if (currentTorrentFilename && currentTorrent) {
-          alert(filename)
-          fetchTorrentSubFilenameSuggestions(currentTorrent, currentTorrentFilename)
-        } else {
-          fetchSuggestions(
-            filename || (typeof item === 'string' ? item : item.name)
-          )
-        }
+      setCurrentTorrent(item)
+      setCurrentDownloadedFile(null)
+      setNewName(filename || item.name)
+    }
+    if (!isDemo) {
+      if (currentTorrentFilename && currentTorrent) {
+        alert(filename)
+        fetchTorrentSubFilenameSuggestions(currentTorrent, currentTorrentFilename)
       } else {
-        setSuggestions(
-          generateFakeSuggestions(
-            filename || (typeof item === 'string' ? item : item.name)
-          )
+        fetchSuggestions(
+          filename || (typeof item === 'string' ? item : item.name)
         )
       }
-    }, 600)
+    } else {
+      setSuggestions(
+        generateFakeSuggestions(
+          filename || (typeof item === 'string' ? item : item.name)
+        )
+      )
+    }
   }
 
   const escapeName = (name: string):string => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -373,7 +386,17 @@ function TorrentBox() {
     'files/move/tvshows': 'Move downloaded files to the TV shows folder.',
   }
 
+  const confirmRenameDownloadedFile = () => {
+    if (currentDownloadedFile) {
+
+    }
+  }
+
   const confirmRename = async () => {
+    if (currentDownloadedFile) {
+      confirmRenameDownloadedFile()
+      return
+    }
     if (currentTorrent) {
       if (!isDemo) {
         const filename = currentTorrentFilename ||
@@ -442,7 +465,6 @@ function TorrentBox() {
         setConfirmTorrentActionDialogOpen(true)
       }
     }
-
   }
 
   const torrentActionRequest = async (action: ConfirmTorrentAction) => {
@@ -451,6 +473,23 @@ function TorrentBox() {
         const torrent_id = currentTorrent.id
         const response = await fetch(
           `http://helios:5000/torrents/active/${action}?torrent_id=${torrent_id}`,
+          { headers: { 'Content-Type': 'application/json' } })
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok')
+        }
+        fetchTorrents()
+      } catch (error) {
+        console.error(`Error ${action}ing torrent:`, error)
+      }
+    }
+  }
+
+  const downloadedFilesActionRequest = async (action: ConfirmDownloadedFileAction) => {
+    if(currentDownloadedFile) {
+      try {
+        const response = await fetch(
+          `http://helios:5000/torrents/${action}?filename=${currentDownloadedFile}`,
           { headers: { 'Content-Type': 'application/json' } })
 
         if (!response.ok) {
@@ -476,11 +515,12 @@ function TorrentBox() {
   const executeDownloadedFileAction = async (action: ConfirmDownloadedFileAction) => {
     if (currentDownloadedFile) {
       if (!isDemo) {
-        const actionPath = action
-
-        setDownloadedFiles(downloadedFiles.filter(t => t !== currentDownloadedFile))
+        downloadedFilesActionRequest(action)
+      } else {
+        setDownloadedFiles(downloadedFiles.filter(f => f !== currentDownloadedFile))
       }
     }
+    setConfirmDownloadedFileActionDialogOpen(false)
   }
 
   const toggleExpand = (id: string) => {
@@ -513,6 +553,8 @@ function TorrentBox() {
                 handleAction={handleAction}
                 handleRename={handleRename}
                 handleSoftDelete={softDeleteTorrentSubFile}
+                softDeletedTorrentFiles={torrentSoftDeletedFiles}
+                isSoftDeletedFn={isSoftDeleted}
             />
             <DownloadedSection
                 downloadedFiles={downloadedFiles}
