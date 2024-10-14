@@ -1,17 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useLocalStorage } from '@/lib/use-local-storage'
-import { useTheme } from 'next-themes'
-import { generateFakeDownloaded, generateFakeSuggestions, generateFakeTorrents } from '@/demo/fake'
-import { DemoPanel } from '@/components/demo-panel'
-import { Torrent, TorrentData } from '@/types/torrent'
-import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from '@/types/actions'
-import { RenameDialog } from '@/components/rename-dialog'
-import { TorrentBoxHeading } from '@/components/torrent-box-header'
-import { DownloadedSection } from '@/components/downloaded-section'
-import { ConfirmDialog } from '@/components/confirm-dialog'
-import { TorrentsSection } from '@/components/torrent-section'
+import { generateFakeTorrents, generateFakeDownloaded, generateFakeSuggestions } from "@/demo/fake"
+import { useLocalStorage } from "@/lib/use-local-storage"
+import { ConfirmTorrentAction, ConfirmDownloadedFileAction } from "@/types/actions"
+import { Torrent, TorrentData } from "@/types/torrent"
+import { useTheme } from "next-themes"
+import { useState, useEffect } from "react"
+import { ConfirmDialog } from "./confirm-dialog"
+import { DemoPanel } from "./demo-panel"
+import { DownloadedSection } from "./downloaded-section"
+import { RenameDialog } from "./rename-dialog"
+import { TorrentBoxHeading } from "./torrent-box-header"
+import { TorrentsSection } from "./torrent-section"
 
 function TorrentBox() {
   const { theme, setTheme } = useTheme()
@@ -186,7 +186,7 @@ function TorrentBox() {
 
   const confirmRenameDownloadedFile = () => {
     if (currentDownloadedFile) {
-
+      // TODO: Add call to api for renaming a downloaded file.
     }
   }
 
@@ -367,6 +367,7 @@ function TorrentBox() {
           </div>
         )}
       </main>
+
       <RenameDialog
         title="Rename Torrent"
         open={renameTorrentDialogOpen}
@@ -377,6 +378,7 @@ function TorrentBox() {
         onConfirm={confirmRename}
         onCancel={() => setRenameTorrentDialogOpen(false)}
       />
+
       <ConfirmDialog
         confirmDialogOpen={confirmTorrentActionDialogOpen}
         setConfirmDialogOpen={setConfirmTorrentActionDialogOpen}
@@ -386,6 +388,7 @@ function TorrentBox() {
         setDontShowAgain={setDontShowAgain}
         alertDescriptions={confirmTorrentActionDescriptions}
       />
+
       <ConfirmDialog
         confirmDialogOpen={confirmDownloadedFileActionDialogOpen}
         setConfirmDialogOpen={setConfirmDownloadedFileActionDialogOpen}
