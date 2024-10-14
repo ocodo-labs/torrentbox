@@ -3,22 +3,15 @@
 import { useState, useEffect } from 'react'
 import { useLocalStorage } from '@/lib/use-local-storage'
 import { useTheme } from 'next-themes'
-import { Menu, Sun, Moon, Edit, Trash, X, ChevronDown, ChevronUp, Tv, Film } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Checkbox } from "@/components/ui/checkbox"
 import { generateFakeDownloaded, generateFakeSuggestions, generateFakeTorrents } from '@/demo/fake'
 import { DemoPanel } from '@/components/demo-panel'
 import { Torrent, TorrentData } from '@/types/torrent'
 import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from '@/types/actions'
 import { RenameDialog } from '@/components/rename-dialog'
 import { TorrentBoxHeading } from '@/components/torrent-box-header'
-import { DownloadedSection } from './downloaded-section'
-import { ConfirmDialog } from './confirm-dialog'
-import { TorrentsSection } from './torrent-section'
+import { DownloadedSection } from '@/components/downloaded-section'
+import { ConfirmDialog } from '@/components/confirm-dialog'
+import { TorrentsSection } from '@/components/torrent-section'
 
 function TorrentBox() {
   const { theme, setTheme } = useTheme()

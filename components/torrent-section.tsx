@@ -6,6 +6,7 @@ import { TorrentFileRow } from "@/components/torrent-file-row"
 import { Button } from "@/components/ui/button"
 import { TableBody } from "@/components/ui/table"
 
+
 interface TorrentsSectionProps {
     torrents: Torrent[]
     expandedTorrent: string
@@ -55,7 +56,7 @@ interface TorrentsSectionProps {
                   <Table>
                     <TableBody>
                       {torrent.files
-                        .filter((_, index) => !isSoftDeletedFn(torrent.id, index))
+                        .filter((file, index) => !isSoftDeletedFn(torrent.id, index))
                         .map(([filename, size, downloaded], index) => (
                           <TorrentFileRow
                             key={index}
@@ -78,4 +79,4 @@ interface TorrentsSectionProps {
     )
   }
   
-  export { TorrentsSection}
+  export { TorrentsSection }
