@@ -2,46 +2,18 @@
 
 import { useState, useEffect } from 'react'
 import { useTheme } from 'next-themes'
-import { Menu, Sun, Moon, Edit, Trash, X, ChevronDown, ChevronUp, WifiOff, Play, Tv, Film } from 'lucide-react'
+import { Menu, Sun, Moon, Edit, Trash, X, ChevronDown, ChevronUp, Tv, Film } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Table, TableBody, TableCell,  TableRow } from "@/components/ui/table"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Torrent, TorrentData } from '@/types/torrent'
 import { generateFakeDownloaded, generateFakeSuggestions, generateFakeTorrents } from '@/demo/fake'
+import { DemoPanel } from '@/components/demo-panel'
+import { Torrent, TorrentData } from '@/types/torrent'
 import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from '@/types/actions'
-
-function DemoPanel({tryAgain, startDemo}) {
-  return (
-    <Card className="w-full max-w-md mx-auto mt-8">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <WifiOff className="h-6 w-6" />
-          Oops! We&apos;re having a moment
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-muted-foreground mb-4">
-          Looks like we can&apos;t reach the torrent service right now. It&apos;s probably just taking a quick nap.
-          Why not grab a refreshing beverage and try again in a little bit? (we&apos;ll try giving it a nudge to wake up.)
-        </p>
-        <div className="flex gap-4">
-          <Button onClick={tryAgain}>
-            Try Again
-          </Button>
-          <Button variant="outline" onClick={startDemo}>
-            <Play className="h-4 w-4 mr-2" />
-            See Demo
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
 
 function TorrentBoxHeading({setTheme, theme}) {
   return (
@@ -65,32 +37,22 @@ function DownloadedSection({downloadedFiles, handleRename, handleAction}) {
   return (
     <section>
       <h2 className="text-xl font-semibold mb-4">Downloaded</h2>
-      <div className="overflow-x-auto">
-        <Table>
-          <TableBody>
-            {downloadedFiles.map((file: string, index: number) => (
-              <TableRow key={index}>
-                <TableCell className="font-medium">{file}</TableCell>
-                <TableCell>
-                  <div className="flex space-x-2">
-                    <Button variant="ghost" size="icon" onClick={() => handleRename(file)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleAction(file, 'moveToTV')}>
-                      <Tv  className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleAction(file, 'moveToMovies')}>
-                      <Film className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleAction(file, 'delete')}>
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <div className="space-y-4">
+        {downloadedFiles.map((file: string, index: number) => (
+          <div key={index} className="p-4 border rounded-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
+              <h3 className="text-lg font-semibold mb-2 sm:mb-0">{file}</h3>
+              <div className="flex space-x-2">
+                <Button variant="ghost" size="icon" onClick={() => handleRename(file)}>
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => handleAction(file, 'delete')}>
+                  <Trash className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   )
@@ -262,7 +224,7 @@ function TorrentBox() {
   const [torrentSoftDeletedFiles, setTorrentSoftDeletedFiles] = useState<SoftDeletedFile[]>([])
   const [downloadedFiles, setDownloadedFiles] = useState<string[]>([])
   const [expandedTorrent, setExpandedTorrent] = useState<string | null>(null)
-  const [renameDialogOpen, setRenameDialogOpen] = useState(false)
+  const [renameTorrentDialogOpen, setRenameTorrentDialogOpen] = useState(false)
   const [confirmTorrentActionDialogOpen, setConfirmTorrentActionDialogOpen] = useState(false)
   const [confirmDownloadedFileActionDialogOpen, setConfirmDownloadedFileActionDialogOpen] = useState(false)
   const [currentTorrent, setCurrentTorrent] = useState<Torrent | null>(null)
@@ -315,7 +277,7 @@ function TorrentBox() {
     }
   }
 
-  const handleSoftDelete = (torrent: Torrent, filename: string) => {
+  const softDeleteTorrentSubFile = (torrent: Torrent, filename: string) => {
     const index = torrent.files.findIndex(f => f[0] == filename )
     const hash = torrent.id
     const notSoftDeleted = torrentSoftDeletedFiles.findIndex(e => e.torrent == hash && e.fileIndex == index) == -1
@@ -326,24 +288,38 @@ function TorrentBox() {
   }
 
   const handleRename = (item: Torrent | string, filename?: string) => {
-    if (typeof item === 'string') {
-      setCurrentDownloadedFile(item)
-      setNewName(item)
-    } else {
-      setCurrentTorrent(item)
-      if (filename) setCurrentTorrentFilename(filename)
-      setNewName(filename || item.name)
-    }
-    if (!isDemo) {
-      if (currentTorrentFilename && currentTorrent) {
-        fetchTorrentSubFilenameSuggestions(currentTorrent, currentTorrentFilename)
+    setRenameTorrentDialogOpen(true)
+    setTimeout(() => {
+      if (typeof item === 'string') {
+        setCurrentDownloadedFile(item)
+        setCurrentTorrent(null)
+        setCurrentTorrentFilename(null)
+        setNewName(item)
       } else {
-        fetchSuggestions(filename || (typeof item === 'string' ? item : item.name))
+        if (filename) {
+          setCurrentTorrentFilename(filename)
+        }
+        setCurrentTorrent(item)
+        setCurrentDownloadedFile(null)
+        setNewName(filename || item.name)
       }
-    } else {
-      setSuggestions(generateFakeSuggestions(filename || (typeof item === 'string' ? item : item.name)))
-    }
-    setRenameDialogOpen(true)
+      if (!isDemo) {
+        if (currentTorrentFilename && currentTorrent) {
+          alert(filename)
+          fetchTorrentSubFilenameSuggestions(currentTorrent, currentTorrentFilename)
+        } else {
+          fetchSuggestions(
+            filename || (typeof item === 'string' ? item : item.name)
+          )
+        }
+      } else {
+        setSuggestions(
+          generateFakeSuggestions(
+            filename || (typeof item === 'string' ? item : item.name)
+          )
+        )
+      }
+    }, 600)
   }
 
   const escapeName = (name: string):string => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -437,7 +413,7 @@ function TorrentBox() {
         }
       }
     }
-    setRenameDialogOpen(false); // Close the rename dialog
+    setRenameTorrentDialogOpen(false); // Close the rename dialog
   };
 
 
@@ -531,7 +507,7 @@ function TorrentBox() {
                 toggleExpand={toggleExpand}
                 handleAction={handleAction}
                 handleRename={handleRename}
-                handleSoftDelete={handleSoftDelete}
+                handleSoftDelete={softDeleteTorrentSubFile}
             />
             <DownloadedSection
                 downloadedFiles={downloadedFiles}
@@ -543,13 +519,13 @@ function TorrentBox() {
       </main>
       <RenameDialog
           title="Rename Torrent"
-          open={renameDialogOpen}
-          onOpenChange={setRenameDialogOpen}
+          open={renameTorrentDialogOpen}
+          onOpenChange={setRenameTorrentDialogOpen}
           newName={newName}
           setNewName={setNewName}
           suggestions={suggestions}
           onConfirm={confirmRename}
-          onCancel={() => setRenameDialogOpen(false)}
+          onCancel={() => setRenameTorrentDialogOpen(false)}
       />
       <ConfirmDialog
           confirmDialogOpen={confirmTorrentActionDialogOpen}
