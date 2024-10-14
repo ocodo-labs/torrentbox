@@ -1,7 +1,7 @@
-import TorrentManager from "@/components/torrent-box";
+import TorrentBox from "@/components/torrent-box";
 
 export default function Home() {
   return (
-    <TorrentManager/>
+    <TorrentBox/>
   );
 }

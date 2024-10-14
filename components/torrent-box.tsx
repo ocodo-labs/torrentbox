@@ -166,12 +166,13 @@ const RenameDialog = ({
   setNewName,
   suggestions,
   onCancel,
-  onConfirm}) => {
+  onConfirm,
+  title}) => {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Rename Torrent</DialogTitle>
+            <DialogTitle>{title}</DialogTitle>
           </DialogHeader>
           <Input value={newName} onChange={(e) => setNewName(e.target.value)} />
           <Table>
@@ -203,6 +204,7 @@ const ConfirmDialog = ({
   executeAction,
   dontShowAgain,
   setDontShowAgain,
+  alertDescriptions,
 }) => {
   return (
     <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
@@ -213,18 +215,15 @@ const ConfirmDialog = ({
         <Alert>
           <AlertTitle>Are you sure?</AlertTitle>
           <AlertDescription>
-            {confirmAction === 'remove' && 'This will deactivate the torrent and remove it from the list. Downloaded files will be kept.'}
-            {confirmAction === 'delete' && 'This will delete the torrent completely.'}
-            {confirmAction === 'moveToTV' && 'This will move the torrent to the TV shows folder.'}
-            {confirmAction === 'moveToMovies' && 'This will move the torrent to the Movies folder.'}
+            {alertDescriptions[confirmAction]}
           </AlertDescription>
         </Alert>
         <div className="flex items-center space-x-2">
           <Checkbox
               id="dontShowAgain"
-              checked={dontShowAgain[confirmAction as ConfirmTorrentAction]}
+              checked={dontShowAgain[confirmAction]}
               onCheckedChange={(checked) =>
-                setDontShowAgain(prev => ({ ...prev, [confirmAction as ConfirmTorrentAction]: checked as boolean }))
+                setDontShowAgain(prev => ({ ...prev, [confirmAction]: checked as boolean }))
               }
           />
           <label
@@ -236,7 +235,7 @@ const ConfirmDialog = ({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setConfirmDialogOpen(false)}>Cancel</Button>
-          <Button variant="destructive" onClick={() => executeAction(confirmAction as ConfirmTorrentAction)}>Confirm</Button>
+          <Button variant="destructive" onClick={() => executeAction(confirmAction)}>Confirm</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -257,20 +256,22 @@ class SoftDeletedFile {
   }
 }
 
-function TorrentManagerComponent() {
+function TorrentBox() {
   const { theme, setTheme } = useTheme()
   const [torrents, setTorrents] = useState<Torrent[]>([])
   const [torrentSoftDeletedFiles, setTorrentSoftDeletedFiles] = useState<SoftDeletedFile[]>([])
   const [downloadedFiles, setDownloadedFiles] = useState<string[]>([])
   const [expandedTorrent, setExpandedTorrent] = useState<string | null>(null)
   const [renameDialogOpen, setRenameDialogOpen] = useState(false)
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const [confirmTorrentActionDialogOpen, setConfirmTorrentActionDialogOpen] = useState(false)
+  const [confirmDownloadedFileActionDialogOpen, setConfirmDownloadedFileActionDialogOpen] = useState(false)
   const [currentTorrent, setCurrentTorrent] = useState<Torrent | null>(null)
   const [currentTorrentFilename, setCurrentTorrentFilename] = useState<string | null>(null)
   const [currentDownloadedFile, setCurrentDownloadedFile] = useState<string | null>(null)
   const [newName, setNewName] = useState('')
   const [suggestions, setSuggestions] = useState<string[]>([])
-  const [confirmAction, setConfirmAction] = useState<ConfirmTorrentAction | null>(null)
+  const [confirmTorrentAction, setConfirmTorrentAction] = useState<ConfirmTorrentAction | null>(null)
+  const [confirmDownloadedFileAction, setConfirmDownloadedFileAction] = useState<ConfirmDownloadedFileAction | null>(null)
   const [connectionError, setConnectionError] = useState(false)
   const [isDemo, setIsDemo] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -345,12 +346,13 @@ function TorrentManagerComponent() {
     setRenameDialogOpen(true)
   }
 
+  const escapeName = (name: string):string => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const getTorrentSubFilename = (torrentName: string, filename:string):string => filename.replace(new RegExp(`^${torrentName}/`), '')
+
   const fetchTorrentSubFilenameSuggestions = async (torrent: Torrent, filename: string) => {
     const name = torrent.name
-    const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const suggestionFilename = filename.replace(new RegExp(`^${escapedName}/`), '')
-    console.log(`escaped name: ${escapedName}`)
-    console.log(`suggestion filename: ${suggestionFilename}`)
+    const escapedName = escapeName(name)
+    const suggestionFilename = getTorrentSubFilename(escapedName, filename)
     fetchSuggestions(suggestionFilename)
   }
 
@@ -378,6 +380,17 @@ function TorrentManagerComponent() {
     }
   }
 
+  const confirmTorrentActionDescriptions = {
+    'remove': 'This will deactivate the torrent and remove it from the list. Downloaded files will be kept.',
+    'delete': 'This will delete the torrent completely.',
+  }
+
+  const confirmDownloadedFileActionDescriptions = {
+    'filesDelete': 'Delete the downloaded files',
+    'filesMoveMovies': 'Move downloaded files to the Movies folder.',
+    'filesMoveTvshows': 'Move downloaded files to the TV shows folder.',
+  }
+
   const confirmRename = async () => {
     if (currentTorrent) {
       if (!isDemo) {
@@ -400,6 +413,13 @@ function TorrentManagerComponent() {
           if (!response.ok) {
             throw new Error('Network response was not ok');
           }
+
+          setCurrentDownloadedFile(null)
+          setCurrentTorrent(null)
+          setCurrentTorrentFilename(null)
+          setNewName('')
+          setSuggestions([])
+
           fetchTorrents(); // Fetch updated torrents
         } catch (error) {
           console.error('Error renaming torrent:', error);
@@ -421,20 +441,27 @@ function TorrentManagerComponent() {
   };
 
 
-  const handleAction = (item: Torrent | string, action: ConfirmTorrentAction) => {
+  const handleAction = (item: Torrent | string, action: ConfirmTorrentAction | ConfirmDownloadedFileAction) => {
     if (typeof item === 'string') {
       setCurrentDownloadedFile(item)
       setCurrentTorrent(null)
+      setConfirmDownloadedFileAction(action)
+      if (dontShowAgain[action]) {
+        executeDownloadedFileAction(action)
+      } else {
+        setConfirmDownloadedFileActionDialogOpen(true)
+      }
     } else {
       setCurrentTorrent(item)
       setCurrentDownloadedFile(null)
+      setConfirmTorrentAction(action)
+      if (dontShowAgain[action]) {
+        executeTorrentAction(action)
+      } else {
+        setConfirmTorrentActionDialogOpen(true)
+      }
     }
-    setConfirmAction(action)
-    if (dontShowAgain[action]) {
-      executeTorrentAction(action)
-    } else {
-      setConfirmDialogOpen(true)
-    }
+
   }
 
   const torrentActionRequest = async (action: ConfirmTorrentAction) => {
@@ -462,15 +489,16 @@ function TorrentManagerComponent() {
       }
       setTorrents(torrents.filter(t => t.id !== currentTorrent.id))
     }
-    setConfirmDialogOpen(false)
+    setConfirmTorrentActionDialogOpen(false)
   }
 
   const executeDownloadedFileAction = async (action: ConfirmDownloadedFileAction) => {
     if (currentDownloadedFile) {
-      const actionPath = action
+      if (!isDemo) {
+        const actionPath = action
 
-
-      setDownloadedFiles(downloadedFiles.filter(t => t !== currentDownloadedFile))
+        setDownloadedFiles(downloadedFiles.filter(t => t !== currentDownloadedFile))
+      }
     }
   }
 
@@ -491,47 +519,58 @@ function TorrentManagerComponent() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
-    <TorrentBoxHeading theme={theme} setTheme={setTheme} />
-    <main className="flex-grow p-4 overflow-auto">
-    {connectionError ? (
-      <DemoPanel tryAgain={fetchTorrents} startDemo={startDemo}/>
-    ) : (
-      <div className="space-y-8">
-        <TorrentsSection
-            torrents={torrents}
-            expandedTorrent={expandedTorrent}
-            toggleExpand={toggleExpand}
-            handleAction={handleAction}
-            handleRename={handleRename}
-            handleSoftDelete={handleSoftDelete}
-        />
-        <DownloadedSection
-            downloadedFiles={downloadedFiles}
-            handleAction={handleAction}
-            handleRename={handleRename}
-        />
-      </div>
-    )}
-    </main>
-    <RenameDialog
-        open={renameDialogOpen}
-        onOpenChange={setRenameDialogOpen}
-        newName={newName}
-        setNewName={setNewName}
-        suggestions={suggestions}
-        onConfirm={confirmRename}
-        onCancel={() => setRenameDialogOpen(false)}
-    />
-    <ConfirmDialog
-        confirmDialogOpen={confirmDialogOpen}
-        setConfirmDialogOpen={setConfirmDialogOpen}
-        confirmAction={confirmAction}
-        executeAction={executeTorrentAction}
-        dontShowAgain={dontShowAgain}
-        setDontShowAgain={setDontShowAgain}
-    />
+      <TorrentBoxHeading theme={theme} setTheme={setTheme} />
+      <main className="flex-grow p-4 overflow-auto">
+        {connectionError ? (
+          <DemoPanel tryAgain={fetchTorrents} startDemo={startDemo}/>
+        ) : (
+          <div className="space-y-8">
+            <TorrentsSection
+                torrents={torrents}
+                expandedTorrent={expandedTorrent}
+                toggleExpand={toggleExpand}
+                handleAction={handleAction}
+                handleRename={handleRename}
+                handleSoftDelete={handleSoftDelete}
+            />
+            <DownloadedSection
+                downloadedFiles={downloadedFiles}
+                handleAction={handleAction}
+                handleRename={handleRename}
+            />
+          </div>
+        )}
+      </main>
+      <RenameDialog
+          title="Rename Torrent"
+          open={renameDialogOpen}
+          onOpenChange={setRenameDialogOpen}
+          newName={newName}
+          setNewName={setNewName}
+          suggestions={suggestions}
+          onConfirm={confirmRename}
+          onCancel={() => setRenameDialogOpen(false)}
+      />
+      <ConfirmDialog
+          confirmDialogOpen={confirmTorrentActionDialogOpen}
+          setConfirmDialogOpen={setConfirmTorrentActionDialogOpen}
+          confirmAction={confirmTorrentAction}
+          executeAction={executeTorrentAction}
+          dontShowAgain={dontShowAgain}
+          setDontShowAgain={setDontShowAgain}
+          alertDescriptions={confirmTorrentActionDescriptions}
+      />
+      <ConfirmDialog
+          confirmDialogOpen={confirmDownloadedFileActionDialogOpen}
+          setConfirmDialogOpen={setConfirmDownloadedFileActionDialogOpen}
+          confirmAction={confirmDownloadedFileAction}
+          executeAction={executeDownloadedFileAction}
+          dontShowAgain={dontShowAgain}
+          setDontShowAgain={setDontShowAgain}
+          alertDescriptions={confirmDownloadedFileActionDescriptions}
+      />
     </div>
   )
 }
 
-export default TorrentManagerComponent
+export default TorrentBox
