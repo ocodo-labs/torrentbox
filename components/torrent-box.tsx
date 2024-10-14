@@ -15,89 +15,9 @@ import { DemoPanel } from '@/components/demo-panel'
 import { Torrent, TorrentData } from '@/types/torrent'
 import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from '@/types/actions'
 import { RenameDialog } from '@/components/rename-dialog'
-
-interface TorrentBoxHeadingProps {
-  setTheme: (theme: string) => void
-  theme?: string | null
-}
-
-function TorrentBoxHeading(props: TorrentBoxHeadingProps) {
-  const { setTheme, theme } = props
-
-  return (
-    <header className="flex items-center justify-between p-4 border-b">
-      <Button variant="ghost" size="icon" className="md:hidden">
-        <Menu className="h-6 w-6" />
-      </Button>
-      <h1 className="text-xl md:text-2xl font-bold">Torrent Box</h1>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-      >
-        {theme === 'light' ? <Moon className="h-6 w-6" /> : <Sun className="h-6 w-6" />}
-      </Button>
-    </header>
-  )
-}
-
-interface DownloadedSectionProps {
-  downloadedFiles: string[]
-  handleRename: (item: Torrent | string, filename?: string) => void
-  handleAction: (torrent: Torrent | string, action: ConfirmTorrentAction | ConfirmDownloadedFileAction) => void
-}
-
-function DownloadedSection(props: DownloadedSectionProps) {
-  const { downloadedFiles, handleRename, handleAction } = props
-
-  return (
-    <section>
-      <h2 className="text-xl font-semibold mb-4">Downloaded</h2>
-      <div className="space-y-4">
-        {downloadedFiles.map((file: string, index: number) => (
-          <div key={index} className="p-4 border rounded-lg">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
-              <h3 className="text-lg font-semibold mb-2 sm:mb-0">{file}</h3>
-              <div className="flex space-x-2">
-                <Button variant="ghost" size="icon" onClick={() => handleRename(file)}>
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={() => handleAction(file, 'files/move/tvshows')}>
-                  <Tv className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={() => handleAction(file, 'files/move/movies')}>
-                  <Film className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={() => handleAction(file, 'files/delete')}>
-                  <Trash className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  )
-}
-
-const TorrentFileRow = ({ torrent, filename, downloaded, size, handleRename, handleSoftDelete }) => {
-  return (
-    <TableRow>
-      <TableCell className="font-medium">
-        {filename}
-        <Progress value={(downloaded / size) * 100} className="w-full" />
-      </TableCell>
-      <TableCell>
-        <Button variant="ghost" size="icon" onClick={() => handleRename(torrent, filename)}>
-          <Edit className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon" onClick={() => handleSoftDelete(torrent, filename)}>
-          <Trash className="h-4 w-4" />
-        </Button>
-      </TableCell>
-    </TableRow>
-  )
-}
+import { TorrentBoxHeading } from '@/components/torrent-box-header'
+import { TorrentFileRow } from '@/components/torrent-file-row'
+import { DownloadedSection } from './downloaded-section'
 
 interface TorrentsSectionProps {
   torrents: Torrent[]
