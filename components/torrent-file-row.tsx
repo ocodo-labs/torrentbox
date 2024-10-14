@@ -3,7 +3,15 @@ import { Edit, Trash } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { TableRow, TableCell } from "@/components/ui/table"
 
-const TorrentFileRow = ({ torrent, filename, downloaded, size, handleRename, handleSoftDelete }) => {
+const TorrentFileRow = (props) => {
+  const {
+    filename,
+    size,
+    downloaded,
+    handleRename,
+    handleSoftDelete,
+    torrent,
+  } = props
   return (
     <TableRow>
       <TableCell className="font-medium">
