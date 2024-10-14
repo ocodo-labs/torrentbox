@@ -7,16 +7,23 @@ import { Menu, Sun, Moon, Edit, Trash, X, ChevronDown, ChevronUp, Tv, Film } fro
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell,  TableRow } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Checkbox } from "@/components/ui/checkbox"
 import { generateFakeDownloaded, generateFakeSuggestions, generateFakeTorrents } from '@/demo/fake'
 import { DemoPanel } from '@/components/demo-panel'
 import { Torrent, TorrentData } from '@/types/torrent'
 import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from '@/types/actions'
+import { RenameDialog } from '@/components/rename-dialog'
 
-function TorrentBoxHeading({setTheme, theme}) {
+interface TorrentBoxHeadingProps {
+  setTheme: (theme: string) => void
+  theme?: string | null
+}
+
+function TorrentBoxHeading(props: TorrentBoxHeadingProps) {
+  const { setTheme, theme } = props
+
   return (
     <header className="flex items-center justify-between p-4 border-b">
       <Button variant="ghost" size="icon" className="md:hidden">
@@ -24,9 +31,9 @@ function TorrentBoxHeading({setTheme, theme}) {
       </Button>
       <h1 className="text-xl md:text-2xl font-bold">Torrent Box</h1>
       <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+        variant="ghost"
+        size="icon"
+        onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
       >
         {theme === 'light' ? <Moon className="h-6 w-6" /> : <Sun className="h-6 w-6" />}
       </Button>
@@ -34,7 +41,15 @@ function TorrentBoxHeading({setTheme, theme}) {
   )
 }
 
-function DownloadedSection({downloadedFiles, handleRename, handleAction}) {
+interface DownloadedSectionProps {
+  downloadedFiles: string[]
+  handleRename: (item: Torrent | string, filename?: string) => void
+  handleAction: (torrent: Torrent | string, action: ConfirmTorrentAction | ConfirmDownloadedFileAction) => void
+}
+
+function DownloadedSection(props: DownloadedSectionProps) {
+  const { downloadedFiles, handleRename, handleAction } = props
+
   return (
     <section>
       <h2 className="text-xl font-semibold mb-4">Downloaded</h2>
@@ -65,16 +80,45 @@ function DownloadedSection({downloadedFiles, handleRename, handleAction}) {
   )
 }
 
-const TorrentsSection = ({
-  torrents,
-  expandedTorrent,
-  toggleExpand,
-  handleAction,
-  handleRename,
-  handleSoftDelete,
-  softDeletedTorrentFiles,
-  isSoftDeletedFn,
-}) => {
+const TorrentFileRow = ({ torrent, filename, downloaded, size, handleRename, handleSoftDelete }) => {
+  return (
+    <TableRow>
+      <TableCell className="font-medium">
+        {filename}
+        <Progress value={(downloaded / size) * 100} className="w-full" />
+      </TableCell>
+      <TableCell>
+        <Button variant="ghost" size="icon" onClick={() => handleRename(torrent, filename)}>
+          <Edit className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon" onClick={() => handleSoftDelete(torrent, filename)}>
+          <Trash className="h-4 w-4" />
+        </Button>
+      </TableCell>
+    </TableRow>
+  )
+}
+
+interface TorrentsSectionProps {
+  torrents: Torrent[]
+  expandedTorrent: string
+  toggleExpand: (id: string) => void
+  handleAction: (item: Torrent | string, action: ConfirmTorrentAction | ConfirmDownloadedFileAction) => void
+  handleRename: (item: Torrent | string, filename?: string) => void
+  handleSoftDelete: (torrent: Torrent, filename: string) => void
+  softDeletedTorrentFiles: SoftDeletedFile[]
+  isSoftDeletedFn: (torrentId: string, index: number) => boolean
+}
+
+const TorrentsSection = (props: TorrentsSectionProps) => {
+  const {
+    torrents,
+    expandedTorrent,
+    toggleExpand,
+    handleAction,
+    handleRename,
+    handleSoftDelete,
+    isSoftDeletedFn } = props
   return (
     <section>
       <h2 className="text-xl font-semibold mb-4">Torrents</h2>
@@ -104,23 +148,18 @@ const TorrentsSection = ({
                 <Table>
                   <TableBody>
                     {torrent.files
-                            .filter((_, index) => !isSoftDeletedFn(torrent.id, index))
-                            .map(([filename, size, downloaded], index) => (
-                              <TableRow key={index}>
-                                <TableCell className="font-medium">
-                                  {filename}
-                                  <Progress value={(downloaded / size) * 100} className="w-full" />
-                                </TableCell>
-                                <TableCell>
-                                  <Button variant="ghost" size="icon" onClick={() => handleRename(torrent, filename)}>
-                                    <Edit className="h-4 w-4" />
-                                  </Button>
-                                  <Button variant="ghost" size="icon" onClick={() => handleSoftDelete(torrent, filename)}>
-                                    <Trash className="h-4 w-4" />
-                                  </Button>
-                                </TableCell>
-                              </TableRow>
-                    ))}
+                      .filter((_, index) => !isSoftDeletedFn(torrent.id, index))
+                      .map(([filename, size, downloaded], index) => (
+                        <TorrentFileRow
+                          key={index}
+                          torrent={torrent}
+                          filename={filename}
+                          size={size}
+                          downloaded={downloaded}
+                          handleRename={handleRename}
+                          handleSoftDelete={handleSoftDelete}
+                        />
+                      ))}
                   </TableBody>
                 </Table>
               </div>
@@ -132,53 +171,26 @@ const TorrentsSection = ({
   )
 }
 
-const RenameDialog = ({
-  open,
-  onOpenChange,
-  newName,
-  setNewName,
-  suggestions,
-  onCancel,
-  onConfirm,
-  title}) => {
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{title}</DialogTitle>
-          </DialogHeader>
-          <Input value={newName} onChange={(e) => setNewName(e.target.value)} />
-          <Table>
-            <TableBody>
-              {suggestions.map((suggestion, index) => (
-                <TableRow key={index} className={index % 2 === 0 ? 'bg-muted' : ''}>
-                  <TableCell>
-                    <Button variant="ghost" onClick={() => setNewName(suggestion)}>
-                      {suggestion}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <DialogFooter>
-            <Button variant="outline" onClick={onCancel}>Cancel</Button>
-            <Button onClick={onConfirm}>Rename</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    )
-  }
+interface ConfirmDialogProps {
+  confirmDialogOpen: boolean
+  setConfirmDialogOpen: (value: boolean) => void
+  confirmAction: string
+  executeAction: () => void
+  dontShowAgain: { [key: string]: boolean }
+  setDontShowAgain: (value: { [key: string]: boolean }) => void
+  alertDescriptions: { [key: string]: string[] }
+}
 
-const ConfirmDialog = ({
-  confirmDialogOpen,
-  setConfirmDialogOpen,
-  confirmAction,
-  executeAction,
-  dontShowAgain,
-  setDontShowAgain,
-  alertDescriptions,
-}) => {
+const ConfirmDialog = (props: ConfirmDialogProps) => {
+  const { confirmDialogOpen,
+    setConfirmDialogOpen,
+    confirmAction,
+    executeAction,
+    dontShowAgain,
+    setDontShowAgain,
+    alertDescriptions,
+  } = props
+
   return (
     <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
       <DialogContent >
@@ -193,15 +205,15 @@ const ConfirmDialog = ({
         </Alert>
         <div className="flex items-center space-x-2">
           <Checkbox
-              id="dontShowAgain"
-              checked={dontShowAgain[confirmAction]}
-              onCheckedChange={(checked) =>
-                setDontShowAgain(prev => ({ ...prev, [confirmAction]: checked as boolean }))
-              }
+            id="dontShowAgain"
+            checked={dontShowAgain[confirmAction]}
+            onCheckedChange={(checked) =>
+              setDontShowAgain((prev: { [key: string]: boolean }) => ({ ...prev, [confirmAction]: checked as boolean }))
+            }
           />
           <label
-              htmlFor="dontShowAgain"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            htmlFor="dontShowAgain"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
             Don't show this again for {confirmAction}
           </label>
@@ -248,7 +260,7 @@ function TorrentBox() {
   const [connectionError, setConnectionError] = useState(false)
   const [isDemo, setIsDemo] = useState(false)
   const [mounted, setMounted] = useState(false)
-  const [dontShowAgain, setDontShowAgain] = useLocalStorage('dont-show-confirm-again' , {
+  const [dontShowAgain, setDontShowAgain] = useLocalStorage('dont-show-confirm-again', {
     'remove': false,
     'delete': false,
     'files/delete': false,
@@ -271,10 +283,12 @@ function TorrentBox() {
   const fetchTorrents = async () => {
     try {
       const response = await fetch(
-        'http://helios:5000/torrents/active', 
-        {headers: {
-          "Content-Type": "application/json"
-        }}
+        'http://helios:5000/torrents/active',
+        {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
       )
       if (!response.ok) {
         throw new Error('Network response was not ok')
@@ -289,15 +303,25 @@ function TorrentBox() {
     }
   }
 
-  const isSoftDeleted = (hash:string, index:number) => torrentSoftDeletedFiles.findIndex(e => e.torrent == hash && e.fileIndex == index) != -1
+  const isSoftDeleted = (hash: string, index: number) => torrentSoftDeletedFiles.findIndex((e: SoftDeletedFile) => e.torrent == hash && e.fileIndex == index) != -1
 
   const softDeleteTorrentSubFile = (torrent: Torrent, filename: string) => {
-    const index = torrent.files.findIndex(f => f[0] == filename )
+    const index = torrent.files.findIndex(f => f[0] == filename)
     const hash = torrent.id
 
     if (!isSoftDeleted(hash, index)) {
       setTorrentSoftDeletedFiles([...torrentSoftDeletedFiles, new SoftDeletedFile(hash, index)])
     }
+  }
+
+  const getTorrentSoftDeletedFiles = (torrent: Torrent) => {
+    const torrentName = torrent.name
+    const indexes = torrentSoftDeletedFiles.
+      filter((e: SoftDeletedFile) => e.torrent == torrent.id).
+      map((e: SoftDeletedFile) => e.fileIndex)
+    const files = torrent.files.
+      filter((e, index) => indexes.indexOf(index) == -1).
+      map((e) => e[0])
   }
 
   const handleRenameTorrent = (item: Torrent, filename?: string) => {
@@ -341,8 +365,8 @@ function TorrentBox() {
     }
   }
 
-  const escapeName = (name: string):string => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const getTorrentSubFilename = (torrentName: string, filename:string):string => filename.replace(new RegExp(`^${torrentName}/`), '')
+  const escapeName = (name: string): string => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const getTorrentSubFilename = (torrentName: string, filename: string): string => filename.replace(new RegExp(`^${torrentName}/`), '')
 
   const fetchTorrentSubFilenameSuggestions = async (torrent: Torrent, filename: string) => {
     const name = torrent.name
@@ -400,7 +424,7 @@ function TorrentBox() {
     if (currentTorrent) {
       if (!isDemo) {
         const filename = currentTorrentFilename ||
-                         currentTorrent?.name
+          currentTorrent?.name
 
         const payload = {
           filename,
@@ -468,7 +492,7 @@ function TorrentBox() {
   }
 
   const torrentActionRequest = async (action: ConfirmTorrentAction) => {
-    if(currentTorrent) {
+    if (currentTorrent) {
       try {
         const torrent_id = currentTorrent.id
         const response = await fetch(
@@ -486,7 +510,7 @@ function TorrentBox() {
   }
 
   const downloadedFilesActionRequest = async (action: ConfirmDownloadedFileAction) => {
-    if(currentDownloadedFile) {
+    if (currentDownloadedFile) {
       try {
         const response = await fetch(
           `http://helios:5000/torrents/${action}?filename=${currentDownloadedFile}`,
@@ -501,10 +525,16 @@ function TorrentBox() {
       }
     }
   }
-  
+
   const executeTorrentAction = async (action: ConfirmTorrentAction) => {
     if (currentTorrent) {
       if (!isDemo) {
+        if (action == 'remove') {
+          // Collect named of soft-deleted files
+          const { torrent_name, files } = getTorrentSoftDeletedFiles(currentTorrent)
+          // Delete soft-deleted files as downloaded files
+          // accept filenames list with parent (torrent name)
+        }
         torrentActionRequest(action)
       }
       setTorrents(torrents.filter(t => t.id !== currentTorrent.id))
@@ -543,54 +573,53 @@ function TorrentBox() {
       <TorrentBoxHeading theme={theme} setTheme={setTheme} />
       <main className="flex-grow p-4 overflow-auto">
         {connectionError ? (
-          <DemoPanel tryAgain={fetchTorrents} startDemo={startDemo}/>
+          <DemoPanel tryAgain={fetchTorrents} startDemo={startDemo} />
         ) : (
           <div className="space-y-8">
             <TorrentsSection
-                torrents={torrents}
-                expandedTorrent={expandedTorrent}
-                toggleExpand={toggleExpand}
-                handleAction={handleAction}
-                handleRename={handleRename}
-                handleSoftDelete={softDeleteTorrentSubFile}
-                softDeletedTorrentFiles={torrentSoftDeletedFiles}
-                isSoftDeletedFn={isSoftDeleted}
+              torrents={torrents}
+              expandedTorrent={expandedTorrent}
+              toggleExpand={toggleExpand}
+              handleAction={handleAction}
+              handleRename={handleRename}
+              handleSoftDelete={softDeleteTorrentSubFile}
+              isSoftDeletedFn={isSoftDeleted}
             />
             <DownloadedSection
-                downloadedFiles={downloadedFiles}
-                handleAction={handleAction}
-                handleRename={handleRename}
+              downloadedFiles={downloadedFiles}
+              handleAction={handleAction}
+              handleRename={handleRename}
             />
           </div>
         )}
       </main>
       <RenameDialog
-          title="Rename Torrent"
-          open={renameTorrentDialogOpen}
-          onOpenChange={setRenameTorrentDialogOpen}
-          newName={newName}
-          setNewName={setNewName}
-          suggestions={suggestions}
-          onConfirm={confirmRename}
-          onCancel={() => setRenameTorrentDialogOpen(false)}
+        title="Rename Torrent"
+        open={renameTorrentDialogOpen}
+        onOpenChange={setRenameTorrentDialogOpen}
+        newName={newName}
+        setNewName={setNewName}
+        suggestions={suggestions}
+        onConfirm={confirmRename}
+        onCancel={() => setRenameTorrentDialogOpen(false)}
       />
       <ConfirmDialog
-          confirmDialogOpen={confirmTorrentActionDialogOpen}
-          setConfirmDialogOpen={setConfirmTorrentActionDialogOpen}
-          confirmAction={confirmTorrentAction}
-          executeAction={executeTorrentAction}
-          dontShowAgain={dontShowAgain}
-          setDontShowAgain={setDontShowAgain}
-          alertDescriptions={confirmTorrentActionDescriptions}
+        confirmDialogOpen={confirmTorrentActionDialogOpen}
+        setConfirmDialogOpen={setConfirmTorrentActionDialogOpen}
+        confirmAction={confirmTorrentAction}
+        executeAction={executeTorrentAction}
+        dontShowAgain={dontShowAgain}
+        setDontShowAgain={setDontShowAgain}
+        alertDescriptions={confirmTorrentActionDescriptions}
       />
       <ConfirmDialog
-          confirmDialogOpen={confirmDownloadedFileActionDialogOpen}
-          setConfirmDialogOpen={setConfirmDownloadedFileActionDialogOpen}
-          confirmAction={confirmDownloadedFileAction}
-          executeAction={executeDownloadedFileAction}
-          dontShowAgain={dontShowAgain}
-          setDontShowAgain={setDontShowAgain}
-          alertDescriptions={confirmDownloadedFileActionDescriptions}
+        confirmDialogOpen={confirmDownloadedFileActionDialogOpen}
+        setConfirmDialogOpen={setConfirmDownloadedFileActionDialogOpen}
+        confirmAction={confirmDownloadedFileAction}
+        executeAction={executeDownloadedFileAction}
+        dontShowAgain={dontShowAgain}
+        setDontShowAgain={setDontShowAgain}
+        alertDescriptions={confirmDownloadedFileActionDescriptions}
       />
     </div>
   )
