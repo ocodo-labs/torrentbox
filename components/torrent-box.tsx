@@ -46,7 +46,13 @@ function DownloadedSection({downloadedFiles, handleRename, handleAction}) {
                 <Button variant="ghost" size="icon" onClick={() => handleRename(file)}>
                   <Edit className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" onClick={() => handleAction(file, 'delete')}>
+                <Button variant="ghost" size="icon" onClick={() => handleAction(file, 'files/move/tvshows')}>
+                  <Tv className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => handleAction(file, 'files/move/movies')}>
+                  <Film className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => handleAction(file, 'files/delete')}>
                   <Trash className="h-4 w-4" />
                 </Button>
               </div>
@@ -362,9 +368,9 @@ function TorrentBox() {
   }
 
   const confirmDownloadedFileActionDescriptions = {
-    'filesDelete': 'Delete the downloaded files',
-    'filesMoveMovies': 'Move downloaded files to the Movies folder.',
-    'filesMoveTvshows': 'Move downloaded files to the TV shows folder.',
+    'files/delete': 'Delete the downloaded files',
+    'files/move/movies': 'Move downloaded files to the Movies folder.',
+    'files/move/tvshows': 'Move downloaded files to the TV shows folder.',
   }
 
   const confirmRename = async () => {
@@ -415,7 +421,6 @@ function TorrentBox() {
     }
     setRenameTorrentDialogOpen(false); // Close the rename dialog
   };
-
 
   const handleAction = (item: Torrent | string, action: ConfirmTorrentAction | ConfirmDownloadedFileAction) => {
     if (typeof item === 'string') {
