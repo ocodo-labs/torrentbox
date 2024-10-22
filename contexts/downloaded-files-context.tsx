@@ -2,9 +2,8 @@ import React, { createContext, useState, useEffect, ReactNode } from 'react';
 
 // Define the shape of a downloaded file
 interface DownloadedFile {
-    id: string;
-    name: string;
     path: string;
+    mtime: number;
 }
 
 // Define the shape of the context state
@@ -13,8 +12,8 @@ interface DownloadedFilesContextType {
     loading: boolean;
     errors: string[];
     clearErrors: () => void;
-    deleteFile: (fileId: string) => Promise<void>;
-    renameFile: (fileId: string, newName: string) => Promise<void>;
+    deleteFile: (fileName: string) => Promise<void>;
+    renameFile: (fileName: string, newName: string) => Promise<void>;
     moveFile: (fileId: string, targetPath: string) => Promise<void>;
 }
 
@@ -55,8 +54,9 @@ const DownloadedFilesProvider: React.FC<DownloadedFilesProviderProps> = ({ child
     const deleteFile = async (fileId: string) => {
         setLoading(true);
         try {
-            const response = await fetch(`${API_URL}/${fileId}`, {
+            const response = await fetch(`${API_URL}`, {
                 method: 'DELETE',
+                body: JSON.stringify({name: fileId})
             });
             if (!response.ok) {
                 const errorMsg = await response.text();
@@ -75,7 +75,7 @@ const DownloadedFilesProvider: React.FC<DownloadedFilesProviderProps> = ({ child
     const renameFile = async (fileId: string, newName: string) => {
         setLoading(true);
         try {
-            const response = await fetch(`${API_URL}/${fileId}`, {
+            const response = await fetch(`${API_URL}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -127,6 +127,7 @@ const DownloadedFilesProvider: React.FC<DownloadedFilesProviderProps> = ({ child
     return (
         <DownloadedFilesContext.Provider value={{
             files,
+            fetchFiles,
             loading,
             errors,
             clearErrors,
