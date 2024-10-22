@@ -11,6 +11,7 @@ interface DownloadedFilesContextType {
     files: DownloadedFile[];
     loading: boolean;
     errors: string[];
+    fetchFiles: () => Promise<void>;
     clearErrors: () => void;
     deleteFile: (fileName: string) => Promise<void>;
     renameFile: (fileName: string, newName: string) => Promise<void>;
