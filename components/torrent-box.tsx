@@ -2,10 +2,14 @@
 
 import { generateFakeTorrents, generateFakeDownloaded, generateFakeSuggestions } from "@/demo/fake"
 import { useLocalStorage } from "@/lib/use-local-storage"
-import { ConfirmTorrentAction, ConfirmDownloadedFileAction } from "@/types/actions"
-import { Torrent, TorrentData } from "@/types/torrent"
 import { useTheme } from "next-themes"
 import { useState, useEffect } from "react"
+
+import { serverBaseUrl } from "@/app/config"
+
+import { ConfirmTorrentAction, ConfirmDownloadedFileAction } from "@/types/actions"
+import { Torrent, TorrentData } from "@/types/torrent"
+
 import { ConfirmDialog } from "./confirm-dialog"
 import { DemoPanel } from "./demo-panel"
 import { DownloadedSection } from "./downloaded-section"
@@ -55,7 +59,7 @@ function TorrentBox() {
   const fetchTorrents = async () => {
     try {
       const response = await fetch(
-        'http://helios:5000/torrents/active',
+        `${serverBaseUrl}/torrents/active`,
         {
           headers: {
             "Content-Type": "application/json"
@@ -153,7 +157,7 @@ function TorrentBox() {
     setNewName(filename)
     try {
       const response = await fetch(
-        `http://helios:5000/torrents/suggest_names`,
+        `${serverBaseUrl}/torrents/suggest_names`,
         {
           method: 'POST',
           body: JSON.stringify({ filename: filename }),
@@ -207,11 +211,14 @@ function TorrentBox() {
         }
 
         try {
-          const response = await fetch('http://helios:5000/torrents/active/rename', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-          });
+          const response = await fetch(
+            `${serverBaseUrl}/torrents/active/rename`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            }
+          );
 
           if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -270,7 +277,7 @@ function TorrentBox() {
       try {
         const torrent_id = currentTorrent.id
         const response = await fetch(
-          `http://helios:5000/torrents/active/${action}?torrent_id=${torrent_id}`,
+          `${serverBaseUrl}/torrents/active/${action}?torrent_id=${torrent_id}`,
           { headers: { 'Content-Type': 'application/json' } })
 
         if (!response.ok) {
@@ -287,7 +294,7 @@ function TorrentBox() {
     if (currentDownloadedFile) {
       try {
         const response = await fetch(
-          `http://helios:5000/torrents/${action}?filename=${currentDownloadedFile}`,
+          `${serverBaseUrl}/torrents/${action}?filename=${currentDownloadedFile}`,
           { headers: { 'Content-Type': 'application/json' } })
 
         if (!response.ok) {
