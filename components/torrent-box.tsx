@@ -36,6 +36,7 @@ function TorrentBox() {
   const [connectionError, setConnectionError] = useState(false)
   const [isDemo, setIsDemo] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [suggestionsLLMOnline, setSuggestionsLLMOnline] = useState(false)
   const [dontShowAgain, setDontShowAgain] = useLocalStorage('dont-show-confirm-again', {
     'remove': false,
     'delete': false,
@@ -57,6 +58,7 @@ function TorrentBox() {
   }, [isDemo])
 
   const fetchTorrents = async () => {
+    fetchSuggestNamesStatus()
     try {
       const response = await fetch(
         `${serverBaseUrl}/torrents/active`,
@@ -145,6 +147,11 @@ function TorrentBox() {
 
   const escapeName = (name: string): string => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const getTorrentSubFilename = (torrentName: string, filename: string): string => filename.replace(new RegExp(`^${torrentName}/`), '')
+
+  const fetchSuggestNamesStatus = async () => {
+    const response = await fetch(`${serverBaseUrl}/torrents/suggest_names/status`)
+    setSuggestionsLLMOnline(response.status == 200)
+  }
 
   const fetchTorrentSubFilenameSuggestions = async (torrent: Torrent, filename: string) => {
     const name = torrent.name
@@ -382,8 +389,12 @@ function TorrentBox() {
         newName={newName}
         setNewName={setNewName}
         suggestions={suggestions}
+        suggestionsServiceOnline={suggestionsLLMOnline}
         onConfirm={confirmRename}
-        onCancel={() => setRenameTorrentDialogOpen(false)}
+        onCancel={() => {
+          setSuggestions([])
+          setRenameTorrentDialogOpen(false)
+        }}
       />
 
       <ConfirmDialog

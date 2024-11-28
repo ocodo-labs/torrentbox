@@ -2,6 +2,7 @@ import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from '
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableRow, TableCell } from '@/components/ui/table'
+import { IndeterminateProgress } from '@/components/indeterminate-progress'
 
 interface RenameDialogProps {
   open: boolean
@@ -9,6 +10,7 @@ interface RenameDialogProps {
   newName: string
   setNewName: (value: string | null) => void
   suggestions: string[]
+  suggestionsServiceOnline: boolean
   onCancel?: () => void
   onConfirm?: () => void
   title: string
@@ -19,6 +21,7 @@ const RenameDialog = (props: RenameDialogProps) => {
     onOpenChange,
     newName,
     setNewName,
+    suggestionsServiceOnline,
     suggestions,
     onCancel,
     onConfirm,
@@ -28,11 +31,12 @@ const RenameDialog = (props: RenameDialogProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle>{title}{suggestionsServiceOnline ? " (AI Suggestions Available)":""}</DialogTitle>
         </DialogHeader>
         <Input value={newName} onChange={(e) => setNewName(e.target.value)} />
         <Table>
           <TableBody>
+            {suggestionsServiceOnline && suggestions.length == 0 ? (<IndeterminateProgress />) : ""}
             {suggestions.map((suggestion, index) => (
               <TableRow key={index} className={index % 2 === 0 ? 'bg-muted' : ''}>
                 <TableCell>
