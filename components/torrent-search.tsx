@@ -1,9 +1,9 @@
 import { useState } from "react"
-import { Input } from "./ui/input"
-import { Button } from "./ui/button"
-import { serverBaseUrl } from "@/app/config"
-import { Table, TableBody, TableCell, TableRow } from "./ui/table"
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { Download } from "lucide-react"
+import { serverBaseUrl } from "@/app/config"
 
 interface TorrentSearchResult {
     magnet_link: string
@@ -18,8 +18,10 @@ function TorrentSearchResultRow(props: TorrentSearchResult) {
         seeds,
     } = props
 
-    function addedMagnet() {
-        console.log('added magnet')
+    function addedTorrent() {
+        console.log('added torrent to transmission')
+        const sound = new Audio("/sounds/ding.mp3")
+        sound.play()
     }
 
     async function getTorrentMagnet(magnet_link: string) {
@@ -34,7 +36,7 @@ function TorrentSearchResultRow(props: TorrentSearchResult) {
             })
         })
         if (response.status == 200) {
-            addedMagnet()
+            addedTorrent()
         } else {
             console.error('TorrentBox: Failed to add magnet link from search')
         }
@@ -86,7 +88,12 @@ function TorrentSearch() {
                     <div className="mt-4 overflow-x-auto">
                         <Table>
                             <TableBody>
-                                {searchResults.map((row) => TorrentSearchResultRow(row))}
+                                {
+                                    searchResults
+                                        .map(
+                                            (row: TorrentSearchResult) => (<TorrentSearchResultRow {...row} />)
+                                        )
+                                }
                             </TableBody>
                         </Table>
                     </div>
