@@ -16,6 +16,7 @@ import { DownloadedSection } from "./downloaded-section"
 import { RenameDialog } from "./rename-dialog"
 import { TorrentBoxHeading } from "./torrent-box-header"
 import { TorrentsSection } from "./torrent-section"
+import { TorrentSearch } from "./torrent-search"
 
 function TorrentBox() {
   const { theme, setTheme } = useTheme()
@@ -49,7 +50,7 @@ function TorrentBox() {
     setMounted(true)
     if (!isDemo) {
       fetchTorrents()
-      const id = setInterval(fetchTorrents, 3000);
+      const id = setInterval(fetchTorrents, 1000);
       return () => clearInterval(id);
     } else {
       setTorrents(generateFakeTorrents())
@@ -364,6 +365,7 @@ function TorrentBox() {
           <DemoPanel tryAgain={fetchTorrents} startDemo={startDemo} />
         ) : (
           <div className="space-y-8">
+            <TorrentSearch/>
             <TorrentsSection
               torrents={torrents}
               expandedTorrent={expandedTorrent}

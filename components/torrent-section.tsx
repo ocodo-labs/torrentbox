@@ -8,15 +8,14 @@ import { TorrentFileRow } from "@/components/torrent-file-row"
 
 interface TorrentsSectionProps {
     torrents: Torrent[]
-    expandedTorrent: string
+    expandedTorrent: string | null
     toggleExpand: (id: string) => void
     handleAction: (item: Torrent | string, action: ConfirmTorrentAction | ConfirmDownloadedFileAction) => void
     handleRename: (item: Torrent | string, filename?: string) => void
     handleSoftDelete: (torrent: Torrent, filename: string) => void
-    softDeletedTorrentFiles: SoftDeletedFile[]
     isSoftDeletedFn: (torrentId: string, index: number) => boolean
   }
-  
+
   const TorrentsSection = (props: TorrentsSectionProps) => {
     const {
       torrents,
