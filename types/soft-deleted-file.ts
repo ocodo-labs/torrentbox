@@ -11,3 +11,5 @@ class SoftDeletedFile {
     return this.torrent == torrent && this.fileIndex == fileIndex
   }
 }
+
+export { SoftDeletedFile }

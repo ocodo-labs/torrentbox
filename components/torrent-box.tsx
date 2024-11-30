@@ -9,6 +9,7 @@ import { serverBaseUrl } from "@/app/config"
 
 import { ConfirmTorrentAction, ConfirmDownloadedFileAction } from "@/types/actions"
 import { Torrent, TorrentData } from "@/types/torrent"
+import { SoftDeletedFile } from "@/types/soft-deleted-file"
 
 import { ConfirmDialog } from "./confirm-dialog"
 import { DemoPanel } from "./demo-panel"
@@ -319,10 +320,12 @@ function TorrentBox() {
     if (currentTorrent) {
       if (!isDemo) {
         if (action == 'remove') {
-          // Collect named of soft-deleted files
-          const { torrent_name, files } = getTorrentSoftDeletedFiles(currentTorrent)
-          // Delete soft-deleted files as downloaded files
-          // accept filenames list with parent (torrent name)
+          const files = getTorrentSoftDeletedFiles(currentTorrent)
+          console.log("Torrent Soft Deleted Files:")
+          console.log(currentTorrent.name)
+          console.log(currentTorrent.id)
+          console.log(currentTorrent.softDeleted)
+          console.log(files)
         }
         torrentActionRequest(action)
       }
