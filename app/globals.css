@@ -73,22 +73,18 @@
   }
 }
 
-.suggestions-loading:indeterminate {
-  width: 90%;
-  height: 20px;
-}
-
-.indeterminate-progress-bar {
+.indeterminateProgressBar {
   height: 4px;
-  background-color: #09A4;
+  background-color: #09A1;
   width: 100%;
   overflow: hidden;
 }
 
-.indeterminate-progress-bar-value {
+.indeterminateProgressBarValue {
   width: 100%;
   height: 100%;
   background-color: #09A;
+  box-shadow: inset 0 0 3px 3px #FFF4;
   animation: indeterminateAnimation 1s infinite linear;
   transform-origin: 0% 50%;
 }

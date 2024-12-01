@@ -4,12 +4,12 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Download, XIcon } from "lucide-react"
 import { serverBaseUrl } from "@/app/config"
-import { IndeterminateProgress } from "./indeterminate-progress"
+import { IndeterminateProgress } from "@/components/indeterminate-progress"
 
 interface TorrentSearchResult {
     magnet_link: string
     name: string
-    seeds: number
+    seeds: string
 }
 
 function TorrentSearchResultRow(props: TorrentSearchResult) {
@@ -21,7 +21,7 @@ function TorrentSearchResultRow(props: TorrentSearchResult) {
 
     function addedTorrent() {
         console.log('added torrent to transmission')
-        const sound = new Audio("/sounds/ding.mp3")
+        const sound = new Audio("/sounds/chime.mp3")
         sound.play()
     }
 
@@ -77,7 +77,8 @@ function TorrentSearch() {
             setSearching(true)
             const response = await fetch(`${serverBaseUrl}/torrents/search/scrape?query=${encodeURIComponent(searchQuery)}`)
             const data = await response.json()
-            setSearchResults(data.results)
+            const filtered = data.results.filter((e: TorrentSearchResult) => parseInt(e.seeds, 10) > 0 )
+            setSearchResults(filtered)
             setSearching(false)
         }
     }
