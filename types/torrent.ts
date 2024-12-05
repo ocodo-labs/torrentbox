@@ -23,6 +23,31 @@ class Torrent {
         this.files = files;
         this.softDeleted = []
     }
+
+    notifyCompletion() {
+        const key = `torrent_completed_${this.id}`;
+        const isNotified = localStorage.getItem(key);
+
+        if (this.percent === 100 && !isNotified) {
+            // Check if it's the first run
+            const isFirstRun = localStorage.getItem('first_run') === null;
+
+            if (!isFirstRun) {
+                // Play the "ding" sound
+                console.log(`ding: ${this.id}`)
+                const player = new Audio('/sounds/torrent-finished.mp3');
+                player.play();
+            }
+
+            // Mark this torrent as notified
+            localStorage.setItem(key, 'true');
+
+            // Set the first run flag to false
+            if (isFirstRun) {
+                localStorage.setItem('first_run', 'false');
+            }
+        }
+    }
 }
 
 type TorrentData = {
@@ -31,6 +56,5 @@ type TorrentData = {
 }
 
 export {
-    Torrent,
-    TorrentData
+    Torrent
 }

@@ -74,7 +74,9 @@ function TorrentBox() {
         throw new Error('Network response was not ok')
       }
       const data: TorrentData = await response.json()
-      setTorrents(data.downloading)
+      const fetchedTorrents: Torrent[] = await data.downloading.map(t => new Torrent(t))
+      setTorrents(fetchedTorrents)
+      fetchedTorrents.forEach(t => t.notifyCompletion())
       setDownloadedFiles(data.downloaded)
       setConnectionError(false)
     } catch (error) {
