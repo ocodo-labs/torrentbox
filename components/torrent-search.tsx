@@ -21,7 +21,7 @@ function TorrentSearchResultRow(props: TorrentSearchResult) {
 
     function addedTorrent() {
         console.log('added torrent to transmission')
-        const sound = new Audio("/sounds/chime.mp3")
+        const sound = new Audio("/sounds/torrent-download.mp3")
         sound.play()
     }
 
