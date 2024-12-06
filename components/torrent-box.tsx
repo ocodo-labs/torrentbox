@@ -20,7 +20,8 @@ import { TorrentsSection } from "./torrent-section"
 import { TorrentSearch } from "./torrent-search"
 
 function TorrentBox() {
-  const { theme, setTheme } = useTheme()
+  const {theme, setTheme} = useTheme()
+  const [transmissionSession, setTransmissionSession] = useState("")
   const [torrents, setTorrents] = useState<Torrent[]>([])
   const [torrentSoftDeletedFiles, setTorrentSoftDeletedFiles] = useLocalStorage('soft-deleted-files', [])
   const [downloadedFiles, setDownloadedFiles] = useState<string[]>([])
@@ -58,6 +59,36 @@ function TorrentBox() {
       setDownloadedFiles(generateFakeDownloaded())
     }
   }, [isDemo])
+
+  // Does not work needs debugging.
+  const fetchTorrentsTransmission = async () => {
+    const transmissionRpcUrl = "https://transmission.hub/transmission/rpc"
+    if (transmissionSession == "") {
+      const startSession = await fetch(`${transmissionRpcUrl}`)
+      const sessionId = startSession.headers.get('X-Transmission-Session-Id')
+      setTransmissionSession(sessionId)
+    }
+    const response = await fetch(`${transmissionRpcUrl}`,
+      {
+        method: "POST",
+        headers: {
+          "X-Transmission-Session-Id": transmissionSession
+        },
+        body: JSON.stringify({
+          method: "torrent-get",
+          arguments: {
+            fields: [
+              "id",
+              "name",
+              "files",
+              "percentDone",
+            ]
+          }
+        })
+      }
+    )
+    console.log(response)
+  }
 
   const fetchTorrents = async () => {
     fetchSuggestNamesStatus()
