@@ -20,7 +20,7 @@ import { TorrentsSection } from "./torrent-section"
 import { TorrentSearch } from "./torrent-search"
 
 function TorrentBox() {
-  const {theme, setTheme} = useTheme()
+  const { theme, setTheme } = useTheme()
   const [transmissionSession, setTransmissionSession] = useState("")
   const [torrents, setTorrents] = useState<Torrent[]>([])
   const [torrentSoftDeletedFiles, setTorrentSoftDeletedFiles] = useLocalStorage('soft-deleted-files', [])
@@ -401,7 +401,7 @@ function TorrentBox() {
           <DemoPanel tryAgain={fetchTorrents} startDemo={startDemo} />
         ) : (
           <div className="space-y-8">
-            <TorrentSearch/>
+            <TorrentSearch />
             <TorrentsSection
               torrents={torrents}
               expandedTorrent={expandedTorrent}
