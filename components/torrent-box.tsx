@@ -308,8 +308,8 @@ function TorrentBox() {
       `${serverBaseUrl}/torrents/cleanup`,
       {
         method: 'POST',
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({torrent_id, files, name})
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ torrent_id, files, name })
       }
     )
 
@@ -325,14 +325,14 @@ function TorrentBox() {
       var allSoftDeleted = null
       try {
         allSoftDeleted = localStorage.getItem('soft-deleted-files')
-      } catch(e) {
+      } catch (e) {
         console.error('Error getting soft deleted files from local storage')
         console.error(e)
       }
       // remove entries for torrent
       if (allSoftDeleted) {
         const softDeleted = JSON.parse(allSoftDeleted)
-        const cleanedSoftDeleted = softDeleted.filter( e => e.id != id )
+        const cleanedSoftDeleted = softDeleted.filter((e: SoftDeletedFile) => e.torrent != torrent_id)
         localStorage.setItem('soft-deleted-files', cleanedSoftDeleted)
       }
     }

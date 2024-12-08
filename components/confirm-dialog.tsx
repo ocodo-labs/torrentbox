@@ -10,7 +10,7 @@ interface ConfirmDialogProps {
   setConfirmDialogOpen: (value: boolean) => void
   confirmAction: string
   executeAction: (action: string) => void
-  dontShowAgain: { [key: string]: boolean }
+  dontShowAgain: any
   setDontShowAgain: any
   alertDescriptions: { [key: string]: string[] }
 }
@@ -41,9 +41,10 @@ const ConfirmDialog = (props: ConfirmDialogProps) => {
           <Checkbox
             id="dontShowAgain"
             checked={dontShowAgain[confirmAction]}
-            onCheckedChange={(checked) =>
-              setDontShowAgain((prev: any) => ({ ...prev, [confirmAction]: checked as boolean }))
-            }
+            onCheckedChange={(checked) => {
+              dontShowAgain[confirmAction] = checked
+              setDontShowAgain(dontShowAgain)
+            }}
           />
           <label
             htmlFor="dontShowAgain"
