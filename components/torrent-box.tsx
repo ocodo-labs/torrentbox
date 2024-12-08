@@ -132,11 +132,11 @@ function TorrentBox() {
     const indexes = torrentSoftDeletedFiles.
       filter((e: SoftDeletedFile) => e.torrent == torrent.id).
       map((e: SoftDeletedFile) => e.fileIndex)
-    const files = torrent.files.
-      filter((e, index) => indexes.indexOf(index) == -1).
-      map((e) => e[0])
+    const fileNames = torrent.files.
+      filter((e, index) => indexes.indexOf(index) != -1).
+      map((e) => e[0]) // get the name of file
 
-    return files
+    return fileNames
   }
 
   const handleRenameTorrent = (item: Torrent, filename?: string) => {
@@ -276,17 +276,6 @@ function TorrentBox() {
         } catch (error) {
           console.error('Error renaming torrent:', error);
         }
-      } else {
-        // Handle demo mode (update in state directly)
-        if (currentTorrent) {
-          setTorrents(torrents.map(t =>
-            t.id === currentTorrent.id ? { ...t, name: newName } : t
-          ));
-        } else {
-          setDownloadedFiles(downloadedFiles.map(t =>
-            t === currentDownloadedFile ? newName : t
-          ));
-        }
       }
     }
     setRenameTorrentDialogOpen(false); // Close the rename dialog
@@ -314,16 +303,57 @@ function TorrentBox() {
     }
   }
 
-  const torrentActionRequest = async (action: ConfirmTorrentAction) => {
+  const cleanupSoftDeletedFiles = async (torrent_id: string, name: string, files: string[]) => {
+    const response = await fetch(
+      `${serverBaseUrl}/torrents/cleanup`,
+      {
+        method: 'POST',
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({torrent_id, files, name})
+      }
+    )
+
+    // Response contains:
+    // "info": "Ran torrent files cleanup, removed soft deleted files. Check failed_to_delete for failures",
+    // "name": torrent_name,
+    // "torrent_id": torrent_id,
+    // "files": files that were to be deleted
+    // "failed_to_delete": files to delete list of failures
+
+    if (response.ok) {
+      // get soft deleted files from local storage
+      var allSoftDeleted = null
+      try {
+        allSoftDeleted = localStorage.getItem('soft-deleted-files')
+      } catch(e) {
+        console.error('Error getting soft deleted files from local storage')
+        console.error(e)
+      }
+      // remove entries for torrent
+      if (allSoftDeleted) {
+        const softDeleted = JSON.parse(allSoftDeleted)
+        const cleanedSoftDeleted = softDeleted.filter( e => e.id != id )
+        localStorage.setItem('soft-deleted-files', cleanedSoftDeleted)
+      }
+    }
+  }
+
+  const torrentActionRequest = async (action: ConfirmTorrentAction, files: string[] = []) => {
     if (currentTorrent) {
       try {
         const torrent_id = currentTorrent.id
         const response = await fetch(
           `${serverBaseUrl}/torrents/active/${action}?torrent_id=${torrent_id}`,
-          { headers: { 'Content-Type': 'application/json' } })
+          {
+            headers: { 'Content-Type': 'application/json' }
+          }
+        )
 
         if (!response.ok) {
           throw new Error('Network response was not ok')
+        }
+        if (files) {
+          cleanupSoftDeletedFiles(currentTorrent.id, currentTorrent.name, files)
         }
         fetchTorrents()
       } catch (error) {
@@ -354,18 +384,20 @@ function TorrentBox() {
       if (!isDemo) {
         if (action == 'remove') {
           const files = getTorrentSoftDeletedFiles(currentTorrent)
-          console.log("Torrent Soft Deleted Files:")
-          console.log(currentTorrent.name)
-          console.log(currentTorrent.id)
-          console.log(currentTorrent.softDeleted)
-          console.log(files)
+          torrentActionRequest(action, files)
+        } else {
+          torrentActionRequest(action)
         }
-        torrentActionRequest(action)
       }
       setTorrents(torrents.filter(t => t.id !== currentTorrent.id))
     }
     setConfirmTorrentActionDialogOpen(false)
   }
+
+  // TODO:
+  // When deleting / removing a torrent from downloading, we must do housekeeping:
+  // - soft deleted files list, remove by torrent id
+  // - torrent_completed_${torrent.id} keys to be removed from local storage
 
   const executeDownloadedFileAction = async (action: ConfirmDownloadedFileAction) => {
     if (currentDownloadedFile) {

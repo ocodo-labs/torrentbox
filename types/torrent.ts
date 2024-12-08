@@ -4,7 +4,6 @@ class Torrent {
     name: string;
     percent: number;
     files: [string, number, number, number, boolean, number][];
-    softDeleted: number[];
 
     constructor({
         id,
@@ -21,7 +20,6 @@ class Torrent {
         this.name = name;
         this.percent = percent;
         this.files = files;
-        this.softDeleted = []
     }
 
     notifyCompletion() {
@@ -50,11 +48,12 @@ class Torrent {
     }
 }
 
-type TorrentData = {
+interface TorrentData {
     downloaded: string[]
     downloading: Torrent[]
 }
 
 export {
-    Torrent
+    Torrent,
+    TorrentData,
 }
