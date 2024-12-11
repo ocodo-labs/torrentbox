@@ -164,7 +164,6 @@ function TorrentBox() {
     }
     if (!isDemo) {
       if (currentTorrentFilename && currentTorrent) {
-        alert(filename)
         fetchTorrentSubFilenameSuggestions(currentTorrent, currentTorrentFilename)
       } else {
         fetchSuggestions(
