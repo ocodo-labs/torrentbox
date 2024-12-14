@@ -8,11 +8,11 @@ import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from "@/types/actio
 interface ConfirmDialogProps {
   confirmDialogOpen: boolean
   setConfirmDialogOpen: (value: boolean) => void
-  confirmAction: string
-  executeAction: (action: string) => void
+  confirmAction: string | null
+  executeAction: (action: any) => Promise<void>
   dontShowAgain: any
   setDontShowAgain: any
-  alertDescriptions: { [key: string]: string[] }
+  alertDescriptions: any
 }
 
 const ConfirmDialog = (props: ConfirmDialogProps) => {
@@ -34,15 +34,17 @@ const ConfirmDialog = (props: ConfirmDialogProps) => {
         <Alert>
           <AlertTitle>Are you sure?</AlertTitle>
           <AlertDescription>
-            {alertDescriptions[confirmAction]}
+            {confirmAction ? alertDescriptions[confirmAction] : ""}
           </AlertDescription>
         </Alert>
         <div className="flex items-center space-x-2">
           <Checkbox
             id="dontShowAgain"
-            checked={dontShowAgain[confirmAction]}
+            checked={confirmAction ? dontShowAgain[confirmAction] : false}
             onCheckedChange={(checked) => {
-              dontShowAgain[confirmAction] = checked
+              if (confirmAction) {
+                dontShowAgain[confirmAction] = checked
+              }
               setDontShowAgain(dontShowAgain)
             }}
           />

@@ -3,12 +3,13 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableRow, TableCell } from '@/components/ui/table'
 import { IndeterminateProgress } from '@/components/indeterminate-progress'
+import { Dispatch, SetStateAction } from 'react'
 
 interface RenameDialogProps {
   open: boolean
   onOpenChange: (value: boolean) => void
   newName: string
-  setNewName: (value: string | null) => void
+  setNewName: Dispatch<SetStateAction<string>>
   suggestions: string[]
   suggestionsServiceOnline: boolean
   onCancel?: () => void

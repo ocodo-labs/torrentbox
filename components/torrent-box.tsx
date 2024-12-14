@@ -65,7 +65,7 @@ function TorrentBox() {
     const transmissionRpcUrl = "https://transmission.hub/transmission/rpc"
     if (transmissionSession == "") {
       const startSession = await fetch(`${transmissionRpcUrl}`)
-      const sessionId = startSession.headers.get('X-Transmission-Session-Id')
+      const sessionId: string = startSession.headers.get('X-Transmission-Session-Id') || ""
       setTransmissionSession(sessionId)
     }
     const response = await fetch(`${transmissionRpcUrl}`,
@@ -284,18 +284,18 @@ function TorrentBox() {
     if (typeof item === 'string') {
       setCurrentDownloadedFile(item)
       setCurrentTorrent(null)
-      setConfirmDownloadedFileAction(action)
+      setConfirmDownloadedFileAction(action as ConfirmDownloadedFileAction)
       if (dontShowAgain[action]) {
-        executeDownloadedFileAction(action)
+        executeDownloadedFileAction(action as ConfirmDownloadedFileAction)
       } else {
         setConfirmDownloadedFileActionDialogOpen(true)
       }
     } else {
       setCurrentTorrent(item)
       setCurrentDownloadedFile(null)
-      setConfirmTorrentAction(action)
+      setConfirmTorrentAction(action as ConfirmTorrentAction)
       if (dontShowAgain[action]) {
-        executeTorrentAction(action)
+        executeTorrentAction(action as ConfirmTorrentAction)
       } else {
         setConfirmTorrentActionDialogOpen(true)
       }
