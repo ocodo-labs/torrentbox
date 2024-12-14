@@ -48,9 +48,9 @@ class Torrent {
     }
 }
 
-interface TorrentData {
-    downloaded: string[]
-    downloading: Torrent[]
+class TorrentData {
+    downloaded: string[] = []
+    downloading: Torrent[] = []
 }
 
 export {
