@@ -1,8 +1,8 @@
+import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { Edit, Trash } from "lucide-react"
-import { Button } from "./ui/button"
-import { TableRow, TableCell } from "./ui/table"
+import { TableCell, TableRow } from "@/components/ui/table"
 import { Torrent } from "@/types/torrent"
+import { Edit, Trash } from "lucide-react"
 
 interface TorrentFileRowProps {
   filename: string

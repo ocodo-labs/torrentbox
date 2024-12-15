@@ -1,7 +1,7 @@
-import { ConfirmTorrentAction, ConfirmDownloadedFileAction } from "@/types/actions"
+import { Button } from "@/components/ui/button"
+import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from "@/types/actions"
 import { Torrent } from "@/types/torrent"
-import { Edit, Tv, Trash, Clapperboard } from "lucide-react"
-import { Button } from "./ui/button"
+import { Clapperboard, Edit, Trash, Tv } from "lucide-react"
 
 interface DownloadedSectionProps {
   downloadedFiles: string[]

@@ -1,10 +1,10 @@
-import { useState } from "react"
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Download, XIcon } from "lucide-react"
 import { serverBaseUrl } from "@/app/config"
 import { IndeterminateProgress } from "@/components/indeterminate-progress"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
+import { Download } from "lucide-react"
+import { useState } from "react"
 
 interface TorrentSearchResult {
     magnet_link: string

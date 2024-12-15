@@ -1,6 +1,6 @@
-import { Torrent } from "@/types/torrent"
-import { ConfirmTorrentAction, ConfirmDownloadedFileAction } from "@/types/actions"
 import { TorrentRow } from "@/components/torrent-row"
+import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from "@/types/actions"
+import { Torrent } from "@/types/torrent"
 
 interface TorrentsSectionProps {
   torrents: Torrent[]

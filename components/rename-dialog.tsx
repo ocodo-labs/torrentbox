@@ -1,8 +1,8 @@
-import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Table, TableBody, TableRow, TableCell } from '@/components/ui/table'
 import { IndeterminateProgress } from '@/components/indeterminate-progress'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { Dispatch, SetStateAction } from 'react'
 
 interface RenameDialogProps {

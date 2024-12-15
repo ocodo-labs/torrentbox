@@ -1,10 +1,10 @@
-import { Edit, X, Trash, ChevronUp, ChevronDown } from "lucide-react"
-import { Progress } from "@/components/ui/progress"
-import { Button } from "@/components/ui/button"
-import { Table, TableBody } from "@/components/ui/table"
 import { TorrentFileRow } from "@/components/torrent-file-row"
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import { Table, TableBody } from "@/components/ui/table"
+import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from "@/types/actions"
 import { Torrent } from "@/types/torrent"
-import { ConfirmTorrentAction, ConfirmDownloadedFileAction } from "@/types/actions"
+import { ChevronDown, ChevronUp, Edit, Trash, X } from "lucide-react"
 
 interface TorrentRowProps {
     torrent: Torrent

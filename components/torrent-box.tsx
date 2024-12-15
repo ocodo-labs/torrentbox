@@ -1,23 +1,20 @@
 'use client'
 
-import { generateFakeTorrents, generateFakeDownloaded, generateFakeSuggestions } from "@/demo/fake"
-import { useLocalStorage } from "@/lib/use-local-storage"
-import { useTheme } from "next-themes"
-import { useState, useEffect } from "react"
-
 import { serverBaseUrl } from "@/app/config"
-
-import { ConfirmTorrentAction, ConfirmDownloadedFileAction } from "@/types/actions"
-import { Torrent, TorrentData } from "@/types/torrent"
-import { SoftDeletedFile } from "@/types/soft-deleted-file"
-
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { DemoPanel } from "@/components/demo-panel"
 import { DownloadedSection } from "@/components/downloaded-section"
 import { RenameDialog } from "@/components/rename-dialog"
 import { TorrentBoxHeading } from "@/components/torrent-box-header"
-import { TorrentsSection } from "@/components/torrent-section"
 import { TorrentSearch } from "@/components/torrent-search"
+import { TorrentsSection } from "@/components/torrent-section"
+import { generateFakeDownloaded, generateFakeSuggestions, generateFakeTorrents } from "@/demo/fake"
+import { useLocalStorage } from "@/lib/use-local-storage"
+import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from "@/types/actions"
+import { SoftDeletedFile } from "@/types/soft-deleted-file"
+import { Torrent, TorrentData } from "@/types/torrent"
+import { useTheme } from "next-themes"
+import { useEffect, useState } from "react"
 
 function TorrentBox() {
   const { theme, setTheme } = useTheme()

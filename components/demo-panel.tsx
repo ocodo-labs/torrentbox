@@ -1,5 +1,5 @@
-import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Play, WifiOff } from 'lucide-react'
 
 function DemoPanel({tryAgain, startDemo}) {
