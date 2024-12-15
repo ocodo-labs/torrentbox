@@ -60,42 +60,6 @@ function TorrentBox() {
     }
   }, [isDemo])
 
-  // Does not work needs proxy, due to Transmission RPC not allowing CORS
-  const fetchTorrentsTransmission = async () => {
-    const transmissionRpcUrl = "https://transmission.hub/transmission/rpc"
-    if (transmissionSession == "") {
-      const startSession = await fetch(`${transmissionRpcUrl}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          }
-        }
-      )
-      const sessionId: string = startSession.headers.get('X-Transmission-Session-Id') || ""
-      setTransmissionSession(sessionId)
-    }
-    const response = await fetch(`${transmissionRpcUrl}`,
-      {
-        method: "POST",
-        headers: {
-          "X-Transmission-Session-Id": transmissionSession
-        },
-        body: JSON.stringify({
-          method: "torrent-get",
-          arguments: {
-            fields: [
-              "id",
-              "name",
-              "files",
-              "percentDone",
-            ]
-          }
-        })
-      }
-    )
-    console.log(response)
-  }
-
   const fetchTorrents = async () => {
     fetchSuggestNamesStatus()
     try {
