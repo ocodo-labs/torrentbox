@@ -11,13 +11,13 @@ import { ConfirmTorrentAction, ConfirmDownloadedFileAction } from "@/types/actio
 import { Torrent, TorrentData } from "@/types/torrent"
 import { SoftDeletedFile } from "@/types/soft-deleted-file"
 
-import { ConfirmDialog } from "./confirm-dialog"
-import { DemoPanel } from "./demo-panel"
-import { DownloadedSection } from "./downloaded-section"
-import { RenameDialog } from "./rename-dialog"
-import { TorrentBoxHeading } from "./torrent-box-header"
-import { TorrentsSection } from "./torrent-section"
-import { TorrentSearch } from "./torrent-search"
+import { ConfirmDialog } from "@/components/confirm-dialog"
+import { DemoPanel } from "@/components/demo-panel"
+import { DownloadedSection } from "@/components/downloaded-section"
+import { RenameDialog } from "@/components/rename-dialog"
+import { TorrentBoxHeading } from "@/components/torrent-box-header"
+import { TorrentsSection } from "@/components/torrent-section"
+import { TorrentSearch } from "@/components/torrent-search"
 
 function TorrentBox() {
   const { theme, setTheme } = useTheme()

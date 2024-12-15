@@ -21,8 +21,12 @@ function TorrentSearchResultRow(props: TorrentSearchResult) {
 
     function addedTorrent() {
         console.log('added torrent to transmission')
-        const sound = new Audio("/sounds/torrent-download.mp3")
-        sound.play()
+        try {
+            const sound = new Audio("/sounds/torrent-download.mp3")
+            sound.play()
+        } catch (e) {
+            console.log("Could not play added torrent sound")
+        }
     }
 
     async function getTorrentMagnet(magnet_link: string) {
@@ -77,7 +81,7 @@ function TorrentSearch() {
             setSearching(true)
             const response = await fetch(`${serverBaseUrl}/torrents/search/scrape?query=${encodeURIComponent(searchQuery)}`)
             const data = await response.json()
-            const filtered = data.results.filter((e: TorrentSearchResult) => parseInt(e.seeds, 10) > 0 )
+            const filtered = data.results.filter((e: TorrentSearchResult) => parseInt(e.seeds, 10) > 0)
             setSearchResults(filtered)
             setSearching(false)
         }
@@ -111,7 +115,7 @@ function TorrentSearch() {
                         </Table>
                     </div>
                 ) : searching ? (
-                    <div style={{padding: '1em 0 0 0'}}>
+                    <div style={{ padding: '1em 0 0 0' }}>
                         <IndeterminateProgress />
                     </div>
                 ) : ''

@@ -31,10 +31,12 @@ class Torrent {
             const isFirstRun = localStorage.getItem('first_run') === null;
 
             if (!isFirstRun) {
-                // Play the "ding" sound
-                console.log(`ding: ${this.id}`)
-                const player = new Audio('/sounds/torrent-finished.mp3');
-                player.play();
+                try {
+                    const player = new Audio('/sounds/torrent-finished.mp3');
+                    player.play();
+                } catch (e) {
+                    console.log("Could not play torrent finished sound")
+                }
             }
 
             // Mark this torrent as notified

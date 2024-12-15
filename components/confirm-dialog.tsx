@@ -3,7 +3,6 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { DialogHeader, DialogFooter } from "@/components/ui/dialog"
-import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from "@/types/actions"
 
 interface ConfirmDialogProps {
   confirmDialogOpen: boolean
