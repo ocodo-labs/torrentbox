@@ -12,8 +12,8 @@ interface RenameDialogProps {
   setNewName: Dispatch<SetStateAction<string>>
   suggestions: string[]
   suggestionsServiceOnline: boolean
-  onCancel?: () => void
-  onConfirm?: () => void
+  onCancel: () => void
+  onConfirm: () => void
   title: string
 }
 
@@ -32,9 +32,13 @@ const RenameDialog = (props: RenameDialogProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{title}{suggestionsServiceOnline ? " (AI Suggestions Available)":""}</DialogTitle>
+          <DialogTitle>{title}{suggestionsServiceOnline ? " (AI Suggestions Available)" : ""}</DialogTitle>
         </DialogHeader>
-        <Input value={newName} onChange={(e) => setNewName(e.target.value)} />
+        <Input
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          onKeyDown={(e) => (e.code == "Enter") && onConfirm()}
+        />
         <Table>
           <TableBody>
             {suggestionsServiceOnline && suggestions.length == 0 ? (<IndeterminateProgress />) : ""}

@@ -95,6 +95,7 @@ function TorrentSearch() {
                     value={searchQuery}
                     placeholder="Search Torrents..."
                     onChange={e => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => (e.code == "Enter") && torrentSearch()}
                     type="search"
                 />
                 <Button onClick={torrentSearch}>Search</Button>
