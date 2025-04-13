@@ -17,8 +17,7 @@ import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 
 function TorrentBox() {
-  const { theme, setTheme } = useTheme()
-  const [transmissionSession, setTransmissionSession] = useState("")
+  const {theme, setTheme } = useTheme()
   const [torrents, setTorrents] = useState<Torrent[]>([])
   const [torrentSoftDeletedFiles, setTorrentSoftDeletedFiles] = useLocalStorage('soft-deleted-files', [])
   const [downloadedFiles, setDownloadedFiles] = useState<string[]>([])
