@@ -359,10 +359,6 @@ function TorrentBox() {
     setConfirmTorrentActionDialogOpen(false)
   }
 
-  // TODO:
-  // When deleting / removing a torrent from downloading, we must do housekeeping:
-  // - soft deleted files list, remove by torrent id
-  // - torrent_completed_${torrent.id} keys to be removed from local storage
 
   const executeDownloadedFileAction = async (action: ConfirmDownloadedFileAction) => {
     if (currentDownloadedFile) {
