@@ -2,7 +2,7 @@
 const nextConfig = {
   images: {
     dangerouslyAllowSVG: true,
-    domains: ['helios']
+    domains: ['torrentbox.hub']
   },
 };
 

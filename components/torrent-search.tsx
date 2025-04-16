@@ -3,7 +3,7 @@ import { IndeterminateProgress } from "@/components/indeterminate-progress"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
-import { Download } from "lucide-react"
+import { CircleX, CrossIcon, Download, X } from "lucide-react"
 import { useState } from "react"
 
 interface TorrentSearchResult {
@@ -89,7 +89,6 @@ function TorrentSearch() {
 
     return (
         <section>
-            <h2 className="text-xl font-semibold mb-4">Search</h2>
             <div className="flex space-x-4">
                 <Input
                     value={searchQuery}
@@ -99,7 +98,7 @@ function TorrentSearch() {
                     type="search"
                 />
                 <Button onClick={torrentSearch}>Search</Button>
-                <Button onClick={resetSearch}>Clear</Button>
+                <CircleX className="size-10 cursor-pointer" onClick={resetSearch}/>
             </div>
             {
                 searchResults.length > 0 ? (
