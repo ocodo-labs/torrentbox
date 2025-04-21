@@ -27,6 +27,7 @@ const TorrentsSection = (props: TorrentsSectionProps) => {
       <div className="space-y-4">
         {torrents.map((torrent: Torrent) => (
           <TorrentRow
+            key={torrent.id}
             torrent={torrent}
             handleAction={handleAction}
             handleRename={handleRename}
