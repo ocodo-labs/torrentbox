@@ -21,25 +21,29 @@ const TorrentsSection = (props: TorrentsSectionProps) => {
     handleRename,
     handleSoftDelete,
     isSoftDeletedFn } = props
-  return (
-    <section>
-      <h2 className="text-xl font-semibold mb-4">Torrents</h2>
-      <div className="space-y-4">
-        {torrents.map((torrent: Torrent) => (
-          <TorrentRow
-            key={torrent.id}
-            torrent={torrent}
-            handleAction={handleAction}
-            handleRename={handleRename}
-            handleSoftDelete={handleSoftDelete}
-            toggleExpand={toggleExpand}
-            isSoftDeletedFn={isSoftDeletedFn}
-            expandedTorrent={expandedTorrent}
-          />
-        ))}
-      </div>
-    </section>
-  )
+  if (torrents.length > 0) {
+    return (
+      <section>
+        <h2 className="text-xl font-semibold mb-4">Torrents</h2>
+        <div className="space-y-4">
+          {torrents.map((torrent: Torrent) => (
+            <TorrentRow
+              key={torrent.id}
+              torrent={torrent}
+              handleAction={handleAction}
+              handleRename={handleRename}
+              handleSoftDelete={handleSoftDelete}
+              toggleExpand={toggleExpand}
+              isSoftDeletedFn={isSoftDeletedFn}
+              expandedTorrent={expandedTorrent}
+            />
+          ))}
+        </div>
+      </section>
+    )
+  } else {
+    return null
+  }
 }
 
 export { TorrentsSection }
