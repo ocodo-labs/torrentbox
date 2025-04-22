@@ -11,7 +11,7 @@ function TorrentBoxHeading(props: TorrentBoxHeadingProps) {
 
   return (
     <header className="flex items-center justify-between p-4 border-b">
-      <Button variant="ghost" size="icon" className="md:hidden">
+      <Button variant="ghost" size="icon">
         <Menu className="h-6 w-6" />
       </Button>
       <h1 className="text-3xl font-black tracking-tighter">TorrentBox</h1>

@@ -91,13 +91,16 @@ function TorrentSearch() {
         <section>
             <div className="flex space-x-4">
                 <Input
+                    className="rounded-full"
                     value={searchQuery}
                     placeholder="Search Torrents..."
                     onChange={e => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => (e.code == "Enter") && torrentSearch()}
                     type="search"
                 />
-                <Button onClick={torrentSearch}>Search</Button>
+                <Button
+                    className="rounded-full"
+                    onClick={torrentSearch}>Search</Button>
                 <CircleX className="size-10 cursor-pointer" onClick={resetSearch}/>
             </div>
             {
