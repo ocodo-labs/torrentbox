@@ -5,11 +5,14 @@ import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
 import { CircleX, Download } from "lucide-react"
 import { useState } from "react"
+import { toast } from "@/hooks/use-toast"
 
 interface TorrentSearchResult {
     magnet_link: string
     name: string
     seeds: string
+    size: string
+    category: string
 }
 
 function TorrentSearchResultRow(props: TorrentSearchResult) {
@@ -17,6 +20,8 @@ function TorrentSearchResultRow(props: TorrentSearchResult) {
         magnet_link,
         name,
         seeds,
+        size,
+        category,
     } = props
 
     function addedTorrent() {
@@ -52,6 +57,9 @@ function TorrentSearchResultRow(props: TorrentSearchResult) {
             <TableCell className="font-medium text-lg">
                 {name}
             </TableCell>
+            <TableCell className="text-xs text-muted-foreground">
+                {size}
+            </TableCell>
             <TableCell className="font-medium">
                 {seeds}
             </TableCell>
@@ -81,8 +89,19 @@ function TorrentSearch() {
             setSearching(true)
             const response = await fetch(`${serverBaseUrl}/torrents/search/scrape?query=${encodeURIComponent(searchQuery)}`)
             const data = await response.json()
-            const filtered = data.results.filter((e: TorrentSearchResult) => parseInt(e.seeds, 10) > 0)
+            console.dir(data)
+            const filtered = data.results.filter((e: TorrentSearchResult) => {
+                const hasSeeds = parseInt(e.seeds, 10) > 0
+                const isNotPorn = !e.category.toLowerCase().includes("porn")
+                return hasSeeds && isNotPorn
+            })
             setSearchResults(filtered)
+            if (filtered.length == 0) {
+                toast({
+                    title: "No Torrents Found",
+                    description: `No results for ${searchQuery}`
+                  })
+            }
             setSearching(false)
         }
     }
@@ -112,7 +131,9 @@ function TorrentSearch() {
                                 {
                                     searchResults
                                         .map(
-                                            (row: TorrentSearchResult) => (<TorrentSearchResultRow {...row} />)
+                                            (row: TorrentSearchResult) => (
+                                                <TorrentSearchResultRow key={row.magnet_link} {...row} />
+                                            )
                                         )
                                 }
                             </TableBody>
