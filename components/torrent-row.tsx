@@ -21,7 +21,7 @@ const TorrentRow = (props: TorrentRowProps) => {
     return (
         <div key={torrent.id} className="p-4 border rounded-lg">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
-                <h3 className="text-lg font-semibold mb-2 sm:mb-0">{torrent.name}</h3>
+                <h3 className="text-lg font-semibold mb-2 sm:mb-0 truncate">{torrent.name}</h3>
                 <div className="flex space-x-2">
                     <Button variant="ghost" size="icon" onClick={() => handleRename(torrent)}>
                         <Edit className="h-4 w-4" />
