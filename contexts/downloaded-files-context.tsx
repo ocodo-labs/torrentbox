@@ -1,3 +1,4 @@
+import { toast } from '@/hooks/use-toast';
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 
 // Define the shape of a downloaded file
@@ -36,9 +37,12 @@ const DownloadedFilesProvider: React.FC<DownloadedFilesProviderProps> = ({ child
         setLoading(true);
         try {
             const response = await fetch(API_URL);
-            if (!response.ok) throw new Error('Failed to fetch files');
-            const data = await response.json();
-            setFiles(data);
+            if (!response.ok) { 
+                toast({ title: `Network Error` }) 
+            } else {
+                const data = await response.json();
+                setFiles(data);
+            }
         } catch (err) {
             setErrors(prevErrors => [...prevErrors, (err as Error).message]);
         } finally {
@@ -57,7 +61,7 @@ const DownloadedFilesProvider: React.FC<DownloadedFilesProviderProps> = ({ child
         try {
             const response = await fetch(`${API_URL}`, {
                 method: 'DELETE',
-                body: JSON.stringify({name: fileId})
+                body: JSON.stringify({ name: fileId })
             });
             if (!response.ok) {
                 const errorMsg = await response.text();

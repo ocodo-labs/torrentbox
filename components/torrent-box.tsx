@@ -15,9 +15,10 @@ import { SoftDeletedFile } from "@/types/soft-deleted-file"
 import { Torrent, TorrentData } from "@/types/torrent"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
+import { toast } from "@/hooks/use-toast"
 
 function TorrentBox() {
-  const {theme, setTheme } = useTheme()
+  const { theme, setTheme } = useTheme()
   const [torrents, setTorrents] = useState<Torrent[]>([])
   const [torrentSoftDeletedFiles, setTorrentSoftDeletedFiles] = useLocalStorage('soft-deleted-files', [])
   const [downloadedFiles, setDownloadedFiles] = useState<string[]>([])
@@ -63,7 +64,7 @@ function TorrentBox() {
         `${serverBaseUrl}/torrents/active`,
         { headers: json_header })
       if (!response.ok) {
-        throw new Error('Network response was not ok')
+        toast({ title: `Network Error` })
       }
       const data: TorrentData = await response.json()
       const fetchedTorrents: Torrent[] = await data.downloading.map(t => new Torrent(t))
@@ -72,7 +73,10 @@ function TorrentBox() {
       setDownloadedFiles(data.downloaded)
       setConnectionError(false)
     } catch (error) {
-      console.error('Error fetching torrents:', error)
+      toast({
+        title: "Error fetching torrents:",
+        description: `${error}`
+      })
       setConnectionError(true)
     }
   }
@@ -157,23 +161,26 @@ function TorrentBox() {
 
   const fetchSuggestions = async (filename: string) => {
     setNewName(filename)
-    try {
-      const response = await fetch(
-        `${serverBaseUrl}/torrents/suggest_names`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ filename: filename }),
-          headers: json_header
+    if (suggestionsLLMOnline) {
+      try {
+        const response = await fetch(
+          `${serverBaseUrl}/torrents/suggest_names`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ filename: filename }),
+            headers: json_header
+          }
+        )
+        if (!response.ok) {
+          toast({ title: `Network Error` })
+        } else {
+          const data = await response.json()
+          setSuggestions(data.suggestions)
         }
-      )
-      if (!response.ok) {
-        throw new Error('Network response was not ok')
+      } catch (error) {
+        toast({ title: "Suggestions Error", description: `Error fetching suggestions: ${error}` })
+        setSuggestions([])
       }
-      const data = await response.json()
-      setSuggestions(data.suggestions)
-    } catch (error) {
-      console.error('Error fetching suggestions:', error)
-      setSuggestions([])
     }
   }
 
@@ -221,7 +228,7 @@ function TorrentBox() {
           );
 
           if (!response.ok) {
-            throw new Error('Network response was not ok');
+            toast({ title: `Network Error` })
           }
 
           setCurrentDownloadedFile(null)
@@ -232,7 +239,7 @@ function TorrentBox() {
 
           fetchTorrents(); // Fetch updated torrents
         } catch (error) {
-          console.error('Error renaming torrent:', error);
+          toast({ title: "Torrent Rename Error", description: `Error renaming torrent: ${error}` })
         }
       }
     }
@@ -284,8 +291,7 @@ function TorrentBox() {
       try {
         allSoftDeleted = localStorage.getItem('soft-deleted-files')
       } catch (e) {
-        console.error('Error getting soft deleted files from local storage')
-        console.error(e)
+        toast({ title: "Soft Delete Error", description: `Error getting soft deleted files from local storage` })
       }
       // remove entries for torrent
       if (allSoftDeleted) {
@@ -302,17 +308,18 @@ function TorrentBox() {
         const torrent_id = currentTorrent.id
         const response = await fetch(
           `${serverBaseUrl}/torrents/active/${action}?torrent_id=${torrent_id}`,
-          {headers: json_header})
+          { headers: json_header })
 
         if (!response.ok) {
-          throw new Error('Network response was not ok')
+          toast({ title: `Network Error` })
         }
         if (files) {
           cleanupSoftDeletedFiles(currentTorrent.id, currentTorrent.name, files)
         }
         fetchTorrents()
       } catch (error) {
-        console.error(`Error ${action}ing torrent:`, error)
+        toast({ title: `Error`, description: `Error ${action}ing torrent` })
+        console.log(`Error ${action}ing torrent:`, error)
       }
     }
   }
@@ -325,11 +332,11 @@ function TorrentBox() {
           { headers: json_header })
 
         if (!response.ok) {
-          throw new Error('Network response was not ok')
+          toast({ title: `Network Error` })
         }
         fetchTorrents()
       } catch (error) {
-        console.error(`Error ${action}ing torrent:`, error)
+        toast({ title: `Error`, description: `Error ${action}ing torrent` })
       }
     }
   }
