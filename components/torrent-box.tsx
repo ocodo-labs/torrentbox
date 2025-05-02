@@ -1,6 +1,6 @@
 'use client'
 
-import { serverBaseUrl } from "@/app/config"
+import { json_header, serverBaseUrl } from "@/app/config"
 import { ConfirmDialog } from "@/components/confirm-dialog"
 import { DemoPanel } from "@/components/demo-panel"
 import { DownloadedSection } from "@/components/downloaded-section"
@@ -61,12 +61,7 @@ function TorrentBox() {
     try {
       const response = await fetch(
         `${serverBaseUrl}/torrents/active`,
-        {
-          headers: {
-            "Content-Type": "application/json"
-          }
-        }
-      )
+        { headers: json_header })
       if (!response.ok) {
         throw new Error('Network response was not ok')
       }
@@ -168,9 +163,7 @@ function TorrentBox() {
         {
           method: 'POST',
           body: JSON.stringify({ filename: filename }),
-          headers: {
-            "Content-Type": "application/json"
-          }
+          headers: json_header
         }
       )
       if (!response.ok) {
@@ -222,7 +215,7 @@ function TorrentBox() {
             `${serverBaseUrl}/torrents/active/rename`,
             {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: json_header,
               body: JSON.stringify(payload),
             }
           );
@@ -273,7 +266,7 @@ function TorrentBox() {
       `${serverBaseUrl}/torrents/cleanup`,
       {
         method: 'POST',
-        headers: { "Content-Type": "application/json" },
+        headers: json_header,
         body: JSON.stringify({ torrent_id, files, name })
       }
     )
@@ -309,10 +302,7 @@ function TorrentBox() {
         const torrent_id = currentTorrent.id
         const response = await fetch(
           `${serverBaseUrl}/torrents/active/${action}?torrent_id=${torrent_id}`,
-          {
-            headers: { 'Content-Type': 'application/json' }
-          }
-        )
+          {headers: json_header})
 
         if (!response.ok) {
           throw new Error('Network response was not ok')
@@ -332,7 +322,7 @@ function TorrentBox() {
       try {
         const response = await fetch(
           `${serverBaseUrl}/torrents/${action}?filename=${currentDownloadedFile}`,
-          { headers: { 'Content-Type': 'application/json' } })
+          { headers: json_header })
 
         if (!response.ok) {
           throw new Error('Network response was not ok')
