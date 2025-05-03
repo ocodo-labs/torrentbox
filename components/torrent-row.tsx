@@ -1,7 +1,6 @@
 import { TorrentFileRow } from "@/components/torrent-file-row"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { Table, TableBody } from "@/components/ui/table"
 import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from "@/types/actions"
 import { Torrent } from "@/types/torrent"
 import { ChevronDown, ChevronUp, Edit, Trash, X } from "lucide-react"
@@ -43,23 +42,19 @@ const TorrentRow = (props: TorrentRowProps) => {
             <Progress value={torrent.percent} className="w-full" />
             {expandedTorrent === torrent.id && (
                 <div className="mt-4 overflow-x-auto">
-                    <Table>
-                        <TableBody>
-                            {torrent.files
-                                .filter((file, index) => !isSoftDeletedFn(torrent.id, index))
-                                .map(([filename, size, downloaded], index) => (
-                                    <TorrentFileRow
-                                        key={index}
-                                        torrent={torrent}
-                                        filename={filename}
-                                        size={size}
-                                        downloaded={downloaded}
-                                        handleRename={handleRename}
-                                        handleSoftDelete={handleSoftDelete}
-                                    />
-                                ))}
-                        </TableBody>
-                    </Table>
+                    {torrent.files
+                        .filter((file, index) => !isSoftDeletedFn(torrent.id, index))
+                        .map(([filename, size, downloaded], index) => (
+                            <TorrentFileRow
+                                key={index}
+                                torrent={torrent}
+                                filename={filename}
+                                size={size}
+                                downloaded={downloaded}
+                                handleRename={handleRename}
+                                handleSoftDelete={handleSoftDelete}
+                            />
+                        ))}
                 </div>
             )}
         </div>
