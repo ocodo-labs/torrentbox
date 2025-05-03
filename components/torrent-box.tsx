@@ -318,8 +318,9 @@ function TorrentBox() {
         }
         fetchTorrents()
       } catch (error) {
-        toast({ title: `Error`, description: `Error ${action}ing torrent` })
-        console.log(`Error ${action}ing torrent:`, error)
+        const correctedAction  = action.substring(0, action.length - 1);
+        toast({ title: `Error`, description: `Error ${correctedAction}ing torrent`})
+        console.log(`Error ${correctedAction}ing torrent:`, error)
       }
     }
   }
