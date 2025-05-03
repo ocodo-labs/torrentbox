@@ -318,6 +318,15 @@ function TorrentBox() {
     setConfirmDownloadedFileActionDialogOpen(false)
   }
 
+  const cancelRenameTorrent = () => {
+    setCurrentDownloadedFile(null)
+    setCurrentTorrent(null)
+    setCurrentTorrentFilename(null)
+    setNewName('')
+    setSuggestions([])
+    setRenameTorrentDialogOpen(false)
+  }
+
   const handleAction = (item: Torrent | string, action: ConfirmTorrentAction | ConfirmDownloadedFileAction) => {
     // Reset current selections
     setCurrentDownloadedFile(null)
@@ -388,14 +397,7 @@ function TorrentBox() {
         suggestions={suggestions}
         suggestionsServiceOnline={suggestionsLLMOnline}
         onConfirm={confirmRename}
-        onCancel={() => {
-          setCurrentDownloadedFile(null)
-          setCurrentTorrent(null)
-          setCurrentTorrentFilename(null)
-          setNewName('')
-          setSuggestions([])
-          setRenameTorrentDialogOpen(false)
-        }}
+        onCancel={cancelRenameTorrent}
       />
 
       <ConfirmDialog

@@ -15,12 +15,12 @@ interface ConfirmDialogProps {
 
 const ConfirmDialog = (props: ConfirmDialogProps) => {
   const { confirmDialogOpen,
-    setConfirmDialogOpen,
     confirmAction,
-    executeAction,
     dontShowAgain,
     setDontShowAgain,
     alertDescriptions,
+    setConfirmDialogOpen,
+    executeAction,
   } = props
 
   return (
