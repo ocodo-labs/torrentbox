@@ -7,28 +7,18 @@ import { RenameDialog } from "@/components/rename-dialog"
 import { TorrentBoxHeading } from "@/components/torrent-box-heading"
 import { TorrentSearch } from "@/components/torrent-search"
 import { TorrentsSection } from "@/components/torrent-section"
+import { ConnectionErrorPanel } from "@/components/connection-error-panel"
 import { useLocalStorage } from "@/lib/use-local-storage"
 import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from "@/types/actions"
 import { Torrent } from "@/types/torrent"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 import { toast } from "@/hooks/use-toast"
-import { AlertTriangle } from "lucide-react"
 import { useTorrentManager } from "@/hooks/use-torrent-manager"
+import { json } from "stream/consumers"
 
 function TorrentBox() {
-  const {
-    torrents,
-    downloadedFiles,
-    connectionError,
-    suggestionsLLMOnline,
-    fetchTorrents,
-    softDeleteTorrentSubFile,
-    isSoftDeleted,
-    getTorrentSoftDeletedFiles,
-    cleanupSoftDeletedFiles,
-    renameTorrent,
-  } = useTorrentManager()
+
   const { theme, setTheme } = useTheme()
   const [expandedTorrent, setExpandedTorrent] = useState<string | null>(null)
   const [renameTorrentDialogOpen, setRenameTorrentDialogOpen] = useState(false)
@@ -43,6 +33,25 @@ function TorrentBox() {
   const [confirmTorrentAction, setConfirmTorrentAction] = useState<ConfirmTorrentAction | null>(null)
   const [confirmDownloadedFileAction, setConfirmDownloadedFileAction] = useState<ConfirmDownloadedFileAction | null>(null)
   const [mounted, setMounted] = useState(false)
+
+  const {
+
+    // state
+    torrents,
+    downloadedFiles,
+    connectionError,
+    suggestionsLLMOnline,
+
+    // functions
+    fetchTorrents,
+    softDeleteTorrentSubFile,
+    isSoftDeleted,
+    getTorrentSoftDeletedFiles,
+    cleanupSoftDeletedFiles,
+    renameTorrent,
+
+  } = useTorrentManager()
+
   const [dontShowAgain, setDontShowAgain] = useLocalStorage('dont-show-confirm-again', {
     'remove': false,
     'delete': false,
@@ -66,7 +75,6 @@ function TorrentBox() {
     torrent: confirmTorrentActionDescriptions,
     downloadedFile: confirmDownloadedFileActionDescriptions,
   }
-
 
   useEffect(() => {
     setMounted(true)
@@ -181,10 +189,13 @@ function TorrentBox() {
     if (!currentDownloadedFile) return
 
     try {
-      // TODO: Add call to api for renaming a downloaded file.
-      toast({
-        title: "Not implemented",
-        description: "Renaming downloaded files is not yet implemented"
+      const res = fetch(`${serverBaseUrl}/torrents/downloaded/rename`, {
+        method: 'POST',
+        headers: json_header,
+        body: JSON.stringify({
+          filename: currentDownloadedFile,
+          newname: newName
+        })
       })
     } catch (error) {
       console.log("Error renaming downloaded file:", error)
@@ -346,21 +357,7 @@ function TorrentBox() {
       <TorrentBoxHeading theme={theme} setTheme={setTheme} />
       <main className="flex-grow p-4 overflow-auto">
         {connectionError ? (
-          <div className="flex flex-col items-center justify-center h-64 p-6 space-y-4 border rounded-lg border-destructive/50 bg-destructive/10">
-            <AlertTriangle className="w-12 h-12 text-destructive" />
-            <div className="text-center">
-              <h3 className="text-lg font-medium">Media Server Not Connected</h3>
-              <p className="text-sm text-muted-foreground">
-                Unable to connect to the media server. Please check your connection and try again.
-              </p>
-            </div>
-            <button
-              onClick={fetchTorrents}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-            >
-              Try Again
-            </button>
-          </div>
+          <ConnectionErrorPanel fetchTorrents={fetchTorrents} />
         ) : (
           <div className="space-y-8">
             <TorrentSearch />
@@ -380,7 +377,7 @@ function TorrentBox() {
             />
           </div>
         )}
-      </main>
+      </main >
 
       <RenameDialog
         title="Rename Torrent"
@@ -410,7 +407,7 @@ function TorrentBox() {
         setDontShowAgain={setDontShowAgain}
         alertDescriptions={currentActionType ? confirmDialogDescriptions[currentActionType] : {}}
       />
-    </div>
+    </div >
   )
 }
 
