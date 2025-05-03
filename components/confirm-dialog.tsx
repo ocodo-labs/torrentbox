@@ -5,12 +5,12 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 
 interface ConfirmDialogProps {
   confirmDialogOpen: boolean
-  setConfirmDialogOpen: (value: boolean) => void
   confirmAction: string | null
-  executeAction: (action: any) => Promise<void>
   dontShowAgain: any
   setDontShowAgain: any
   alertDescriptions: any
+  setConfirmDialogOpen: (value: boolean) => void
+  executeAction: (action: any) => Promise<void>
 }
 
 const ConfirmDialog = (props: ConfirmDialogProps) => {
