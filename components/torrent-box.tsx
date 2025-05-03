@@ -9,19 +9,26 @@ import { TorrentSearch } from "@/components/torrent-search"
 import { TorrentsSection } from "@/components/torrent-section"
 import { useLocalStorage } from "@/lib/use-local-storage"
 import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from "@/types/actions"
-import { SoftDeletedFile } from "@/types/soft-deleted-file"
 import { Torrent, TorrentData } from "@/types/torrent"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 import { toast } from "@/hooks/use-toast"
 import { AlertTriangle } from "lucide-react"
-import { notifyCompletion } from "@/lib/utils"
+import { useTorrentManager } from "@/hooks/use-torrent-manager"
 
 function TorrentBox() {
+  const {
+    torrents,
+    downloadedFiles,
+    connectionError,
+    suggestionsLLMOnline,
+    fetchTorrents,
+    softDeleteTorrentSubFile,
+    isSoftDeleted,
+    getTorrentSoftDeletedFiles,
+    cleanupSoftDeletedFiles,
+  } = useTorrentManager()
   const { theme, setTheme } = useTheme()
-  const [torrents, setTorrents] = useState<Torrent[]>([])
-  const [torrentSoftDeletedFiles, setTorrentSoftDeletedFiles] = useLocalStorage('soft-deleted-files', [])
-  const [downloadedFiles, setDownloadedFiles] = useState<string[]>([])
   const [expandedTorrent, setExpandedTorrent] = useState<string | null>(null)
   const [renameTorrentDialogOpen, setRenameTorrentDialogOpen] = useState(false)
   const [confirmTorrentActionDialogOpen, setConfirmTorrentActionDialogOpen] = useState(false)
@@ -33,9 +40,7 @@ function TorrentBox() {
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [confirmTorrentAction, setConfirmTorrentAction] = useState<ConfirmTorrentAction | null>(null)
   const [confirmDownloadedFileAction, setConfirmDownloadedFileAction] = useState<ConfirmDownloadedFileAction | null>(null)
-  const [connectionError, setConnectionError] = useState(false)
   const [mounted, setMounted] = useState(false)
-  const [suggestionsLLMOnline, setSuggestionsLLMOnline] = useState(false)
   const [dontShowAgain, setDontShowAgain] = useLocalStorage('dont-show-confirm-again', {
     'remove': false,
     'delete': false,
@@ -50,68 +55,6 @@ function TorrentBox() {
     const id = setInterval(fetchTorrents, 1000);
     return () => clearInterval(id);
   }, [])
-
-  const fetchSuggestNamesStatus = async () => {
-    try {
-      const response = await fetch(`${serverBaseUrl}/torrents/suggest_names/status`)
-      setSuggestionsLLMOnline(response.status == 200)
-    } catch (error) {
-      console.log("Error checking suggestion service status:", error)
-      setSuggestionsLLMOnline(false)
-    }
-  }
-
-  const fetchTorrents = async () => {
-    fetchSuggestNamesStatus()
-    try {
-      const response = await fetch(
-        `${serverBaseUrl}/torrents/active`,
-        { headers: json_header })
-      if (!response.ok) {
-        toast({ title: `Network Error`, description: `Failed to fetch torrents (${response.status})` })
-        setConnectionError(true)
-        console.log(`Network error fetching torrents: ${response.status}`)
-        return
-      }
-      const data: TorrentData = await response.json()
-      const fetchedTorrents: Torrent[] = data.downloading.map(t => new Torrent(t))
-      setTorrents(fetchedTorrents)
-      fetchedTorrents.forEach(t => notifyCompletion(t))
-      setDownloadedFiles(data.downloaded)
-      setConnectionError(false)
-    } catch (error) {
-      toast({
-        title: "Error fetching torrents",
-        description: `${error}`
-      })
-      console.log("Error fetching torrents:", error)
-      setConnectionError(true)
-    }
-  }
-
-  const isSoftDeleted = (hash: string, index: number) =>
-    torrentSoftDeletedFiles.findIndex((e: SoftDeletedFile) => e.torrent == hash && e.fileIndex == index) != -1
-
-  const softDeleteTorrentSubFile = (torrent: Torrent, filename: string) => {
-    const index = torrent.files.findIndex(f => f[0] == filename)
-    const hash = torrent.id
-
-    if (!isSoftDeleted(hash, index)) {
-      setTorrentSoftDeletedFiles([...torrentSoftDeletedFiles, new SoftDeletedFile(hash, index)])
-    }
-  }
-
-  const getTorrentSoftDeletedFiles = (torrent: Torrent): string[] => {
-    const indexes = torrentSoftDeletedFiles
-      .filter((e: SoftDeletedFile) => e.torrent == torrent.id)
-      .map((e: SoftDeletedFile) => e.fileIndex)
-
-    const fileNames = torrent.files
-      .filter((e, index) => indexes.indexOf(index) != -1)
-      .map((e) => e[0]) // get the name of file
-
-    return fileNames
-  }
 
   const handleRenameTorrent = (item: Torrent, filename?: string) => {
     // Reset state first
@@ -300,51 +243,6 @@ function TorrentBox() {
     setSuggestions([])
     setRenameTorrentDialogOpen(false)
     fetchTorrents()
-  }
-
-  const cleanupSoftDeletedFiles = async (torrent_id: string, name: string, files: string[]) => {
-    try {
-      const response = await fetch(
-        `${serverBaseUrl}/torrents/cleanup`,
-        {
-          method: 'POST',
-          headers: json_header,
-          body: JSON.stringify({ torrent_id, files, name })
-        }
-      )
-
-      if (!response.ok) {
-        console.log(`Network error cleaning up soft deleted files: ${response.status}`)
-        toast({
-          title: "Network Error",
-          description: `Failed to cleanup files (${response.status})`
-        })
-        return
-      }
-
-      // get soft deleted files from local storage
-      try {
-        const allSoftDeleted = localStorage.getItem('soft-deleted-files')
-        if (allSoftDeleted) {
-          const softDeleted = JSON.parse(allSoftDeleted)
-          const cleanedSoftDeleted = softDeleted.filter((e: SoftDeletedFile) => e.torrent != torrent_id)
-          localStorage.setItem('soft-deleted-files', JSON.stringify(cleanedSoftDeleted))
-          setTorrentSoftDeletedFiles(cleanedSoftDeleted)
-        }
-      } catch (e) {
-        console.log("Error updating soft deleted files in localStorage:", e)
-        toast({
-          title: "Soft Delete Error",
-          description: "Error updating soft deleted files in storage"
-        })
-      }
-    } catch (error) {
-      console.log("Error cleaning up soft deleted files:", error)
-      toast({
-        title: "Error",
-        description: "Failed to cleanup deleted files"
-      })
-    }
   }
 
   const torrentActionRequest = async (action: ConfirmTorrentAction, files: string[] = []) => {
