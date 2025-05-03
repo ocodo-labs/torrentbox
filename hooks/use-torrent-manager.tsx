@@ -44,7 +44,7 @@ export function useTorrentManager() {
   }, [fetchSuggestNamesStatus])
 
   const isSoftDeleted = useCallback((hash: string, index: number) =>
-    torrentSoftDeletedFiles.some( (e : ISoftDeletedFile) => e.torrent === hash && e.fileIndex === index),
+    torrentSoftDeletedFiles.some((e: ISoftDeletedFile) => e.torrent === hash && e.fileIndex === index),
     [torrentSoftDeletedFiles]
   )
 
@@ -110,6 +110,33 @@ export function useTorrentManager() {
     }
   }
 
+  const renameTorrent = async (torrent: Torrent, currentFilename: string, newName: string) => {
+    const payload = {
+      filename: currentFilename,
+      newname: newName,
+      torrent_id: torrent.id,
+    }
+
+    try {
+      const response = await fetch(`${serverBaseUrl}/torrents/active/rename`, {
+        method: 'POST',
+        headers: json_header,
+        body: JSON.stringify(payload),
+      })
+
+      if (!response.ok) {
+        toast({ title: "Network Error", description: `Failed to rename torrent (${response.status})` })
+      } else {
+        toast({ title: "Success", description: "Torrent renamed successfully" })
+      }
+    } catch (error) {
+      console.error("Error renaming torrent:", error)
+      toast({ title: "Error", description: "Failed to rename torrent" })
+    } finally {
+      fetchTorrents()
+    }
+  }
+
   useEffect(() => {
     fetchTorrents()
     const interval = setInterval(fetchTorrents, 1000)
@@ -126,5 +153,6 @@ export function useTorrentManager() {
     isSoftDeleted,
     getTorrentSoftDeletedFiles,
     cleanupSoftDeletedFiles,
+    renameTorrent,
   }
 }
