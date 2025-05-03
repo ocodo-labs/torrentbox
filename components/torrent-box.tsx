@@ -15,10 +15,8 @@ import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 import { toast } from "@/hooks/use-toast"
 import { useTorrentManager } from "@/hooks/use-torrent-manager"
-import { json } from "stream/consumers"
 
 function TorrentBox() {
-
   const { theme, setTheme } = useTheme()
   const [expandedTorrent, setExpandedTorrent] = useState<string | null>(null)
   const [renameTorrentDialogOpen, setRenameTorrentDialogOpen] = useState(false)
@@ -35,21 +33,16 @@ function TorrentBox() {
   const [mounted, setMounted] = useState(false)
 
   const {
-
-    // state
     torrents,
     downloadedFiles,
     connectionError,
     suggestionsLLMOnline,
-
-    // functions
     fetchTorrents,
     softDeleteTorrentSubFile,
     isSoftDeleted,
     getTorrentSoftDeletedFiles,
     cleanupSoftDeletedFiles,
     renameTorrent,
-
   } = useTorrentManager()
 
   const [dontShowAgain, setDontShowAgain] = useLocalStorage('dont-show-confirm-again', {
@@ -83,16 +76,28 @@ function TorrentBox() {
     return () => clearInterval(id);
   }, [])
 
-  const handleRenameTorrent = (item: Torrent, filename?: string) => {
-    // Reset state first
+  const resetState = () => {
     setCurrentDownloadedFile(null)
     setCurrentTorrent(null)
     setCurrentTorrentFilename(null)
     setNewName('')
     setSuggestions([])
+  }
 
-    // Set new state
+  useEffect(() => {
+    if (!renameTorrentDialogOpen) return
+
+    if (currentTorrent && currentTorrentFilename) {
+      fetchTorrentSubFilenameSuggestions(currentTorrent, currentTorrentFilename)
+    } else if (currentTorrent?.name) {
+      fetchSuggestions(currentTorrent.name)
+    }
+  }, [renameTorrentDialogOpen, currentTorrent, currentTorrentFilename])
+
+  const handleRenameTorrent = (item: Torrent, filename?: string) => {
+    resetState()
     setCurrentTorrent(item)
+
     if (filename) {
       setCurrentTorrentFilename(filename)
       setNewName(filename)
@@ -100,33 +105,19 @@ function TorrentBox() {
       setNewName(item.name)
     }
 
-    // Fetch suggestions
-    if (filename) {
-      fetchTorrentSubFilenameSuggestions(item, filename)
-    } else {
-      fetchSuggestions(item.name)
-    }
-
-    // Open dialog
     setRenameTorrentDialogOpen(true)
   }
 
-  const handleRenameDownloaded = (item: string) => {
-    // Reset state first
-    setCurrentDownloadedFile(null)
-    setCurrentTorrent(null)
-    setCurrentTorrentFilename(null)
-    setNewName('')
-    setSuggestions([])
+  useEffect(() => {
+    if (!renameTorrentDialogOpen || !currentDownloadedFile || !newName) return
 
-    // Set new state
+    fetchSuggestions(currentDownloadedFile)
+  }, [renameTorrentDialogOpen, currentDownloadedFile, newName])
+
+  const handleRenameDownloaded = (item: string) => {
+    resetState()
     setCurrentDownloadedFile(item)
     setNewName(item)
-
-    // Fetch suggestions
-    fetchSuggestions(item)
-
-    // Open dialog
     setRenameTorrentDialogOpen(true)
   }
 
@@ -189,7 +180,7 @@ function TorrentBox() {
     if (!currentDownloadedFile) return
 
     try {
-      const res = fetch(`${serverBaseUrl}/torrents/downloaded/rename`, {
+      const res = await fetch(`${serverBaseUrl}/torrents/downloaded/rename`, {
         method: 'POST',
         headers: json_header,
         body: JSON.stringify({
@@ -218,12 +209,7 @@ function TorrentBox() {
       await renameTorrent(currentTorrent, filename, newName)
     }
 
-    // Cleanup state
-    setCurrentDownloadedFile(null)
-    setCurrentTorrent(null)
-    setCurrentTorrentFilename(null)
-    setNewName('')
-    setSuggestions([])
+    resetState()
     setRenameTorrentDialogOpen(false)
   }
 
@@ -319,16 +305,11 @@ function TorrentBox() {
   }
 
   const cancelRenameTorrent = () => {
-    setCurrentDownloadedFile(null)
-    setCurrentTorrent(null)
-    setCurrentTorrentFilename(null)
-    setNewName('')
-    setSuggestions([])
+    resetState()
     setRenameTorrentDialogOpen(false)
   }
 
   const handleAction = (item: Torrent | string, action: ConfirmTorrentAction | ConfirmDownloadedFileAction) => {
-    // Reset current selections
     setCurrentDownloadedFile(null)
     setCurrentTorrent(null)
 
