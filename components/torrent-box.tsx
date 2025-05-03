@@ -2,13 +2,11 @@
 
 import { json_header, serverBaseUrl } from "@/app/config"
 import { ConfirmDialog } from "@/components/confirm-dialog"
-import { DemoPanel } from "@/components/demo-panel"
 import { DownloadedSection } from "@/components/downloaded-section"
 import { RenameDialog } from "@/components/rename-dialog"
 import { TorrentBoxHeading } from "@/components/torrent-box-heading"
 import { TorrentSearch } from "@/components/torrent-search"
 import { TorrentsSection } from "@/components/torrent-section"
-import { generateFakeDownloaded, generateFakeSuggestions, generateFakeTorrents } from "@/demo/fake"
 import { useLocalStorage } from "@/lib/use-local-storage"
 import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from "@/types/actions"
 import { SoftDeletedFile } from "@/types/soft-deleted-file"
@@ -16,6 +14,7 @@ import { Torrent, TorrentData } from "@/types/torrent"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 import { toast } from "@/hooks/use-toast"
+import { AlertTriangle } from "lucide-react"
 
 function TorrentBox() {
   const { theme, setTheme } = useTheme()
@@ -34,7 +33,6 @@ function TorrentBox() {
   const [confirmTorrentAction, setConfirmTorrentAction] = useState<ConfirmTorrentAction | null>(null)
   const [confirmDownloadedFileAction, setConfirmDownloadedFileAction] = useState<ConfirmDownloadedFileAction | null>(null)
   const [connectionError, setConnectionError] = useState(false)
-  const [isDemo, setIsDemo] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [suggestionsLLMOnline, setSuggestionsLLMOnline] = useState(false)
   const [dontShowAgain, setDontShowAgain] = useLocalStorage('dont-show-confirm-again', {
@@ -47,15 +45,20 @@ function TorrentBox() {
 
   useEffect(() => {
     setMounted(true)
-    if (!isDemo) {
-      fetchTorrents()
-      const id = setInterval(fetchTorrents, 1000);
-      return () => clearInterval(id);
-    } else {
-      setTorrents(generateFakeTorrents())
-      setDownloadedFiles(generateFakeDownloaded())
+    fetchTorrents()
+    const id = setInterval(fetchTorrents, 1000);
+    return () => clearInterval(id);
+  }, [])
+
+  const fetchSuggestNamesStatus = async () => {
+    try {
+      const response = await fetch(`${serverBaseUrl}/torrents/suggest_names/status`)
+      setSuggestionsLLMOnline(response.status == 200)
+    } catch (error) {
+      console.log("Error checking suggestion service status:", error)
+      setSuggestionsLLMOnline(false)
     }
-  }, [isDemo])
+  }
 
   const fetchTorrents = async () => {
     fetchSuggestNamesStatus()
@@ -64,24 +67,29 @@ function TorrentBox() {
         `${serverBaseUrl}/torrents/active`,
         { headers: json_header })
       if (!response.ok) {
-        toast({ title: `Network Error` })
+        toast({ title: `Network Error`, description: `Failed to fetch torrents (${response.status})` })
+        setConnectionError(true)
+        console.log(`Network error fetching torrents: ${response.status}`)
+        return
       }
       const data: TorrentData = await response.json()
-      const fetchedTorrents: Torrent[] = await data.downloading.map(t => new Torrent(t))
+      const fetchedTorrents: Torrent[] = data.downloading.map(t => new Torrent(t))
       setTorrents(fetchedTorrents)
       fetchedTorrents.forEach(t => t.notifyCompletion())
       setDownloadedFiles(data.downloaded)
       setConnectionError(false)
     } catch (error) {
       toast({
-        title: "Error fetching torrents:",
+        title: "Error fetching torrents",
         description: `${error}`
       })
+      console.log("Error fetching torrents:", error)
       setConnectionError(true)
     }
   }
 
-  const isSoftDeleted = (hash: string, index: number) => torrentSoftDeletedFiles.findIndex((e: SoftDeletedFile) => e.torrent == hash && e.fileIndex == index) != -1
+  const isSoftDeleted = (hash: string, index: number) =>
+    torrentSoftDeletedFiles.findIndex((e: SoftDeletedFile) => e.torrent == hash && e.fileIndex == index) != -1
 
   const softDeleteTorrentSubFile = (torrent: Torrent, filename: string) => {
     const index = torrent.files.findIndex(f => f[0] == filename)
@@ -93,94 +101,116 @@ function TorrentBox() {
   }
 
   const getTorrentSoftDeletedFiles = (torrent: Torrent): string[] => {
-    const torrentName = torrent.name
-    const indexes = torrentSoftDeletedFiles.
-      filter((e: SoftDeletedFile) => e.torrent == torrent.id).
-      map((e: SoftDeletedFile) => e.fileIndex)
-    const fileNames = torrent.files.
-      filter((e, index) => indexes.indexOf(index) != -1).
-      map((e) => e[0]) // get the name of file
+    const indexes = torrentSoftDeletedFiles
+      .filter((e: SoftDeletedFile) => e.torrent == torrent.id)
+      .map((e: SoftDeletedFile) => e.fileIndex)
+
+    const fileNames = torrent.files
+      .filter((e, index) => indexes.indexOf(index) != -1)
+      .map((e) => e[0]) // get the name of file
 
     return fileNames
   }
 
   const handleRenameTorrent = (item: Torrent, filename?: string) => {
-    handleRename(item, filename)
+    // Reset state first
+    setCurrentDownloadedFile(null)
+    setCurrentTorrent(null)
+    setCurrentTorrentFilename(null)
+    setNewName('')
+    setSuggestions([])
+
+    // Set new state
+    setCurrentTorrent(item)
+    if (filename) {
+      setCurrentTorrentFilename(filename)
+      setNewName(filename)
+    } else {
+      setNewName(item.name)
+    }
+
+    // Fetch suggestions
+    if (filename) {
+      fetchTorrentSubFilenameSuggestions(item, filename)
+    } else {
+      fetchSuggestions(item.name)
+    }
+
+    // Open dialog
+    setRenameTorrentDialogOpen(true)
   }
 
   const handleRenameDownloaded = (item: string) => {
-    handleRename(item)
-  }
+    // Reset state first
+    setCurrentDownloadedFile(null)
+    setCurrentTorrent(null)
+    setCurrentTorrentFilename(null)
+    setNewName('')
+    setSuggestions([])
 
-  const handleRename = (item: Torrent | string, filename?: string) => {
+    // Set new state
+    setCurrentDownloadedFile(item)
+    setNewName(item)
+
+    // Fetch suggestions
+    fetchSuggestions(item)
+
+    // Open dialog
     setRenameTorrentDialogOpen(true)
-    if (typeof item === 'string') {
-      setCurrentDownloadedFile(item)
-      setCurrentTorrent(null)
-      setCurrentTorrentFilename(null)
-      setNewName(item)
-    } else {
-      if (filename) {
-        setCurrentTorrentFilename(filename)
-      }
-      setCurrentTorrent(item)
-      setCurrentDownloadedFile(null)
-      setNewName(filename || item.name)
-    }
-    if (!isDemo) {
-      if (currentTorrentFilename && currentTorrent) {
-        fetchTorrentSubFilenameSuggestions(currentTorrent, currentTorrentFilename)
-      } else {
-        fetchSuggestions(
-          filename || (typeof item === 'string' ? item : item.name)
-        )
-      }
-    } else {
-      setSuggestions(
-        generateFakeSuggestions(
-          filename || (typeof item === 'string' ? item : item.name)
-        )
-      )
-    }
   }
 
-  const escapeName = (name: string): string => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const getTorrentSubFilename = (torrentName: string, filename: string): string => filename.replace(new RegExp(`^${torrentName}/`), '')
+  const escapeName = (name: string): string => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-  const fetchSuggestNamesStatus = async () => {
-    const response = await fetch(`${serverBaseUrl}/torrents/suggest_names/status`)
-    setSuggestionsLLMOnline(response.status == 200)
-  }
+  const getTorrentSubFilename = (torrentName: string, filename: string): string =>
+    filename.replace(new RegExp(`^${torrentName}/`), '')
 
   const fetchTorrentSubFilenameSuggestions = async (torrent: Torrent, filename: string) => {
-    const name = torrent.name
-    const escapedName = escapeName(name)
-    const suggestionFilename = getTorrentSubFilename(escapedName, filename)
-    fetchSuggestions(suggestionFilename)
+    try {
+      const name = torrent.name
+      const escapedName = escapeName(name)
+      const suggestionFilename = getTorrentSubFilename(escapedName, filename)
+      fetchSuggestions(suggestionFilename)
+    } catch (error) {
+      console.log("Error fetching torrent subfile suggestions:", error)
+      toast({
+        title: "Error",
+        description: "Failed to get filename suggestions"
+      })
+    }
   }
 
   const fetchSuggestions = async (filename: string) => {
-    setNewName(filename)
-    if (suggestionsLLMOnline) {
-      try {
-        const response = await fetch(
-          `${serverBaseUrl}/torrents/suggest_names`,
-          {
-            method: 'POST',
-            body: JSON.stringify({ filename: filename }),
-            headers: json_header
-          }
-        )
-        if (!response.ok) {
-          toast({ title: `Network Error` })
-        } else {
-          const data = await response.json()
-          setSuggestions(data.suggestions)
-        }
-      } catch (error) {
-        toast({ title: "Suggestions Error", description: `Error fetching suggestions: ${error}` })
+    try {
+      if (!suggestionsLLMOnline) {
         setSuggestions([])
+        return
       }
+
+      const response = await fetch(
+        `${serverBaseUrl}/torrents/suggest_names`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ filename: filename }),
+          headers: json_header
+        }
+      )
+
+      if (!response.ok) {
+        console.log(`Network error fetching suggestions: ${response.status}`)
+        toast({ title: `Network Error`, description: `Failed to get suggestions (${response.status})` })
+        setSuggestions([])
+        return
+      }
+
+      const data = await response.json()
+      setSuggestions(data.suggestions || [])
+    } catch (error) {
+      console.log("Error fetching suggestions:", error)
+      toast({
+        title: "Suggestions Error",
+        description: "Failed to get name suggestions"
+      })
+      setSuggestions([])
     }
   }
 
@@ -195,61 +225,225 @@ function TorrentBox() {
     'files/move/tvshows': 'Move downloaded files to the TV shows folder.',
   }
 
-  const confirmRenameDownloadedFile = () => {
-    if (currentDownloadedFile) {
+  const confirmRenameDownloadedFile = async () => {
+    if (!currentDownloadedFile) return
+
+    try {
       // TODO: Add call to api for renaming a downloaded file.
+      toast({
+        title: "Not implemented",
+        description: "Renaming downloaded files is not yet implemented"
+      })
+    } catch (error) {
+      console.log("Error renaming downloaded file:", error)
+      toast({
+        title: "Error",
+        description: "Failed to rename downloaded file"
+      })
     }
   }
 
   const confirmRename = async () => {
     if (currentDownloadedFile) {
-      confirmRenameDownloadedFile()
+      await confirmRenameDownloadedFile()
+      setRenameTorrentDialogOpen(false)
       return
     }
+
     if (currentTorrent) {
-      if (!isDemo) {
-        const filename = currentTorrentFilename ||
-          currentTorrent?.name
+      const filename = currentTorrentFilename || currentTorrent.name
+      const torrentId = currentTorrent.id
 
-        const payload = {
-          filename,
-          newname: newName,
-          torrent_id: currentTorrent.id
-        }
+      const payload = {
+        filename,
+        newname: newName,
+        torrent_id: torrentId
+      }
 
-        try {
-          const response = await fetch(
-            `${serverBaseUrl}/torrents/active/rename`,
-            {
-              method: 'POST',
-              headers: json_header,
-              body: JSON.stringify(payload),
-            }
-          );
-
-          if (!response.ok) {
-            toast({ title: `Network Error` })
+      try {
+        const response = await fetch(
+          `${serverBaseUrl}/torrents/active/rename`,
+          {
+            method: 'POST',
+            headers: json_header,
+            body: JSON.stringify(payload),
           }
+        )
 
-          setCurrentDownloadedFile(null)
-          setCurrentTorrent(null)
-          setCurrentTorrentFilename(null)
-          setNewName('')
-          setSuggestions([])
-
-          fetchTorrents(); // Fetch updated torrents
-        } catch (error) {
-          toast({ title: "Torrent Rename Error", description: `Error renaming torrent: ${error}` })
+        if (!response.ok) {
+          console.log(`Network error renaming torrent: ${response.status}`)
+          toast({
+            title: "Network Error",
+            description: `Failed to rename torrent (${response.status})`
+          })
+        } else {
+          toast({
+            title: "Success",
+            description: "Torrent renamed successfully"
+          })
         }
+      } catch (error) {
+        console.log("Error renaming torrent:", error)
+        toast({
+          title: "Error",
+          description: "Failed to rename torrent"
+        })
       }
     }
-    setRenameTorrentDialogOpen(false); // Close the rename dialog
-  };
+
+    // Always clean up and fetch the latest torrents
+    setCurrentDownloadedFile(null)
+    setCurrentTorrent(null)
+    setCurrentTorrentFilename(null)
+    setNewName('')
+    setSuggestions([])
+    setRenameTorrentDialogOpen(false)
+    fetchTorrents()
+  }
+
+  const cleanupSoftDeletedFiles = async (torrent_id: string, name: string, files: string[]) => {
+    try {
+      const response = await fetch(
+        `${serverBaseUrl}/torrents/cleanup`,
+        {
+          method: 'POST',
+          headers: json_header,
+          body: JSON.stringify({ torrent_id, files, name })
+        }
+      )
+
+      if (!response.ok) {
+        console.log(`Network error cleaning up soft deleted files: ${response.status}`)
+        toast({
+          title: "Network Error",
+          description: `Failed to cleanup files (${response.status})`
+        })
+        return
+      }
+
+      // get soft deleted files from local storage
+      try {
+        const allSoftDeleted = localStorage.getItem('soft-deleted-files')
+        if (allSoftDeleted) {
+          const softDeleted = JSON.parse(allSoftDeleted)
+          const cleanedSoftDeleted = softDeleted.filter((e: SoftDeletedFile) => e.torrent != torrent_id)
+          localStorage.setItem('soft-deleted-files', JSON.stringify(cleanedSoftDeleted))
+          setTorrentSoftDeletedFiles(cleanedSoftDeleted)
+        }
+      } catch (e) {
+        console.log("Error updating soft deleted files in localStorage:", e)
+        toast({
+          title: "Soft Delete Error",
+          description: "Error updating soft deleted files in storage"
+        })
+      }
+    } catch (error) {
+      console.log("Error cleaning up soft deleted files:", error)
+      toast({
+        title: "Error",
+        description: "Failed to cleanup deleted files"
+      })
+    }
+  }
+
+  const torrentActionRequest = async (action: ConfirmTorrentAction, files: string[] = []) => {
+    if (!currentTorrent) return
+
+    try {
+      const torrent_id = currentTorrent.id
+      const response = await fetch(
+        `${serverBaseUrl}/torrents/active/${action}?torrent_id=${torrent_id}`,
+        { headers: json_header }
+      )
+
+      if (!response.ok) {
+        console.log(`Network error performing torrent action: ${response.status}`)
+        toast({
+          title: "Network Error",
+          description: `Failed to ${action} torrent (${response.status})`
+        })
+        return
+      }
+
+      if (files && files.length > 0) {
+        await cleanupSoftDeletedFiles(currentTorrent.id, currentTorrent.name, files)
+      }
+
+      toast({
+        title: "Success",
+        description: `Torrent ${action} completed`
+      })
+    } catch (error) {
+      const correctedAction = action.substring(0, action.length - 1)
+      console.log(`Error ${correctedAction}ing torrent:`, error)
+      toast({
+        title: "Error",
+        description: `Failed to ${correctedAction} torrent`
+      })
+    } finally {
+      fetchTorrents()
+    }
+  }
+
+  const downloadedFilesActionRequest = async (action: ConfirmDownloadedFileAction) => {
+    if (!currentDownloadedFile) return
+
+    try {
+      const response = await fetch(
+        `${serverBaseUrl}/torrents/${action}?filename=${currentDownloadedFile}`,
+        { headers: json_header }
+      )
+
+      if (!response.ok) {
+        console.log(`Network error performing file action: ${response.status}`)
+        toast({
+          title: "Network Error",
+          description: `Failed to ${action} file (${response.status})`
+        })
+        return
+      }
+
+      toast({
+        title: "Success",
+        description: `File action ${action} completed`
+      })
+    } catch (error) {
+      console.log(`Error performing ${action} on file:`, error)
+      toast({
+        title: "Error",
+        description: `Failed to perform ${action} on file`
+      })
+    } finally {
+      fetchTorrents()
+    }
+  }
+
+  const executeTorrentAction = async (action: ConfirmTorrentAction) => {
+    if (currentTorrent) {
+      if (action === 'remove') {
+        const files = getTorrentSoftDeletedFiles(currentTorrent)
+        await torrentActionRequest(action, files)
+      } else {
+        await torrentActionRequest(action)
+      }
+    }
+    setConfirmTorrentActionDialogOpen(false)
+  }
+
+  const executeDownloadedFileAction = async (action: ConfirmDownloadedFileAction) => {
+    if (currentDownloadedFile) {
+      await downloadedFilesActionRequest(action)
+    }
+    setConfirmDownloadedFileActionDialogOpen(false)
+  }
 
   const handleAction = (item: Torrent | string, action: ConfirmTorrentAction | ConfirmDownloadedFileAction) => {
+    // Reset current selections
+    setCurrentDownloadedFile(null)
+    setCurrentTorrent(null)
+
     if (typeof item === 'string') {
       setCurrentDownloadedFile(item)
-      setCurrentTorrent(null)
       setConfirmDownloadedFileAction(action as ConfirmDownloadedFileAction)
       if (dontShowAgain[action]) {
         executeDownloadedFileAction(action as ConfirmDownloadedFileAction)
@@ -258,7 +452,6 @@ function TorrentBox() {
       }
     } else {
       setCurrentTorrent(item)
-      setCurrentDownloadedFile(null)
       setConfirmTorrentAction(action as ConfirmTorrentAction)
       if (dontShowAgain[action]) {
         executeTorrentAction(action as ConfirmTorrentAction)
@@ -268,116 +461,8 @@ function TorrentBox() {
     }
   }
 
-  const cleanupSoftDeletedFiles = async (torrent_id: string, name: string, files: string[]) => {
-    const response = await fetch(
-      `${serverBaseUrl}/torrents/cleanup`,
-      {
-        method: 'POST',
-        headers: json_header,
-        body: JSON.stringify({ torrent_id, files, name })
-      }
-    )
-
-    // Response contains:
-    // "info": "Ran torrent files cleanup, removed soft deleted files. Check failed_to_delete for failures",
-    // "name": torrent_name,
-    // "torrent_id": torrent_id,
-    // "files": files that were to be deleted
-    // "failed_to_delete": files to delete list of failures
-
-    if (response.ok) {
-      // get soft deleted files from local storage
-      var allSoftDeleted = null
-      try {
-        allSoftDeleted = localStorage.getItem('soft-deleted-files')
-      } catch (e) {
-        toast({ title: "Soft Delete Error", description: `Error getting soft deleted files from local storage` })
-      }
-      // remove entries for torrent
-      if (allSoftDeleted) {
-        const softDeleted = JSON.parse(allSoftDeleted)
-        const cleanedSoftDeleted = softDeleted.filter((e: SoftDeletedFile) => e.torrent != torrent_id)
-        localStorage.setItem('soft-deleted-files', cleanedSoftDeleted)
-      }
-    }
-  }
-
-  const torrentActionRequest = async (action: ConfirmTorrentAction, files: string[] = []) => {
-    if (currentTorrent) {
-      try {
-        const torrent_id = currentTorrent.id
-        const response = await fetch(
-          `${serverBaseUrl}/torrents/active/${action}?torrent_id=${torrent_id}`,
-          { headers: json_header })
-
-        if (!response.ok) {
-          toast({ title: `Network Error` })
-        }
-        if (files) {
-          cleanupSoftDeletedFiles(currentTorrent.id, currentTorrent.name, files)
-        }
-        fetchTorrents()
-      } catch (error) {
-        const correctedAction  = action.substring(0, action.length - 1);
-        toast({ title: `Error`, description: `Error ${correctedAction}ing torrent`})
-        console.log(`Error ${correctedAction}ing torrent:`, error)
-      }
-    }
-  }
-
-  const downloadedFilesActionRequest = async (action: ConfirmDownloadedFileAction) => {
-    if (currentDownloadedFile) {
-      try {
-        const response = await fetch(
-          `${serverBaseUrl}/torrents/${action}?filename=${currentDownloadedFile}`,
-          { headers: json_header })
-
-        if (!response.ok) {
-          toast({ title: `Network Error` })
-        }
-        fetchTorrents()
-      } catch (error) {
-        toast({ title: `Error`, description: `Error ${action}ing torrent` })
-      }
-    }
-  }
-
-  const executeTorrentAction = async (action: ConfirmTorrentAction) => {
-    if (currentTorrent) {
-      if (!isDemo) {
-        if (action == 'remove') {
-          const files = getTorrentSoftDeletedFiles(currentTorrent)
-          torrentActionRequest(action, files)
-        } else {
-          torrentActionRequest(action)
-        }
-      }
-      setTorrents(torrents.filter(t => t.id !== currentTorrent.id))
-    }
-    setConfirmTorrentActionDialogOpen(false)
-  }
-
-
-  const executeDownloadedFileAction = async (action: ConfirmDownloadedFileAction) => {
-    if (currentDownloadedFile) {
-      if (!isDemo) {
-        downloadedFilesActionRequest(action)
-      } else {
-        setDownloadedFiles(downloadedFiles.filter(f => f !== currentDownloadedFile))
-      }
-    }
-    setConfirmDownloadedFileActionDialogOpen(false)
-  }
-
   const toggleExpand = (id: string) => {
     setExpandedTorrent(expandedTorrent === id ? null : id)
-  }
-
-  const startDemo = () => {
-    setIsDemo(true)
-    setConnectionError(false)
-    setTorrents(generateFakeTorrents())
-    setDownloadedFiles(generateFakeDownloaded())
   }
 
   if (!mounted) {
@@ -389,7 +474,21 @@ function TorrentBox() {
       <TorrentBoxHeading theme={theme} setTheme={setTheme} />
       <main className="flex-grow p-4 overflow-auto">
         {connectionError ? (
-          <DemoPanel tryAgain={fetchTorrents} startDemo={startDemo} />
+          <div className="flex flex-col items-center justify-center h-64 p-6 space-y-4 border rounded-lg border-destructive/50 bg-destructive/10">
+            <AlertTriangle className="w-12 h-12 text-destructive" />
+            <div className="text-center">
+              <h3 className="text-lg font-medium">Media Server Not Connected</h3>
+              <p className="text-sm text-muted-foreground">
+                Unable to connect to the media server. Please check your connection and try again.
+              </p>
+            </div>
+            <button
+              onClick={fetchTorrents}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+            >
+              Try Again
+            </button>
+          </div>
         ) : (
           <div className="space-y-8">
             <TorrentSearch />
@@ -398,14 +497,14 @@ function TorrentBox() {
               expandedTorrent={expandedTorrent}
               toggleExpand={toggleExpand}
               handleAction={handleAction}
-              handleRename={handleRename}
+              handleRename={handleRenameTorrent}
               handleSoftDelete={softDeleteTorrentSubFile}
               isSoftDeletedFn={isSoftDeleted}
             />
             <DownloadedSection
               downloadedFiles={downloadedFiles}
               handleAction={handleAction}
-              handleRename={handleRename}
+              handleRename={handleRenameDownloaded}
             />
           </div>
         )}
@@ -421,6 +520,10 @@ function TorrentBox() {
         suggestionsServiceOnline={suggestionsLLMOnline}
         onConfirm={confirmRename}
         onCancel={() => {
+          setCurrentDownloadedFile(null)
+          setCurrentTorrent(null)
+          setCurrentTorrentFilename(null)
+          setNewName('')
           setSuggestions([])
           setRenameTorrentDialogOpen(false)
         }}

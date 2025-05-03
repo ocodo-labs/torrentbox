@@ -6,8 +6,8 @@ interface TorrentsSectionProps {
   torrents: Torrent[]
   expandedTorrent: string | null
   toggleExpand: (id: string) => void
-  handleAction: (item: Torrent | string, action: ConfirmTorrentAction | ConfirmDownloadedFileAction) => void
-  handleRename: (item: Torrent | string, filename?: string) => void
+  handleAction: (item: Torrent, action: ConfirmTorrentAction | ConfirmDownloadedFileAction) => void
+  handleRename: (item: Torrent, filename?: string) => void
   handleSoftDelete: (torrent: Torrent, filename: string) => void
   isSoftDeletedFn: (torrentId: string, index: number) => boolean
 }

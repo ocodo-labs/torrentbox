@@ -5,7 +5,7 @@ import { Clapperboard, Edit, Trash, Tv } from "lucide-react"
 
 interface DownloadedSectionProps {
   downloadedFiles: string[]
-  handleRename: (item: Torrent | string, filename?: string) => void
+  handleRename: (item: string, filename?: string) => void
   handleAction: (torrent: Torrent | string, action: ConfirmTorrentAction | ConfirmDownloadedFileAction) => void
 }
 
