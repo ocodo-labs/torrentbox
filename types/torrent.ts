@@ -1,4 +1,3 @@
-
 class Torrent {
     id: string;
     name: string;
@@ -20,33 +19,6 @@ class Torrent {
         this.name = name;
         this.percent = percent;
         this.files = files;
-    }
-
-    notifyCompletion() {
-        const key = `torrent_completed_${this.id}`;
-        const isNotified = localStorage.getItem(key);
-
-        if (this.percent === 100 && !isNotified) {
-            // Check if it's the first run
-            const isFirstRun = localStorage.getItem('first_run') === null;
-
-            if (!isFirstRun) {
-                try {
-                    const player = new Audio('/sounds/torrent-finished.mp3');
-                    player.play();
-                } catch (e) {
-                    console.log("Could not play torrent finished sound")
-                }
-            }
-
-            // Mark this torrent as notified
-            localStorage.setItem(key, 'true');
-
-            // Set the first run flag to false
-            if (isFirstRun) {
-                localStorage.setItem('first_run', 'false');
-            }
-        }
     }
 }
 

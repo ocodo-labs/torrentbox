@@ -15,6 +15,7 @@ import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 import { toast } from "@/hooks/use-toast"
 import { AlertTriangle } from "lucide-react"
+import { notifyCompletion } from "@/lib/utils"
 
 function TorrentBox() {
   const { theme, setTheme } = useTheme()
@@ -75,7 +76,7 @@ function TorrentBox() {
       const data: TorrentData = await response.json()
       const fetchedTorrents: Torrent[] = data.downloading.map(t => new Torrent(t))
       setTorrents(fetchedTorrents)
-      fetchedTorrents.forEach(t => t.notifyCompletion())
+      fetchedTorrents.forEach(t => notifyCompletion(t))
       setDownloadedFiles(data.downloaded)
       setConnectionError(false)
     } catch (error) {
