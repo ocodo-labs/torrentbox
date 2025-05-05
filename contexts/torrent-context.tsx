@@ -221,13 +221,6 @@ const TorrentsProvider: React.FC<TorrentsProviderProps> = ({ children }) => {
         }
     };
 
-    // Polling setup
-    useEffect(() => {
-        fetchTorrents();
-        const intervalId = setInterval(fetchTorrents, 5000);
-        return () => clearInterval(intervalId);
-    }, []);
-
     return (
         <TorrentsContext.Provider value={{
             torrents,

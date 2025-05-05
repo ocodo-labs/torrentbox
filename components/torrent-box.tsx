@@ -72,7 +72,7 @@ function TorrentBox() {
   useEffect(() => {
     setMounted(true)
     fetchTorrents()
-    const id = setInterval(fetchTorrents, 1000);
+    const id = setInterval(fetchTorrents, 5000);
     return () => clearInterval(id);
   }, [])
 
@@ -245,7 +245,7 @@ function TorrentBox() {
       console.log(`Error ${correctedAction}ing torrent:`, error)
       toast({
         title: "Error",
-        description: `Failed to ${correctedAction} torrent`
+        description: `Failed to ${action} torrent`
       })
     } finally {
       fetchTorrents()
