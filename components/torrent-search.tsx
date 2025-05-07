@@ -3,7 +3,7 @@ import { IndeterminateProgress } from "@/components/indeterminate-progress"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
-import { CircleX, Download } from "lucide-react"
+import { CircleX, Download, SearchIcon } from "lucide-react"
 import { useState } from "react"
 import { toast } from "@/hooks/use-toast"
 
@@ -119,8 +119,8 @@ function TorrentSearch() {
                 />
                 <Button
                     className="rounded-full"
-                    onClick={torrentSearch}>Search</Button>
-                <CircleX className="size-10 cursor-pointer" onClick={resetSearch} />
+                    onClick={torrentSearch}><SearchIcon className="mr-2 w-4 h-4"/> Search</Button>
+                <CircleX className="mt-1 size-8 cursor-pointer" onClick={resetSearch} />
             </div>
             {
                 searchResults.length > 0 ? (
