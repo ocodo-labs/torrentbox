@@ -141,6 +141,10 @@ function TorrentBox() {
     }
   }
 
+  const deduplicateSuggestions = (suggestions: string[]): string[] => {
+    return Array.from(new Set(suggestions));
+  }
+
   const fetchSuggestions = async (filename: string) => {
     try {
       if (!suggestionsLLMOnline) {
@@ -165,7 +169,8 @@ function TorrentBox() {
       }
 
       const data = await response.json()
-      setSuggestions(data.suggestions || [])
+      const suggestions = deduplicateSuggestions(data.suggestions)
+      setSuggestions(suggestions || [])
     } catch (error) {
       console.log("Error fetching suggestions:", error)
       toast({
