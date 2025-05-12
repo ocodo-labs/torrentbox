@@ -27,7 +27,7 @@ function TorrentBox() {
   const [currentTorrentFilename, setCurrentTorrentFilename] = useState<string | null>(null)
   const [currentDownloadedFile, setCurrentDownloadedFile] = useState<string | null>(null)
   const [newName, setNewName] = useState('')
-  const [suggestions, setSuggestions] = useState<string[]>([])
+  const [suggestions, setSuggestions] = useState<Set<string>>(new Set())
   const [confirmTorrentAction, setConfirmTorrentAction] = useState<ConfirmTorrentAction | null>(null)
   const [confirmDownloadedFileAction, setConfirmDownloadedFileAction] = useState<ConfirmDownloadedFileAction | null>(null)
   const [mounted, setMounted] = useState(false)
@@ -81,7 +81,7 @@ function TorrentBox() {
     setCurrentTorrent(null)
     setCurrentTorrentFilename(null)
     setNewName('')
-    setSuggestions([])
+    setSuggestions(new Set())
   }
 
   useEffect(() => {
@@ -141,14 +141,10 @@ function TorrentBox() {
     }
   }
 
-  const deduplicateSuggestions = (suggestions: string[]): string[] => {
-    return Array.from(new Set(suggestions));
-  }
-
   const fetchSuggestions = async (filename: string) => {
     try {
       if (!suggestionsLLMOnline) {
-        setSuggestions([])
+        setSuggestions(new Set())
         return
       }
 
@@ -164,20 +160,20 @@ function TorrentBox() {
       if (!response.ok) {
         console.log(`Network error fetching suggestions: ${response.status}`)
         toast({ title: `Network Error`, description: `Failed to get suggestions (${response.status})` })
-        setSuggestions([])
+        setSuggestions(new Set())
         return
       }
 
       const data = await response.json()
-      const suggestions = deduplicateSuggestions(data.suggestions)
-      setSuggestions(suggestions || [])
+      const suggestions = new Set<string>(data.suggestions)
+      setSuggestions(suggestions)
     } catch (error) {
       console.log("Error fetching suggestions:", error)
       toast({
         title: "Suggestions Error",
         description: "Failed to get name suggestions"
       })
-      setSuggestions([])
+      setSuggestions(new Set())
     }
   }
 
@@ -380,7 +376,7 @@ function TorrentBox() {
         onOpenChange={setRenameTorrentDialogOpen}
         newName={newName}
         setNewName={setNewName}
-        suggestions={suggestions}
+        suggestions={Array.from(suggestions)}
         suggestionsServiceOnline={suggestionsLLMOnline}
         onConfirm={confirmRename}
         onCancel={cancelRenameTorrent}
