@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { Torrent } from "@/types/torrent";
+import { Torrent } from "@/types/torrent"
+import { audio } from 'can-autoplay'
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
@@ -19,12 +20,14 @@ export function notifyCompletion(
         const isFirstRun = localStorage.getItem('first_run') === null;
 
         if (!isFirstRun) {
-            try {
-                const player = new Audio(sound);
-                player.play();
-            } catch (e) {
-                console.log("Could not play torrent finished sound")
-            }
+            audio().then(({ result }: { result: Boolean }) => {
+                if (result === true) {
+                    const player = new Audio(sound);
+                    player.play();
+                } else {
+                    console.log("Could not play torrent finished sound")
+                }
+            })
         }
 
         // Mark this torrent as notified
