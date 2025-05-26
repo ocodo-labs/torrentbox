@@ -13,8 +13,9 @@ import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from "@/types/actio
 import { Torrent } from "@/types/torrent"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
-import { toast } from "@/hooks/use-toast"
 import { useTorrentManager } from "@/hooks/use-torrent-manager"
+import { toast } from "sonner"
+
 
 function TorrentBox() {
   const { theme, setTheme } = useTheme()
@@ -134,10 +135,7 @@ function TorrentBox() {
       fetchSuggestions(suggestionFilename)
     } catch (error) {
       console.log("Error fetching torrent subfile suggestions:", error)
-      toast({
-        title: "Error",
-        description: "Failed to get filename suggestions"
-      })
+      toast("Failed to get filename suggestions")
     }
   }
 
@@ -159,7 +157,7 @@ function TorrentBox() {
 
       if (!response.ok) {
         console.log(`Network error fetching suggestions: ${response.status}`)
-        toast({ title: `Network Error`, description: `Failed to get suggestions (${response.status})` })
+        toast(`Failed to get suggestions (${response.status})`)
         setSuggestions(new Set())
         return
       }
@@ -169,10 +167,7 @@ function TorrentBox() {
       setSuggestions(suggestions)
     } catch (error) {
       console.log("Error fetching suggestions:", error)
-      toast({
-        title: "Suggestions Error",
-        description: "Failed to get name suggestions"
-      })
+      toast("Failed to get name suggestions")
       setSuggestions(new Set())
     }
   }
@@ -191,10 +186,7 @@ function TorrentBox() {
       })
     } catch (error) {
       console.log("Error renaming downloaded file:", error)
-      toast({
-        title: "Error",
-        description: "Failed to rename downloaded file"
-      })
+      toast("Failed to rename downloaded file")
     }
   }
 
@@ -226,10 +218,7 @@ function TorrentBox() {
 
       if (!response.ok) {
         console.log(`Network error performing torrent action: ${response.status}`)
-        toast({
-          title: "Network Error",
-          description: `Failed to ${action} torrent (${response.status})`
-        })
+        toast(`Failed to ${action} torrent (${response.status})`)
         return
       }
 
@@ -237,17 +226,11 @@ function TorrentBox() {
         await cleanupSoftDeletedFiles(currentTorrent.id, currentTorrent.name, files)
       }
 
-      toast({
-        title: "Success",
-        description: `Torrent ${action} completed`
-      })
+      toast(`Torrent ${action} completed`)
     } catch (error) {
       const correctedAction = action.substring(0, action.length - 1)
       console.log(`Error ${correctedAction}ing torrent:`, error)
-      toast({
-        title: "Error",
-        description: `Failed to ${action} torrent`
-      })
+      toast(`Failed to ${action} torrent`)
     } finally {
       fetchTorrents()
     }
@@ -264,23 +247,14 @@ function TorrentBox() {
 
       if (!response.ok) {
         console.log(`Network error performing file action: ${response.status}`)
-        toast({
-          title: "Network Error",
-          description: `Failed to ${action} file (${response.status})`
-        })
+        toast(`Failed to ${action} file (${response.status})`)
         return
       }
 
-      toast({
-        title: "Success",
-        description: `File action ${action} completed`
-      })
+      toast(`File action ${action} completed`)
     } catch (error) {
       console.log(`Error performing ${action} on file:`, error)
-      toast({
-        title: "Error",
-        description: `Failed to perform ${action} on file`
-      })
+      toast(`Failed to perform ${action} on file`)
     } finally {
       fetchTorrents()
     }
