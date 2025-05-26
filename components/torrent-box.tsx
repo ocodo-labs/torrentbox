@@ -149,7 +149,7 @@ function TorrentBox() {
       }
 
       const response = await fetch(
-        `${serverBaseUrl}/torrents/suggest_names`,
+        `${serverBaseUrl}/llm/suggest_names`,
         {
           method: 'POST',
           body: JSON.stringify({ filename: filename }),

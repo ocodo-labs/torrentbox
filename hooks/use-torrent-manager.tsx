@@ -15,7 +15,7 @@ export function useTorrentManager() {
 
   const fetchSuggestNamesStatus = useCallback(async () => {
     try {
-      const res = await fetch(`${serverBaseUrl}/torrents/suggest_names/status`)
+      const res = await fetch(`${serverBaseUrl}/llm/status`)
       setSuggestionsLLMOnline(res.ok)
     } catch (err) {
       setSuggestionsLLMOnline(false)
