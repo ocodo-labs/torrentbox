@@ -2,8 +2,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
-import { toast } from "@/hooks/use-toast"
+
 import { MagnetIcon } from "@/components/magnet-icon"
+import { toast } from "sonner"
 
 type TorrentNewMagnetDialogProps = {
   open: boolean
@@ -25,18 +26,15 @@ export const TorrentNewMagnetDialog = ({ open, onOpenChange, postUrl }: TorrentN
           body: JSON.stringify({ magnet_url: magnetUrl }),
         })
         if (!response.ok) {
-          toast({ title: `Error Failed to Add Magnet Link` })
+          toast(`Error Failed to Add Magnet Link`)
         }
         onOpenChange(false)
         setMagnetUrl("")
       } catch (error) {
-        toast({ title: `Network Error Adding Magnet Link` })
+        toast(`Network Error Adding Magnet Link`)
       }
     } else {
-      toast({
-        title: "Invalid Magnet URL",
-        description: 'Magnet link was not valid'
-      })
+      toast("Invalid Magnet URL")
     }
   }
 

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Torrent, TorrentData } from "@/types/torrent"
 import { json_header, serverBaseUrl } from "@/app/config"
-import { toast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 import { notifyCompletion } from "@/lib/utils"
 import { useLocalStorage } from "@/lib/use-local-storage"
 import { ISoftDeletedFile, SoftDeletedFile } from "@/types/soft-deleted-file"
@@ -27,7 +27,7 @@ export function useTorrentManager() {
     try {
       const res = await fetch(`${serverBaseUrl}/torrents/active`, { headers: json_header })
       if (!res.ok) {
-        toast({ title: 'Network Error', description: `Failed to fetch torrents (${res.status})` })
+        toast(`Failed to fetch torrents (${res.status})`)
         setConnectionError(true)
         return
       }
@@ -38,7 +38,7 @@ export function useTorrentManager() {
       newTorrents.forEach(t => notifyCompletion(t))
       setConnectionError(false)
     } catch (err) {
-      toast({ title: 'Fetch Error', description: `${err}` })
+      toast(`Fetch Error`)
       setConnectionError(true)
     }
   }, [fetchSuggestNamesStatus])
@@ -79,10 +79,7 @@ export function useTorrentManager() {
 
       if (!response.ok) {
         console.log(`Network error cleaning up soft deleted files: ${response.status}`)
-        toast({
-          title: "Network Error",
-          description: `Failed to cleanup files (${response.status})`
-        })
+        toast(`Failed to cleanup files (${response.status})`)
         return
       }
 
@@ -96,17 +93,11 @@ export function useTorrentManager() {
         }
       } catch (e) {
         console.log("Error updating soft deleted files in localStorage:", e)
-        toast({
-          title: "Soft Delete Error",
-          description: "Error updating soft deleted files in storage"
-        })
+        toast("Error updating soft deleted files in storage")
       }
     } catch (error) {
       console.log("Error cleaning up soft deleted files:", error)
-      toast({
-        title: "Error",
-        description: "Failed to cleanup deleted files"
-      })
+      toast("Failed to cleanup deleted files")
     }
   }
 
@@ -125,13 +116,13 @@ export function useTorrentManager() {
       })
 
       if (!response.ok) {
-        toast({ title: "Network Error", description: `Failed to rename torrent (${response.status})` })
+        toast(`Failed to rename torrent (${response.status})`)
       } else {
-        toast({ title: "Success", description: "Torrent renamed successfully" })
+        toast("Torrent renamed successfully")
       }
     } catch (error) {
       console.error("Error renaming torrent:", error)
-      toast({ title: "Error", description: "Failed to rename torrent" })
+      toast("Failed to rename torrent")
     } finally {
       fetchTorrents()
     }

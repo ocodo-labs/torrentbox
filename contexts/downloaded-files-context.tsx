@@ -1,4 +1,4 @@
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 
 // Define the shape of a downloaded file
@@ -21,7 +21,7 @@ interface DownloadedFilesContextType {
 
 // Create the context
 const DownloadedFilesContext = createContext<DownloadedFilesContextType | undefined>(undefined);
-const API_URL = 'http://localhost:8000/api/files';
+const API_URL = 'http://10.0.0.2:8000/api/files';
 
 interface DownloadedFilesProviderProps {
     children: ReactNode;
@@ -37,8 +37,8 @@ const DownloadedFilesProvider: React.FC<DownloadedFilesProviderProps> = ({ child
         setLoading(true);
         try {
             const response = await fetch(API_URL);
-            if (!response.ok) { 
-                toast({ title: `Network Error` }) 
+            if (!response.ok) {
+                toast(`Network Error`)
             } else {
                 const data = await response.json();
                 setFiles(data);

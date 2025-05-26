@@ -1,7 +1,7 @@
 import { ThemeProvider } from "@/components/theme-provider"
 import type { Metadata } from "next"
 import "./globals.css"
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from "sonner"
 
 export const metadata: Metadata = {
   title: "TorrentBox",
@@ -39,7 +39,7 @@ export default function RootLayout({
             disableTransitionOnChange
         >
           {children}
-          <Toaster />
+          <Toaster position="bottom-center" />
         </ThemeProvider>
       </body>
     </html>

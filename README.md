@@ -11,13 +11,13 @@ npm install
 npx next
 ```
 
-![](TorrentBox-dark.png)
+![](images/TorrentBox-dark.png)
 
 View the torrent files
 
-![](TorrentBox-torrent-files.png)
+![](images/TorrentBox-torrent-files.png)
 
 You can the rename torrent files and AI will suggest ideas, it'll try to remove crud from the filename.
 
-![](TorrentBox-rename-torrent.png)
+![](images/TorrentBox-rename-torrent.png)
 

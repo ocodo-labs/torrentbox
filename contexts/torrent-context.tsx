@@ -1,4 +1,4 @@
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 
 // Define the shape of a Torrent object
@@ -55,7 +55,7 @@ const TorrentsProvider: React.FC<TorrentsProviderProps> = ({ children }) => {
                 }),
             });
             if (!response.ok) {
-                toast({ title: `Network Error`})
+                toast(`Network Error`)
             } else {
                 const data = await response.json();
                 setTorrents(data.arguments.torrents);
