@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
 import { CircleX, Download, SearchIcon } from "lucide-react"
 import { useState } from "react"
 import { toast } from "@/hooks/use-toast"
-import canAutoplay from 'can-autoplay';
+import canAutoplay from 'can-autoplay'
 
 interface TorrentSearchResult {
   magnet_link: string
@@ -21,8 +21,7 @@ function TorrentSearchResultRow(props: TorrentSearchResult) {
     magnet_link,
     name,
     seeds,
-    size,
-    category,
+    size
   } = props
 
   function addedTorrent() {

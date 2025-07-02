@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
+import { Description } from '@radix-ui/react-dialog'
 import { Dispatch, SetStateAction } from 'react'
 
 interface RenameDialogProps {
@@ -31,6 +32,7 @@ const RenameDialog = (props: RenameDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
+        <Description style={{ 'display': 'none' }}>Rename</Description>
         <DialogHeader>
           <DialogTitle>{title}{suggestionsServiceOnline ? " (AI Suggestions Available)" : ""}</DialogTitle>
         </DialogHeader>
@@ -39,20 +41,18 @@ const RenameDialog = (props: RenameDialogProps) => {
           onChange={(e) => setNewName(e.target.value)}
           onKeyDown={(e) => (e.code == "Enter") && onConfirm()}
         />
-        <Table>
-          <TableBody>
-            {suggestionsServiceOnline && suggestions.length == 0 ? (<IndeterminateProgress />) : ""}
-            {suggestions.map((suggestion, index) => (
-              <TableRow key={index} className={index % 2 === 0 ? 'bg-muted' : ''}>
-                <TableCell>
-                  <Button variant="ghost" onClick={() => setNewName(suggestion)}>
-                    {suggestion}
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+
+        <div className='grid grid-cols-1 gap-0'>
+          {suggestionsServiceOnline && suggestions.length == 0 ? (<IndeterminateProgress />) : ""}
+          {suggestions.map((suggestion, index) => (
+            <div key={index} className={index % 2 === 0 ? 'bg-muted' : ''}>
+              <Button variant="ghost" onClick={() => setNewName(suggestion)}>
+                {suggestion}
+              </Button>
+            </div>
+          ))}
+        </div>
+
         <DialogFooter>
           <Button variant="outline" onClick={onCancel}>Cancel</Button>
           <Button onClick={onConfirm}>Rename</Button>

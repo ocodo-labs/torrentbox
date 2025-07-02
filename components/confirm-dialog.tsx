@@ -2,15 +2,18 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from "@/types/actions"
+import { Description } from "@radix-ui/react-dialog"
+import { Dispatch, SetStateAction } from "react"
 
 interface ConfirmDialogProps {
   confirmDialogOpen: boolean
-  confirmAction: string | null
-  dontShowAgain: any
-  setDontShowAgain: any
-  alertDescriptions: any
+  confirmAction: ConfirmDownloadedFileAction | ConfirmTorrentAction
+  dontShowAgain: Record<ConfirmDownloadedFileAction | ConfirmTorrentAction,boolean>
+  setDontShowAgain: Dispatch<SetStateAction<Record<ConfirmDownloadedFileAction | ConfirmTorrentAction, boolean>>>
+  alertDescriptions: Record<string,string>
   setConfirmDialogOpen: (value: boolean) => void
-  executeAction: (action: any) => Promise<void>
+  executeAction: (action: ConfirmDownloadedFileAction | ConfirmTorrentAction) => Promise<void>
 }
 
 const ConfirmDialog = (props: ConfirmDialogProps) => {
@@ -26,6 +29,7 @@ const ConfirmDialog = (props: ConfirmDialogProps) => {
   return (
     <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
       <DialogContent >
+        <Description style={{'display': 'none'}}>Confirm Action</Description>
         <DialogHeader>
           <DialogTitle>Confirm Action</DialogTitle>
         </DialogHeader>
@@ -50,7 +54,7 @@ const ConfirmDialog = (props: ConfirmDialogProps) => {
             htmlFor="dontShowAgain"
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
-            Don't show this again for {confirmAction}
+            Don&apos;t show this again for {confirmAction}
           </label>
         </div>
         <DialogFooter>

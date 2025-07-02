@@ -52,6 +52,9 @@ function TorrentBox() {
     'files/delete': false,
     'files/move/tvshows': false,
     'files/move/movies': false,
+    'files/move/books': false,
+    'files/move/music': false,
+    'files/move/software': false,
   })
 
   const confirmTorrentActionDescriptions = {
@@ -63,6 +66,9 @@ function TorrentBox() {
     'files/delete': 'Delete the downloaded files',
     'files/move/movies': 'Move downloaded files to the Movies folder.',
     'files/move/tvshows': 'Move downloaded files to the TV shows folder.',
+    'files/move/books': 'Move downloaded files to the Books folder.',
+    'files/move/music': 'Move downloaded files to the Music folder.',
+    'files/move/software': 'Move downloaded files to the Software folder.',
   }
 
   const confirmDialogDescriptions = {
@@ -176,7 +182,7 @@ function TorrentBox() {
     if (!currentDownloadedFile) return
 
     try {
-      const res = await fetch(`${serverBaseUrl}/torrents/downloaded/rename`, {
+      const response = await fetch(`${serverBaseUrl}/torrents/downloaded/rename`, {
         method: 'POST',
         headers: json_header,
         body: JSON.stringify({
@@ -184,9 +190,12 @@ function TorrentBox() {
           newname: newName
         })
       })
+      if (response.ok) {
+        toast(`Renamed ${currentDownloadedFile} to ${newName}`)
+      }
     } catch (error) {
       console.log("Error renaming downloaded file:", error)
-      toast("Failed to rename downloaded file")
+      toast(`Failed to rename ${currentDownloadedFile}`)
     }
   }
 
@@ -264,6 +273,7 @@ function TorrentBox() {
     if (currentTorrent) {
       if (action === 'remove') {
         const files = getTorrentSoftDeletedFiles(currentTorrent)
+        toast(`${action} ${currentTorrent.name}`)
         await torrentActionRequest(action, files)
       } else {
         await torrentActionRequest(action)
@@ -274,6 +284,7 @@ function TorrentBox() {
 
   const executeDownloadedFileAction = async (action: ConfirmDownloadedFileAction) => {
     if (currentDownloadedFile) {
+      toast(`Starting ${action}: ${currentDownloadedFile}`)
       await downloadedFilesActionRequest(action)
     }
     setConfirmDownloadedFileActionDialogOpen(false)
@@ -359,7 +370,7 @@ function TorrentBox() {
       <ConfirmDialog
         confirmDialogOpen={confirmTorrentActionDialogOpen || confirmDownloadedFileActionDialogOpen}
         setConfirmDialogOpen={confirmTorrentActionDialogOpen ? setConfirmTorrentActionDialogOpen : setConfirmDownloadedFileActionDialogOpen}
-        confirmAction={currentActionType === 'torrent' ? confirmTorrentAction : confirmDownloadedFileAction}
+        confirmAction={(currentActionType === 'torrent' ? confirmTorrentAction : confirmDownloadedFileAction) as ConfirmDownloadedFileAction | ConfirmTorrentAction}
         executeAction={currentActionType === 'torrent' ? executeTorrentAction : executeDownloadedFileAction}
         dontShowAgain={dontShowAgain}
         setDontShowAgain={setDontShowAgain}
