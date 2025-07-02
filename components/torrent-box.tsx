@@ -12,7 +12,7 @@ import { useLocalStorage } from "@/lib/use-local-storage"
 import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from "@/types/actions"
 import { Torrent } from "@/types/torrent"
 import { useTheme } from "next-themes"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useTorrentManager } from "@/hooks/use-torrent-manager"
 import { toast } from "sonner"
 
@@ -81,7 +81,7 @@ function TorrentBox() {
     fetchTorrents()
     const id = setInterval(fetchTorrents, 5000);
     return () => clearInterval(id);
-  }, [])
+  }, [fetchTorrents])
 
   const resetState = () => {
     setCurrentDownloadedFile(null)
@@ -90,16 +90,6 @@ function TorrentBox() {
     setNewName('')
     setSuggestions(new Set())
   }
-
-  useEffect(() => {
-    if (!renameTorrentDialogOpen) return
-
-    if (currentTorrent && currentTorrentFilename) {
-      fetchTorrentSubFilenameSuggestions(currentTorrent, currentTorrentFilename)
-    } else if (currentTorrent?.name) {
-      fetchSuggestions(currentTorrent.name)
-    }
-  }, [renameTorrentDialogOpen, currentTorrent, currentTorrentFilename])
 
   const handleRenameTorrent = (item: Torrent, filename?: string) => {
     resetState()
@@ -115,11 +105,6 @@ function TorrentBox() {
     setRenameTorrentDialogOpen(true)
   }
 
-  useEffect(() => {
-    if (!renameTorrentDialogOpen || !currentDownloadedFile || !newName) return
-
-    fetchSuggestions(currentDownloadedFile)
-  }, [renameTorrentDialogOpen, currentDownloadedFile, newName])
 
   const handleRenameDownloaded = (item: string) => {
     resetState()
@@ -133,19 +118,7 @@ function TorrentBox() {
   const getTorrentSubFilename = (torrentName: string, filename: string): string =>
     filename.replace(new RegExp(`^${torrentName}/`), '')
 
-  const fetchTorrentSubFilenameSuggestions = async (torrent: Torrent, filename: string) => {
-    try {
-      const name = torrent.name
-      const escapedName = escapeName(name)
-      const suggestionFilename = getTorrentSubFilename(escapedName, filename)
-      fetchSuggestions(suggestionFilename)
-    } catch (error) {
-      console.log("Error fetching torrent subfile suggestions:", error)
-      toast("Failed to get filename suggestions")
-    }
-  }
-
-  const fetchSuggestions = async (filename: string) => {
+  const fetchSuggestions = useCallback(async (filename: string) => {
     try {
       if (!suggestionsLLMOnline) {
         setSuggestions(new Set())
@@ -176,7 +149,35 @@ function TorrentBox() {
       toast("Failed to get name suggestions")
       setSuggestions(new Set())
     }
-  }
+  }, [suggestionsLLMOnline])
+
+  useEffect(() => {
+    const fetchTorrentSubFilenameSuggestions = async (torrent: Torrent, filename: string) => {
+      try {
+        const name = torrent.name
+        const escapedName = escapeName(name)
+        const suggestionFilename = getTorrentSubFilename(escapedName, filename)
+        fetchSuggestions(suggestionFilename)
+      } catch (error) {
+        console.log("Error fetching torrent subfile suggestions:", error)
+        toast("Failed to get filename suggestions")
+      }
+    }
+
+    if (!renameTorrentDialogOpen) return
+
+    if (currentTorrent && currentTorrentFilename) {
+      fetchTorrentSubFilenameSuggestions(currentTorrent, currentTorrentFilename)
+    } else if (currentTorrent?.name) {
+      fetchSuggestions(currentTorrent.name)
+    }
+  }, [renameTorrentDialogOpen, currentTorrent, currentTorrentFilename, fetchSuggestions])
+
+  useEffect(() => {
+    if (!renameTorrentDialogOpen || !currentDownloadedFile || !newName) return
+
+    fetchSuggestions(currentDownloadedFile)
+  }, [renameTorrentDialogOpen, currentDownloadedFile, newName, fetchSuggestions])
 
   const confirmRenameDownloadedFile = async () => {
     if (!currentDownloadedFile) return

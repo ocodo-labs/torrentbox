@@ -2,7 +2,6 @@ import { IndeterminateProgress } from '@/components/indeterminate-progress'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { Description } from '@radix-ui/react-dialog'
 import { Dispatch, SetStateAction } from 'react'
 
