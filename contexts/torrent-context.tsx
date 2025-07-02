@@ -1,5 +1,5 @@
 import { toast } from 'sonner';
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, ReactNode } from 'react';
 
 // Define the shape of a Torrent object
 interface Torrent {
