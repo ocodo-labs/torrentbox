@@ -13,7 +13,6 @@ interface DownloadedSectionProps {
 
 function DownloadedSection(props: DownloadedSectionProps) {
   const { downloadedFiles, handleRename, handleAction } = props
-
   const [showMore, setShowMore] = useState<boolean>(false)
 
   if (downloadedFiles.length > 0) {
