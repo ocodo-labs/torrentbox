@@ -17,7 +17,15 @@ interface TorrentRowProps {
 }
 
 const TorrentRow = (props: TorrentRowProps) => {
-  const { torrent, handleRename, handleAction, handleSoftDelete, toggleExpand, expandedTorrent, isSoftDeletedFn } = props
+  const {
+    torrent,
+    handleRename,
+    handleAction,
+    handleSoftDelete,
+    toggleExpand,
+    expandedTorrent,
+    isSoftDeletedFn
+  } = props
   return (
     <div key={torrent.id} className="p-4 border rounded-lg">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
