@@ -1,6 +1,6 @@
-export type ConfirmTorrentAction = 'remove' | 'delete'
+export type DestructiveTorrentAction = 'remove' | 'delete'
 
-export type ConfirmDownloadedFileAction =
+export type DestructiveDownloadedFileAction =
   'files/delete' |
   'files/move/movies' |
   'files/move/tvshows' |

@@ -1,21 +1,30 @@
-import { useState, useEffect, useRef, useCallback, Dispatch, SetStateAction } from 'react';
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  type Dispatch,
+  type SetStateAction
+} from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 interface LongPressButtonProps extends React.ComponentPropsWithoutRef<typeof Button> {
-  children: React.ReactNode;
-  fillUpColorClass?: string;
-  longPressDuration: number;
-  onLongPress: () => void;
-  setPressing?: Dispatch<SetStateAction<boolean>>;
-  transformOrigin?: 'top' | 'right' | 'bottom' | 'left';
   className?: string;
+  childrenClassName?: string;
+  fillUpColorClass?: string;
+  transformOrigin?: 'top' | 'right' | 'bottom' | 'left';
+  longPressDuration?: number;
+  children: React.ReactNode;
+  setPressing?: Dispatch<SetStateAction<boolean>>;
+  onLongPress: () => void;
 }
 
-const LongPressButton: React.FC<LongPressButtonProps> = ({
+export const LongPressButton: React.FC<LongPressButtonProps> = ({
   children,
+  childrenClassName,
   fillUpColorClass,
-  longPressDuration,
+  longPressDuration = 500,
   onLongPress,
   setPressing,
   transformOrigin = 'bottom',
@@ -185,11 +194,15 @@ const LongPressButton: React.FC<LongPressButtonProps> = ({
       />
 
       {/* Content */}
-      <div className="w-full p-6 relative z-[2] select-none">
+      <div className={
+        cn(
+          "relative z-[2] select-none",
+          childrenClassName
+        )
+      }>
         {children}
       </div>
     </Button>
   );
 };
 
-export default LongPressButton;

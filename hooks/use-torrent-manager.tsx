@@ -17,7 +17,7 @@ export function useTorrentManager() {
     try {
       const res = await fetch(`${serverBaseUrl}/llm/status`)
       setSuggestionsLLMOnline(res.ok)
-    } catch (err) {
+    } catch {
       setSuggestionsLLMOnline(false)
     }
   }, [])
@@ -37,7 +37,7 @@ export function useTorrentManager() {
       setDownloadedFiles(data.downloaded)
       newTorrents.forEach(t => notifyCompletion(t))
       setConnectionError(false)
-    } catch (err) {
+    } catch {
       toast(`Fetch Error`)
       setConnectionError(true)
     }

@@ -1,38 +1,31 @@
 'use client'
 
 import { json_header, serverBaseUrl } from "@/app/config"
-import { ConfirmDialog } from "@/components/confirm-dialog"
 import { DownloadedSection } from "@/components/downloaded-section"
 import { RenameDialog } from "@/components/rename-dialog"
 import { TorrentBoxHeading } from "@/components/torrent-box-heading"
 import { TorrentSearch } from "@/components/torrent-search"
 import { TorrentsSection } from "@/components/torrent-section"
 import { ConnectionErrorPanel } from "@/components/connection-error-panel"
-import { useLocalStorage } from "@/lib/use-local-storage"
-import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from "@/types/actions"
+import { DestructiveDownloadedFileAction, DestructiveTorrentAction } from "@/types/actions"
 import { Torrent } from "@/types/torrent"
 import { useTheme } from "next-themes"
 import { useCallback, useEffect, useState } from "react"
 import { useTorrentManager } from "@/hooks/use-torrent-manager"
 import { toast } from "sonner"
 
-
 function TorrentBox() {
   const { theme, setTheme } = useTheme()
   const [expandedTorrent, setExpandedTorrent] = useState<string | null>(null)
   const [renameTorrentDialogOpen, setRenameTorrentDialogOpen] = useState(false)
-  const [confirmTorrentActionDialogOpen, setConfirmTorrentActionDialogOpen] = useState(false)
-  const [confirmDownloadedFileActionDialogOpen, setConfirmDownloadedFileActionDialogOpen] = useState(false)
-  const [currentTorrent, setCurrentTorrent] = useState<Torrent | null>(null)
   const [currentActionType, setCurrentActionType] = useState<'torrent' | 'downloadedFile' | null>(null);
+  const [currentTorrent, setCurrentTorrent] = useState<Torrent | null>(null)
   const [currentTorrentFilename, setCurrentTorrentFilename] = useState<string | null>(null)
   const [currentDownloadedFile, setCurrentDownloadedFile] = useState<string | null>(null)
   const [newName, setNewName] = useState('')
   const [suggestions, setSuggestions] = useState<Set<string>>(new Set())
-  const [confirmTorrentAction, setConfirmTorrentAction] = useState<ConfirmTorrentAction | null>(null)
-  const [confirmDownloadedFileAction, setConfirmDownloadedFileAction] = useState<ConfirmDownloadedFileAction | null>(null)
   const [mounted, setMounted] = useState(false)
-
+  const [action, setAction] = useState<DestructiveTorrentAction | DestructiveDownloadedFileAction | null>(null);
   const {
     torrents,
     downloadedFiles,
@@ -41,40 +34,9 @@ function TorrentBox() {
     fetchTorrents,
     softDeleteTorrentSubFile,
     isSoftDeleted,
-    getTorrentSoftDeletedFiles,
     cleanupSoftDeletedFiles,
     renameTorrent,
   } = useTorrentManager()
-
-  const [dontShowAgain, setDontShowAgain] = useLocalStorage('dont-show-confirm-again', {
-    'remove': false,
-    'delete': false,
-    'files/delete': false,
-    'files/move/tvshows': false,
-    'files/move/movies': false,
-    'files/move/books': false,
-    'files/move/music': false,
-    'files/move/software': false,
-  })
-
-  const confirmTorrentActionDescriptions = {
-    'remove': 'This will deactivate the torrent and remove it from the list. Downloaded files will be kept.',
-    'delete': 'This will delete the torrent completely.',
-  }
-
-  const confirmDownloadedFileActionDescriptions = {
-    'files/delete': 'Delete the downloaded files',
-    'files/move/movies': 'Move downloaded files to the Movies folder.',
-    'files/move/tvshows': 'Move downloaded files to the TV shows folder.',
-    'files/move/books': 'Move downloaded files to the Books folder.',
-    'files/move/music': 'Move downloaded files to the Music folder.',
-    'files/move/software': 'Move downloaded files to the Software folder.',
-  }
-
-  const confirmDialogDescriptions = {
-    torrent: confirmTorrentActionDescriptions,
-    downloadedFile: confirmDownloadedFileActionDescriptions,
-  }
 
   useEffect(() => {
     setMounted(true)
@@ -104,7 +66,6 @@ function TorrentBox() {
 
     setRenameTorrentDialogOpen(true)
   }
-
 
   const handleRenameDownloaded = (item: string) => {
     resetState()
@@ -216,110 +177,109 @@ function TorrentBox() {
     setRenameTorrentDialogOpen(false)
   }
 
-  const torrentActionRequest = async (action: ConfirmTorrentAction, files: string[] = []) => {
-    if (!currentTorrent) return
+  const executeTorrentAction = useCallback(
+    async (action: DestructiveTorrentAction, files: string[] = []) => {
+      if (!currentTorrent) return;
 
-    try {
-      const torrent_id = currentTorrent.id
-      const response = await fetch(
-        `${serverBaseUrl}/torrents/active/${action}?torrent_id=${torrent_id}`,
-        { headers: json_header }
-      )
+      try {
+        const torrent_id = currentTorrent.id;
+        const response = await fetch(
+          `${serverBaseUrl}/torrents/active/${action}?torrent_id=${torrent_id}`,
+          { headers: json_header }
+        );
 
-      if (!response.ok) {
-        console.log(`Network error performing torrent action: ${response.status}`)
-        toast(`Failed to ${action} torrent (${response.status})`)
-        return
+        if (!response.ok) {
+          console.log(`Network error performing torrent action: ${response.status}`);
+          toast(`Failed to ${action} torrent (${response.status})`);
+          return;
+        }
+
+        if (files && files.length > 0) {
+          await cleanupSoftDeletedFiles(currentTorrent.id, currentTorrent.name, files);
+        }
+
+        toast(`Torrent ${action} completed`);
+      } catch (error) {
+        const correctedAction = action.substring(0, action.length - 1);
+        console.log(`Error ${correctedAction}ing torrent:`, error);
+        toast(`Failed to ${action} torrent`);
       }
+    },
+    [currentTorrent, cleanupSoftDeletedFiles] // Dependencies for memoization
+  );
 
-      if (files && files.length > 0) {
-        await cleanupSoftDeletedFiles(currentTorrent.id, currentTorrent.name, files)
+  const executeDownloadedFileAction = useCallback(
+    async (action: DestructiveDownloadedFileAction) => {
+      if (!currentDownloadedFile) return;
+
+      try {
+        const response = await fetch(
+          `${serverBaseUrl}/torrents/${action}?filename=${currentDownloadedFile}`,
+          { headers: json_header }
+        );
+
+        if (!response.ok) {
+          console.log(`Network error performing file action: ${response.status}`);
+          toast(`Failed to ${action} file (${response.status})`);
+          return;
+        }
+
+        toast(`File action ${action} completed`);
+      } catch (error) {
+        console.log(`Error performing ${action} on file:`, error);
+        toast(`Failed to perform ${action} on file`);
       }
-
-      toast(`Torrent ${action} completed`)
-    } catch (error) {
-      const correctedAction = action.substring(0, action.length - 1)
-      console.log(`Error ${correctedAction}ing torrent:`, error)
-      toast(`Failed to ${action} torrent`)
-    } finally {
-      fetchTorrents()
-    }
-  }
-
-  const downloadedFilesActionRequest = async (action: ConfirmDownloadedFileAction) => {
-    if (!currentDownloadedFile) return
-
-    try {
-      const response = await fetch(
-        `${serverBaseUrl}/torrents/${action}?filename=${currentDownloadedFile}`,
-        { headers: json_header }
-      )
-
-      if (!response.ok) {
-        console.log(`Network error performing file action: ${response.status}`)
-        toast(`Failed to ${action} file (${response.status})`)
-        return
-      }
-
-      toast(`File action ${action} completed`)
-    } catch (error) {
-      console.log(`Error performing ${action} on file:`, error)
-      toast(`Failed to perform ${action} on file`)
-    } finally {
-      fetchTorrents()
-    }
-  }
-
-  const executeTorrentAction = async (action: ConfirmTorrentAction) => {
-    if (currentTorrent) {
-      if (action === 'remove') {
-        const files = getTorrentSoftDeletedFiles(currentTorrent)
-        toast(`${action} ${currentTorrent.name}`)
-        await torrentActionRequest(action, files)
-      } else {
-        await torrentActionRequest(action)
-      }
-    }
-    setConfirmTorrentActionDialogOpen(false)
-  }
-
-  const executeDownloadedFileAction = async (action: ConfirmDownloadedFileAction) => {
-    if (currentDownloadedFile) {
-      toast(`Starting ${action}: ${currentDownloadedFile}`)
-      await downloadedFilesActionRequest(action)
-    }
-    setConfirmDownloadedFileActionDialogOpen(false)
-  }
+    },
+    [currentDownloadedFile]
+  );
 
   const cancelRenameTorrent = () => {
     resetState()
     setRenameTorrentDialogOpen(false)
   }
 
-  const handleAction = (item: Torrent | string, action: ConfirmTorrentAction | ConfirmDownloadedFileAction) => {
-    setCurrentDownloadedFile(null)
-    setCurrentTorrent(null)
+  useEffect(() => {
+    if (!currentActionType || (!currentDownloadedFile && !currentTorrent)) return;
+
+    const executeAction = async () => {
+      switch (currentActionType) {
+        case 'downloadedFile':
+          if (currentDownloadedFile && action) {
+            await executeDownloadedFileAction(action as DestructiveDownloadedFileAction);
+          }
+          break;
+        case 'torrent':
+          if (currentTorrent && action) {
+            await executeTorrentAction(action as DestructiveTorrentAction);
+          }
+          break;
+        default:
+          break;
+      }
+    };
+
+    executeAction(); // Call the action execution
+
+  }, [
+    currentActionType,
+    currentTorrent,
+    currentDownloadedFile,
+    action,
+    executeDownloadedFileAction,
+    executeTorrentAction
+  ]);
+
+  const handleAction = (item: Torrent | string, action: DestructiveTorrentAction | DestructiveDownloadedFileAction) => {
+    setAction(action);
 
     if (typeof item === 'string') {
-      setCurrentDownloadedFile(item)
-      setCurrentActionType('downloadedFile')
-      setConfirmDownloadedFileAction(action as ConfirmDownloadedFileAction)
-      if (dontShowAgain[action]) {
-        executeDownloadedFileAction(action as ConfirmDownloadedFileAction)
-      } else {
-        setConfirmDownloadedFileActionDialogOpen(true)
-      }
+      setCurrentDownloadedFile(item);
+      setCurrentActionType('downloadedFile');
     } else {
-      setCurrentTorrent(item)
-      setCurrentActionType('torrent')
-      setConfirmTorrentAction(action as ConfirmTorrentAction)
-      if (dontShowAgain[action]) {
-        executeTorrentAction(action as ConfirmTorrentAction)
-      } else {
-        setConfirmTorrentActionDialogOpen(true)
-      }
+      setCurrentTorrent(item);
+      setCurrentActionType('torrent');
     }
-  }
+  };
 
   const toggleExpand = (id: string) => {
     setExpandedTorrent(expandedTorrent === id ? null : id)
@@ -366,16 +326,6 @@ function TorrentBox() {
         suggestionsServiceOnline={suggestionsLLMOnline}
         onConfirm={confirmRename}
         onCancel={cancelRenameTorrent}
-      />
-
-      <ConfirmDialog
-        confirmDialogOpen={confirmTorrentActionDialogOpen || confirmDownloadedFileActionDialogOpen}
-        setConfirmDialogOpen={confirmTorrentActionDialogOpen ? setConfirmTorrentActionDialogOpen : setConfirmDownloadedFileActionDialogOpen}
-        confirmAction={(currentActionType === 'torrent' ? confirmTorrentAction : confirmDownloadedFileAction) as ConfirmDownloadedFileAction | ConfirmTorrentAction}
-        executeAction={currentActionType === 'torrent' ? executeTorrentAction : executeDownloadedFileAction}
-        dontShowAgain={dontShowAgain}
-        setDontShowAgain={setDontShowAgain}
-        alertDescriptions={currentActionType ? confirmDialogDescriptions[currentActionType] : {}}
       />
     </div >
   )

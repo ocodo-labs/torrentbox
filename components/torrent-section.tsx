@@ -1,12 +1,12 @@
 import { TorrentRow } from "@/components/torrent-row"
-import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from "@/types/actions"
+import { DestructiveDownloadedFileAction, DestructiveTorrentAction } from "@/types/actions"
 import { Torrent } from "@/types/torrent"
 
 interface TorrentsSectionProps {
   torrents: Torrent[]
   expandedTorrent: string | null
   toggleExpand: (id: string) => void
-  handleAction: (item: Torrent, action: ConfirmTorrentAction | ConfirmDownloadedFileAction) => void
+  handleAction: (item: Torrent, action: DestructiveTorrentAction | DestructiveDownloadedFileAction) => void
   handleRename: (item: Torrent, filename?: string) => void
   handleSoftDelete: (torrent: Torrent, filename: string) => void
   isSoftDeletedFn: (torrentId: string, index: number) => boolean

@@ -1,3 +1,4 @@
+import { LongPressFloatButton } from "@/components/long-press-float-button"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Torrent } from "@/types/torrent"
@@ -34,9 +35,10 @@ const TorrentFileRow = (props: TorrentFileRowProps) => {
         <Button variant="ghost" size="icon" onClick={() => handleRename(torrent, filename)}>
           <Edit className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={() => handleSoftDelete(torrent, filename)}>
-          <Trash className="h-4 w-4" />
-        </Button>
+        <LongPressFloatButton
+          title="Delete"
+          icon={<Trash className="h-4 w-4" />}
+          onLongPress={() => handleSoftDelete(torrent, filename)} />
       </div>
     </div>
   )

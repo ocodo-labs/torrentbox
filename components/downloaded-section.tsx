@@ -1,14 +1,14 @@
-import { FloatBox } from "@/components/float-box"
-import { Button } from "@/components/ui/button"
-import { ConfirmDownloadedFileAction, ConfirmTorrentAction } from "@/types/actions"
+import { FloatButton } from "@/components/float-button"
+import { LongPressFloatButton } from "@/components/long-press-float-button"
+import { DestructiveDownloadedFileAction, DestructiveTorrentAction } from "@/types/actions"
 import { Torrent } from "@/types/torrent"
 import { Binary, BookIcon, ChevronRightIcon, Clapperboard, Edit, Ellipsis, HeadphonesIcon, Trash, Tv } from "lucide-react"
-import { ReactNode, useState } from "react"
+import { useState } from "react"
 
 interface DownloadedSectionProps {
   downloadedFiles: string[]
   handleRename: (item: string, filename?: string) => void
-  handleAction: (torrent: Torrent | string, action: ConfirmTorrentAction | ConfirmDownloadedFileAction) => void
+  handleAction: (torrent: Torrent | string, action: DestructiveTorrentAction | DestructiveDownloadedFileAction) => void
 }
 
 function DownloadedSection(props: DownloadedSectionProps) {
@@ -30,12 +30,12 @@ function DownloadedSection(props: DownloadedSectionProps) {
                     <FloatButton title="Rename"
                       icon={<Edit className="h-4 w-4" />}
                       onClick={() => handleRename(file)} />
-                    <FloatButton title="Move to TV Shows"
+                    <LongPressFloatButton title="Move to TV Shows"
                       icon={<Tv className="h-4 w-4" />}
-                      onClick={() => handleAction(file, 'files/move/tvshows')} />
-                    <FloatButton title="Move to Movies"
+                      onLongPress={() => handleAction(file, 'files/move/tvshows')} />
+                    <LongPressFloatButton title="Move to Movies"
                       icon={<Clapperboard className="h-4 w-4" />}
-                      onClick={() => handleAction(file, 'files/move/movies')} />
+                      onLongPress={() => handleAction(file, 'files/move/movies')} />
                   </>
                   {!showMore &&
                     <FloatButton title="Show More places"
@@ -47,20 +47,20 @@ function DownloadedSection(props: DownloadedSectionProps) {
                       <FloatButton title="Close More places"
                         icon={<ChevronRightIcon className="h-4 w-4" />}
                         onClick={() => setShowMore(false)} />
-                      <FloatButton title="Move to Books"
+                      <LongPressFloatButton title="Move to Books"
                         icon={<BookIcon className="h-4 w-4" />}
-                        onClick={() => handleAction(file, 'files/move/books')} />
-                      <FloatButton title="Move to Music"
+                        onLongPress={() => handleAction(file, 'files/move/books')} />
+                      <LongPressFloatButton title="Move to Music"
                         icon={<HeadphonesIcon className="h-4 w-4" />}
-                        onClick={() => handleAction(file, 'files/move/music')} />
-                      <FloatButton title="Move to Software"
+                        onLongPress={() => handleAction(file, 'files/move/music')} />
+                      <LongPressFloatButton title="Move to Software"
                         icon={<Binary className="h-4 w-4" />}
-                        onClick={() => handleAction(file, 'files/move/software')} />
+                        onLongPress={() => handleAction(file, 'files/move/software')} />
                     </>
                   }
-                  <FloatButton title="Delete"
+                  <LongPressFloatButton title="Delete"
                     icon={<Trash className="h-4 w-4" />}
-                    onClick={() => handleAction(file, 'files/delete')} />
+                    onLongPress={() => handleAction(file, 'files/delete')} />
                 </div>
               </div>
             </div>
@@ -72,26 +72,6 @@ function DownloadedSection(props: DownloadedSectionProps) {
     return null
   }
 }
-
-interface FloatButtonProps {
-  title: string
-  icon: ReactNode
-  onClick: () => void
-}
-
-function FloatButton(props: FloatButtonProps) {
-
-  const { title, icon, onClick } = props
-
-  return (
-    <FloatBox body={title} hAlign='center' vAlign='bottom'>
-      <Button variant="ghost" size="icon" onClick={onClick}>
-        {icon}
-      </Button>
-    </FloatBox>
-  )
-}
-
 
 export { DownloadedSection }
 
