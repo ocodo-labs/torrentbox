@@ -10,9 +10,10 @@ import { ConnectionErrorPanel } from "@/components/connection-error-panel"
 import { DestructiveDownloadedFileAction, DestructiveTorrentAction } from "@/types/actions"
 import { Torrent } from "@/types/torrent"
 import { useTheme } from "next-themes"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useTorrentManager } from "@/hooks/use-torrent-manager"
 import { toast } from "sonner"
+import { useLeadingEdgeDebounce } from "@/lib/debounce"
 
 function TorrentBox() {
   const { theme, setTheme } = useTheme()
@@ -26,6 +27,8 @@ function TorrentBox() {
   const [suggestions, setSuggestions] = useState<Set<string>>(new Set())
   const [mounted, setMounted] = useState(false)
   const [action, setAction] = useState<DestructiveTorrentAction | DestructiveDownloadedFileAction | null>(null);
+  const actionInProgress = useRef(false);
+
   const {
     torrents,
     downloadedFiles,
@@ -41,8 +44,6 @@ function TorrentBox() {
   useEffect(() => {
     setMounted(true)
     fetchTorrents()
-    const id = setInterval(fetchTorrents, 5000);
-    return () => clearInterval(id);
   }, [fetchTorrents])
 
   const resetState = () => {
@@ -239,47 +240,66 @@ function TorrentBox() {
   }
 
   useEffect(() => {
-    if (!currentActionType || (!currentDownloadedFile && !currentTorrent)) return;
+    console.log('Effect Triggered - actionInProgress:', actionInProgress.current);
 
-    const executeAction = async () => {
-      switch (currentActionType) {
-        case 'downloadedFile':
-          if (currentDownloadedFile && action) {
-            await executeDownloadedFileAction(action as DestructiveDownloadedFileAction);
-          }
-          break;
-        case 'torrent':
-          if (currentTorrent && action) {
-            await executeTorrentAction(action as DestructiveTorrentAction);
-          }
-          break;
-        default:
-          break;
+    const executeAction = () => {
+      if (!currentActionType || (!currentDownloadedFile && !currentTorrent) || actionInProgress.current) {
+        console.log('Exiting Effect: actionInProgress:', actionInProgress.current);
+        if (actionInProgress.current) return
+        return;
+      }
+
+      console.log('Starting action execution');
+      actionInProgress.current = true; // Mark as in-progress
+
+      try {
+        console.log('Action started for type:', currentActionType);
+        switch (currentActionType) {
+          case 'downloadedFile':
+            if (currentDownloadedFile && action) {
+              executeDownloadedFileAction(action as DestructiveDownloadedFileAction);
+            }
+            break;
+          case 'torrent':
+            if (currentTorrent && action) {
+              executeTorrentAction(action as DestructiveTorrentAction);
+            }
+            break;
+          default:
+            break;
+        }
+      } catch (error) {
+        console.error("Error executing action:", error);
+      } finally {
+        actionInProgress.current = false; // Reset flag after action completes
+        console.log('Action completed, actionInProgress reset.');
       }
     };
 
-    executeAction(); // Call the action execution
+    executeAction(); // Execute action
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentActionType, action]);
 
-  }, [
-    currentActionType,
-    currentTorrent,
-    currentDownloadedFile,
-    action,
-    executeDownloadedFileAction,
-    executeTorrentAction
-  ]);
-
-  const handleAction = (item: Torrent | string, action: DestructiveTorrentAction | DestructiveDownloadedFileAction) => {
-    setAction(action);
-
+  const handleAction = useLeadingEdgeDebounce((item: Torrent | string, action: DestructiveTorrentAction | DestructiveDownloadedFileAction) => {
     if (typeof item === 'string') {
+      console.log(`Downloaded File Action: ${action} ... ${item}`)
+      setAction(action);
       setCurrentDownloadedFile(item);
       setCurrentActionType('downloadedFile');
-    } else {
-      setCurrentTorrent(item);
-      setCurrentActionType('torrent');
+      fetchTorrents()
     }
-  };
+
+    if (typeof item === 'object') {
+      const torrent: Torrent = item as Torrent;
+      if (torrent.id) {
+        console.log(`Torrent Action: ${action} ... ${torrent.name}`)
+        setAction(action);
+        setCurrentTorrent(torrent);
+        setCurrentActionType('torrent');
+        fetchTorrents()
+      }
+    }
+  }, 1300);
 
   const toggleExpand = (id: string) => {
     setExpandedTorrent(expandedTorrent === id ? null : id)
@@ -297,7 +317,7 @@ function TorrentBox() {
           <ConnectionErrorPanel fetchTorrents={fetchTorrents} />
         ) : (
           <div className="space-y-8">
-            <TorrentSearch />
+            <TorrentSearch fetchTorrents={fetchTorrents} />
             <TorrentsSection
               torrents={torrents}
               expandedTorrent={expandedTorrent}

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { Torrent, TorrentData } from "@/types/torrent"
 import { json_header, serverBaseUrl } from "@/app/config"
 import { toast } from "sonner"
@@ -22,10 +22,11 @@ export function useTorrentManager() {
     }
   }, [])
 
-  const fetchTorrents = useCallback(async () => {
-    fetchSuggestNamesStatus()
+  const fetchTorrents = async () => {
     try {
-      const res = await fetch(`${serverBaseUrl}/torrents/active`, { headers: json_header })
+      const res = await fetch(
+        `${serverBaseUrl}/torrents/active`,
+        { headers: json_header })
       if (!res.ok) {
         toast(`Failed to fetch torrents (${res.status})`)
         setConnectionError(true)
@@ -40,8 +41,10 @@ export function useTorrentManager() {
     } catch {
       toast(`Fetch Error`)
       setConnectionError(true)
+    } finally {
+      fetchSuggestNamesStatus()
     }
-  }, [fetchSuggestNamesStatus])
+  }
 
   const isSoftDeleted = useCallback((hash: string, index: number) =>
     torrentSoftDeletedFiles.some((e: ISoftDeletedFile) => e.torrent === hash && e.fileIndex === index),
@@ -98,6 +101,8 @@ export function useTorrentManager() {
     } catch (error) {
       console.log("Error cleaning up soft deleted files:", error)
       toast("Failed to cleanup deleted files")
+    } finally {
+      fetchTorrents()
     }
   }
 
@@ -127,12 +132,6 @@ export function useTorrentManager() {
       fetchTorrents()
     }
   }
-
-  useEffect(() => {
-    fetchTorrents()
-    const interval = setInterval(fetchTorrents, 1000)
-    return () => clearInterval(interval)
-  }, [fetchTorrents])
 
   return {
     torrents,

@@ -2,11 +2,12 @@ import { serverBaseUrl } from "@/app/config"
 import { IndeterminateProgress } from "@/components/indeterminate-progress"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
 import { CircleX, Download, SearchIcon } from "lucide-react"
-import { useState } from "react"
-import { toast } from "@/hooks/use-toast"
+import React, { useState } from "react"
 import canAutoplay from 'can-autoplay'
+import { toast } from "sonner"
+import { FloatBox } from "@/components/float-box"
+import { LongPressFloatButton } from "@/components/long-press-float-button"
 
 interface TorrentSearchResult {
   magnet_link: string
@@ -16,12 +17,17 @@ interface TorrentSearchResult {
   category: string
 }
 
-function TorrentSearchResultRow(props: TorrentSearchResult) {
+interface TorrentSearchResultWithFetchTorrents extends TorrentSearchResult {
+  fetchTorrents: () => void
+}
+
+function TorrentSearchResultRow(props: TorrentSearchResultWithFetchTorrents) {
   const {
     magnet_link,
     name,
     seeds,
-    size
+    size,
+    fetchTorrents,
   } = props
 
   function addedTorrent() {
@@ -35,45 +41,62 @@ function TorrentSearchResultRow(props: TorrentSearchResult) {
     })
   }
 
-  async function getTorrentMagnet(magnet_link: string) {
-    const response = await fetch(
-      `${serverBaseUrl}/torrents/magnet/new`, {
-      method: 'POST',
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        magnet_url: magnet_link
+  async function getTorrentMagnet(name: string, magnet_link: string) {
+    try {
+      const response = await fetch(
+        `${serverBaseUrl}/torrents/magnet/new`, {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          magnet_url: magnet_link
+        })
       })
-    })
-    if (response.status == 200) {
-      addedTorrent()
-    } else {
-      console.error('TorrentBox: Failed to add magnet link from search')
+      if (response.status == 200) {
+        addedTorrent()
+        toast(`Added: ${name}`)
+        fetchTorrents()
+      } else {
+        console.error(`TorrentBox: Failed to add magnet link for ${name}`)
+      }
+    } catch {
+      toast(`Error adding ${name}`)
     }
   }
 
   return (
-    <TableRow>
-      <TableCell className="font-medium text-lg">
+    <div className="flex justify-between items-center border-b-2 border-secondary-foreground/10">
+      <div className="font-medium">
         {name}
-      </TableCell>
-      <TableCell className="text-xs text-muted-foreground">
-        {size}
-      </TableCell>
-      <TableCell className="font-medium">
-        {seeds}
-      </TableCell>
-      <TableCell>
-        <Button variant="ghost" size="icon" onClick={() => getTorrentMagnet(magnet_link)}>
-          <Download className="h-4 w-4" />
-        </Button>
-      </TableCell>
-    </TableRow>
+      </div>
+      <div className="flex items-center gap-3">
+        <div className="text-xs text-muted-foreground">
+          {size}
+        </div>
+        <FloatBox hAlign='center' vAlign='top' body='Seeds' >
+          <div className="text-xs w-10">
+            {seeds}
+          </div>
+        </FloatBox>
+        <LongPressFloatButton
+          fillColor="bg-emerald-500"
+          hAlign='left'
+          vAlign='top'
+          title={`Download ${name}`}
+          onLongPress={() => getTorrentMagnet(name, magnet_link)}
+          icon={<Download className="h-4 w-4" />} />
+      </div>
+    </div>
   )
 }
 
-function TorrentSearch() {
+interface TorrentSearchProps {
+  fetchTorrents: () => Promise<void>
+}
+
+const TorrentSearch: React.FC<TorrentSearchProps> = (props) => {
+  const { fetchTorrents } = props
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState([])
   const [searching, setSearching] = useState(false)
@@ -90,7 +113,6 @@ function TorrentSearch() {
       setSearching(true)
       const response = await fetch(`${serverBaseUrl}/torrents/search/scrape?query=${encodeURIComponent(searchQuery)}`)
       const data = await response.json()
-      console.dir(data)
       const filtered = data.results.filter((e: TorrentSearchResult) => {
         const hasSeeds = parseInt(e.seeds, 10) > 0
         const isNotPorn = !e.category.toLowerCase().includes("porn")
@@ -98,10 +120,7 @@ function TorrentSearch() {
       })
       setSearchResults(filtered)
       if (filtered.length == 0) {
-        toast({
-          title: "No Torrents Found",
-          description: `No results for ${searchQuery}`
-        })
+        toast(`No Torrents Found for ${searchQuery}`)
       }
       setSearching(false)
     }
@@ -127,18 +146,19 @@ function TorrentSearch() {
         searchResults.length > 0 ? (
           <div className="mt-4 overflow-x-auto">
             <h2 className="text-xl font-semibold mb-4">Search Results</h2>
-            <Table>
-              <TableBody>
-                {
-                  searchResults
-                    .map(
-                      (row: TorrentSearchResult) => (
-                        <TorrentSearchResultRow key={row.magnet_link} {...row} />
-                      )
+            <div className="grid grid-cols-1">
+              {
+                searchResults
+                  .map(
+                    (row: TorrentSearchResult) => (
+                      <TorrentSearchResultRow
+                        key={row.magnet_link}
+                        {...row}
+                        fetchTorrents={fetchTorrents} />
                     )
-                }
-              </TableBody>
-            </Table>
+                  )
+              }
+            </div>
           </div>
         ) : searching ? (
           <div style={{ padding: '1em 0 0 0' }}>

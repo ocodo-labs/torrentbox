@@ -1,6 +1,6 @@
+import { FloatButton } from "@/components/float-button"
 import { LongPressFloatButton } from "@/components/long-press-float-button"
 import { TorrentFileRow } from "@/components/torrent-file-row"
-import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { DestructiveDownloadedFileAction, DestructiveTorrentAction } from "@/types/actions"
 import { Torrent } from "@/types/torrent"
@@ -23,11 +23,12 @@ const TorrentRow = (props: TorrentRowProps) => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
         <h3 className="text-lg font-semibold mb-2 sm:mb-0 truncate">{torrent.name}</h3>
         <div className="flex space-x-2">
-          <Button variant="ghost" size="icon" onClick={() => handleRename(torrent)}>
-            <Edit className="h-4 w-4" />
-          </Button>
+          <FloatButton title="Rename"
+            icon={<Edit className="h-4 w-4" />}
+            onClick={() => handleRename(torrent)} />
           <LongPressFloatButton
             title="Remove Torrent"
+            fillColor="bg-primary"
             icon={<X className="h-4 w-4" />}
             onLongPress={() => handleAction(torrent, 'remove')} />
           <LongPressFloatButton
@@ -36,9 +37,16 @@ const TorrentRow = (props: TorrentRowProps) => {
             onLongPress={() => handleAction(torrent, 'delete')} />
           {
             torrent.files.length > 0 ?
-              (<Button variant="ghost" size="icon" onClick={() => toggleExpand(torrent.id)}>
-                {expandedTorrent === torrent.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              </Button>) : ""
+              (<FloatButton
+                hAlign='left'
+                vAlign='middle'
+                title="Show Torrent Files"
+                icon={
+                  expandedTorrent === torrent.id
+                    ? <ChevronUp className="h-4 w-4" />
+                    : <ChevronDown className="h-4 w-4" />}
+                onClick={() => toggleExpand(torrent.id)} />)
+              : ""
           }
         </div>
       </div>

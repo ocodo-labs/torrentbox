@@ -31,9 +31,11 @@ function DownloadedSection(props: DownloadedSectionProps) {
                       icon={<Edit className="h-4 w-4" />}
                       onClick={() => handleRename(file)} />
                     <LongPressFloatButton title="Move to TV Shows"
+                      fillColor="bg-primary"
                       icon={<Tv className="h-4 w-4" />}
                       onLongPress={() => handleAction(file, 'files/move/tvshows')} />
                     <LongPressFloatButton title="Move to Movies"
+                      fillColor="bg-primary"
                       icon={<Clapperboard className="h-4 w-4" />}
                       onLongPress={() => handleAction(file, 'files/move/movies')} />
                   </>
@@ -48,12 +50,15 @@ function DownloadedSection(props: DownloadedSectionProps) {
                         icon={<ChevronRightIcon className="h-4 w-4" />}
                         onClick={() => setShowMore(false)} />
                       <LongPressFloatButton title="Move to Books"
+                        fillColor="bg-primary"
                         icon={<BookIcon className="h-4 w-4" />}
                         onLongPress={() => handleAction(file, 'files/move/books')} />
                       <LongPressFloatButton title="Move to Music"
+                        fillColor="bg-primary"
                         icon={<HeadphonesIcon className="h-4 w-4" />}
                         onLongPress={() => handleAction(file, 'files/move/music')} />
                       <LongPressFloatButton title="Move to Software"
+                        fillColor="bg-primary"
                         icon={<Binary className="h-4 w-4" />}
                         onLongPress={() => handleAction(file, 'files/move/software')} />
                     </>

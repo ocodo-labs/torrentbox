@@ -52,14 +52,14 @@ export const FloatBox: React.FC<FloatBoxProps> = ({
   const targetRef = useRef<HTMLDivElement | null>(null);
 
   const xAlignment: number = {
-    left: 0.25,
+    left: -2,
     center: 0.5,
-    right: 0.75}[hAlign]
+    right: 2}[hAlign]
 
   const yAlignment: number = {
-    top: 1.5,
+    top: 2,
     middle: 0.5,
-    bottom: -1.5}[vAlign]
+    bottom: -2}[vAlign]
 
   const handleMouseEnter = () => {
     setVisible(true);
