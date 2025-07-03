@@ -48,7 +48,7 @@ const TorrentRow = (props: TorrentRowProps) => {
               (<FloatButton
                 hAlign='left'
                 vAlign='middle'
-                title="Show Torrent Files"
+                title={`${ expandedTorrent === torrent.id ? 'Hide' : 'Show'} Torrent Files`}
                 icon={
                   expandedTorrent === torrent.id
                     ? <ChevronUp className="h-4 w-4" />

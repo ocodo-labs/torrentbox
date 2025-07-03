@@ -57,9 +57,9 @@ export const FloatBox: React.FC<FloatBoxProps> = ({
     right: 2}[hAlign]
 
   const yAlignment: number = {
-    top: 2,
+    top: 1,
     middle: 0.5,
-    bottom: -2}[vAlign]
+    bottom: -1}[vAlign]
 
   const handleMouseEnter = () => {
     setVisible(true);

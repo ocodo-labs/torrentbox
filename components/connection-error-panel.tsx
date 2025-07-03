@@ -1,7 +1,7 @@
 import { AlertTriangle } from "lucide-react"
 
 interface ConnectionErrorPanelProps {
-    fetchTorrents: () => Promise<void>
+    fetchTorrents: (...args: unknown[]) => void
 }
 
 export function ConnectionErrorPanel({ fetchTorrents }: ConnectionErrorPanelProps) {

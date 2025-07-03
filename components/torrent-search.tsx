@@ -92,7 +92,7 @@ function TorrentSearchResultRow(props: TorrentSearchResultWithFetchTorrents) {
 }
 
 interface TorrentSearchProps {
-  fetchTorrents: () => Promise<void>
+  fetchTorrents: (...args: unknown[]) => void
 }
 
 const TorrentSearch: React.FC<TorrentSearchProps> = (props) => {
@@ -100,6 +100,7 @@ const TorrentSearch: React.FC<TorrentSearchProps> = (props) => {
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState([])
   const [searching, setSearching] = useState(false)
+  const noResultsMessage = `No Torrents Found for ${searchQuery}`
 
   function resetSearch() {
     setSearchQuery('')
@@ -113,14 +114,18 @@ const TorrentSearch: React.FC<TorrentSearchProps> = (props) => {
       setSearching(true)
       const response = await fetch(`${serverBaseUrl}/torrents/search/scrape?query=${encodeURIComponent(searchQuery)}`)
       const data = await response.json()
-      const filtered = data.results.filter((e: TorrentSearchResult) => {
-        const hasSeeds = parseInt(e.seeds, 10) > 0
-        const isNotPorn = !e.category.toLowerCase().includes("porn")
-        return hasSeeds && isNotPorn
-      })
-      setSearchResults(filtered)
-      if (filtered.length == 0) {
-        toast(`No Torrents Found for ${searchQuery}`)
+      if (data?.results?.filter) {
+        const filtered = data.results.filter((e: TorrentSearchResult) => {
+          const hasSeeds = parseInt(e.seeds, 10) > 0
+          const isNotPorn = !e.category.toLowerCase().includes("porn")
+          return hasSeeds && isNotPorn
+        })
+        setSearchResults(filtered)
+        if (filtered.length == 0) {
+          toast.warning(noResultsMessage)
+        }
+      } else {
+        toast.warning(noResultsMessage)
       }
       setSearching(false)
     }
@@ -153,8 +158,9 @@ const TorrentSearch: React.FC<TorrentSearchProps> = (props) => {
                     (row: TorrentSearchResult) => (
                       <TorrentSearchResultRow
                         key={row.magnet_link}
+                        fetchTorrents={fetchTorrents}
                         {...row}
-                        fetchTorrents={fetchTorrents} />
+                      />
                     )
                   )
               }

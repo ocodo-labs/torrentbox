@@ -5,6 +5,7 @@ import { toast } from "sonner"
 import { notifyCompletion } from "@/lib/utils"
 import { useLocalStorage } from "@/lib/use-local-storage"
 import { ISoftDeletedFile, SoftDeletedFile } from "@/types/soft-deleted-file"
+import { useLeadingEdgeDebounce } from '@/lib/debounce'
 
 export function useTorrentManager() {
   const [torrents, setTorrents] = useState<Torrent[]>([])
@@ -22,13 +23,13 @@ export function useTorrentManager() {
     }
   }, [])
 
-  const fetchTorrents = async () => {
+  const fetchTorrents = useLeadingEdgeDebounce(async () => {
     try {
       const res = await fetch(
         `${serverBaseUrl}/torrents/active`,
         { headers: json_header })
       if (!res.ok) {
-        toast(`Failed to fetch torrents (${res.status})`)
+        toast.error(`Failed to fetch torrents (${res.status})`)
         setConnectionError(true)
         return
       }
@@ -44,7 +45,7 @@ export function useTorrentManager() {
     } finally {
       fetchSuggestNamesStatus()
     }
-  }
+  }, 1100)
 
   const isSoftDeleted = useCallback((hash: string, index: number) =>
     torrentSoftDeletedFiles.some((e: ISoftDeletedFile) => e.torrent === hash && e.fileIndex === index),

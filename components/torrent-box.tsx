@@ -283,6 +283,7 @@ function TorrentBox() {
   const handleAction = useLeadingEdgeDebounce((item: Torrent | string, action: DestructiveTorrentAction | DestructiveDownloadedFileAction) => {
     if (typeof item === 'string') {
       console.log(`Downloaded File Action: ${action} ... ${item}`)
+      toast(`${action.substring(0,1).toUpperCase()}${action.substring(1)} ${item}`)
       setAction(action);
       setCurrentDownloadedFile(item);
       setCurrentActionType('downloadedFile');
@@ -293,6 +294,7 @@ function TorrentBox() {
       const torrent: Torrent = item as Torrent;
       if (torrent.id) {
         console.log(`Torrent Action: ${action} ... ${torrent.name}`)
+        toast(`${action.substring(0,1).toUpperCase()}${action.substring(1)} ${torrent.name}`)
         setAction(action);
         setCurrentTorrent(torrent);
         setCurrentActionType('torrent');
