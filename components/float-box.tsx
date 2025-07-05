@@ -1,24 +1,27 @@
+import { cn } from "@/lib/utils";
 import React, { useState, useRef } from "react";
 
 interface ToolTipProps {
   postion: { top: number, left: number };
   body: React.ReactNode;
   shown: boolean;
+  className?: string;
 }
 
 const ToolTip: React.FC<ToolTipProps> = ({
+  className = "",
   postion,
   body,
   shown
 }) => (
   <div
-    className={`
+    className={cn(`
           dark:bg-gray-900 bg-slate-200 dark:text-white text-slate-900
            p-4 rounded-lg whitespace-nowrap
            absolute
            transition-opacity delay-200 duration-500
            ${shown ? "opacity-90" : "opacity-0"}
-          `}
+          `, className)}
     style={{
       top: postion.top,
       left: postion.left,
@@ -33,11 +36,13 @@ const ToolTip: React.FC<ToolTipProps> = ({
 )
 
 interface FloatBoxProps {
-  body: React.ReactNode;
+  body: React.ReactNode
   hAlign: "left" | "center" | "right"
   vAlign: "top" | "middle" | "bottom"
-  children: React.ReactNode;
-  onClick?: () => void;
+  children: React.ReactNode
+  popUpOnTap?: boolean
+  className?: string
+  onClick?: () => void
 }
 
 export const FloatBox: React.FC<FloatBoxProps> = ({
@@ -45,6 +50,8 @@ export const FloatBox: React.FC<FloatBoxProps> = ({
   vAlign,
   children,
   body,
+  popUpOnTap,
+  className,
   onClick,
 }) => {
   const [visible, setVisible] = useState(false);
@@ -54,12 +61,14 @@ export const FloatBox: React.FC<FloatBoxProps> = ({
   const xAlignment: number = {
     left: -2,
     center: 0.5,
-    right: 2}[hAlign]
+    right: 2
+  }[hAlign]
 
   const yAlignment: number = {
     top: 1,
     middle: 0.5,
-    bottom: -1}[vAlign]
+    bottom: -1
+  }[vAlign]
 
   const handleMouseEnter = () => {
     setVisible(true);
@@ -82,10 +91,16 @@ export const FloatBox: React.FC<FloatBoxProps> = ({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onMouseDown={onClick}
+      onTouchStart={() => popUpOnTap && handleMouseEnter()}
+      onTouchEnd={() => popUpOnTap ? handleMouseLeave() : onClick}
       className="inline-block"
     >
       {children}
-      <ToolTip shown={visible} postion={tooltipPosition} body={body} />
+      <ToolTip
+        className={className}
+        shown={visible}
+        postion={tooltipPosition}
+        body={body} />
     </div>
   );
 };
