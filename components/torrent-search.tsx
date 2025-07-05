@@ -2,12 +2,14 @@ import { serverBaseUrl } from "@/app/config"
 import { IndeterminateProgress } from "@/components/indeterminate-progress"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { CircleX, Download, SearchIcon } from "lucide-react"
+import { CircleX, SearchIcon } from "lucide-react"
 import React, { useState } from "react"
 import canAutoplay from 'can-autoplay'
 import { toast } from "sonner"
 import { FloatBox } from "@/components/float-box"
 import { LongPressFloatButton } from "@/components/long-press-float-button"
+import { LineMdDownloadIcon } from "@/components/line-md-download-icon"
+import { OcodoLoaderIcon } from "@/components/ocodo-loader-icon"
 
 interface TorrentSearchResult {
   magnet_link: string
@@ -30,6 +32,8 @@ function TorrentSearchResultRow(props: TorrentSearchResultWithFetchTorrents) {
     fetchTorrents,
   } = props
 
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
   function addedTorrent() {
     console.log('added torrent to transmission')
 
@@ -41,7 +45,10 @@ function TorrentSearchResultRow(props: TorrentSearchResultWithFetchTorrents) {
     })
   }
 
-  async function getTorrentMagnet(name: string, magnet_link: string) {
+
+
+  const getTorrentMagnet = async (name: string, magnet_link: string) => {
+    setIsLoading(true)
     try {
       const response = await fetch(
         `${serverBaseUrl}/torrents/magnet/new`, {
@@ -57,6 +64,7 @@ function TorrentSearchResultRow(props: TorrentSearchResultWithFetchTorrents) {
         addedTorrent()
         toast(`Added: ${name}`)
         fetchTorrents()
+        setIsLoading(false)
       } else {
         console.error(`TorrentBox: Failed to add magnet link for ${name}`)
       }
@@ -81,13 +89,15 @@ function TorrentSearchResultRow(props: TorrentSearchResultWithFetchTorrents) {
             {seeds}
           </div>
         </FloatBox>
-        <LongPressFloatButton
-          fillColor="bg-emerald-500"
-          hAlign='left'
-          vAlign='top'
-          title={`Download ${name}`}
-          onLongPress={() => getTorrentMagnet(name, magnet_link)}
-          icon={<Download className="h-4 w-4" />} />
+        {!isLoading
+          ? <LongPressFloatButton
+            fillColor="bg-emerald-500"
+            hAlign='left'
+            vAlign='top'
+            title={`Download ${name}`}
+            onLongPress={() => getTorrentMagnet(name, magnet_link)}
+            icon={<LineMdDownloadIcon className="h-4 w-4" />} />
+          : <OcodoLoaderIcon className="h-4 w-4 animate-spin" />}
       </div>
     </div>
   )
