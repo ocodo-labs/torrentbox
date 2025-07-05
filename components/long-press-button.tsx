@@ -155,6 +155,10 @@ export const LongPressButton: React.FC<LongPressButtonProps> = ({
         initialDrainFill.current = fillPercentage;
         drainAnimationFrameId.current = requestAnimationFrame(drainAnimation);
       }
+
+      if (fillPercentage == 100) {
+        setTimeout(() => setFillPercentage(0), 500)
+      }
     }
   };
 
