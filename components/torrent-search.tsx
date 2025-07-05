@@ -67,15 +67,17 @@ function TorrentSearchResultRow(props: TorrentSearchResultWithFetchTorrents) {
 
   return (
     <div className="flex justify-between items-center border-b-2 border-secondary-foreground/10">
-      <div className="font-medium">
-        {name}
+      <div className="text-sm w-30 truncate mr-2 md:w-fit md:text-base select-none">
+        <FloatBox className="md:hidden" body={name} popUpOnTap vAlign='bottom' hAlign='center'>
+          {name}
+        </FloatBox>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 select-none">
         <div className="text-xs text-muted-foreground">
           {size}
         </div>
-        <FloatBox hAlign='center' vAlign='top' body='Seeds' >
-          <div className="text-xs w-10">
+        <FloatBox hAlign='center' vAlign='top' body='Seeds'>
+          <div className="text-xs w-3">
             {seeds}
           </div>
         </FloatBox>
