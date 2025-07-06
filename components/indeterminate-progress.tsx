@@ -1,9 +1,40 @@
-function IndeterminateProgress() {
-  return (
-    <div className="indeterminateProgressBar">
-      <div className="indeterminateProgressBarValue"></div>
-    </div>
-  )
-}
+import { FC } from "react";
+import styled, { keyframes } from "styled-components";
 
-export { IndeterminateProgress }
+// Define the animation
+const indeterminateAnimation = keyframes`
+  0% {
+    transform: translateX(0) scaleX(0);
+  }
+
+  40% {
+    transform: translateX(0) scaleX(0.4);
+  }
+
+  100% {
+    transform: translateX(100%) scaleX(0.5);
+  }
+`;
+
+// Styled components for the progress bar
+const ProgressBar = styled.div`
+  height: 4px;
+  background-color: var(--border);
+  width: 100%;
+  overflow: hidden;
+`;
+
+const ProgressBarValue = styled.div`
+  width: 100%;
+  height: 100%;
+  background-color: var(--border);
+  box-shadow: inset 0 0 3px 3px #FFF4;
+  animation: ${indeterminateAnimation} 1s infinite linear;
+  transform-origin: 0% 50%;
+`;
+
+export const IndeterminateProgress: FC = () => (
+  <ProgressBar>
+    <ProgressBarValue />
+  </ProgressBar>
+);
