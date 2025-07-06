@@ -4,7 +4,7 @@ import { OcodoLoaderIcon } from "@/components/ocodo-loader-icon"
 import { TorrentFileRow } from "@/components/torrent-file-row"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { DestructiveDownloadedFileAction, DestructiveTorrentAction } from "@/types/actions"
+import type { DestructiveDownloadedFileAction, DestructiveTorrentAction } from "@/types/actions"
 import { Torrent } from "@/types/torrent"
 import { ChevronDown, ChevronUp, Edit, Trash, X } from "lucide-react"
 import { useState } from "react"
@@ -33,7 +33,7 @@ const TorrentRow = (props: TorrentRowProps) => {
   const [isDeleting, setIsDeleting] = useState(false)
 
   return (
-    <div key={torrent.id} className="p-4 border rounded-lg">
+    <div key={torrent.id} className="p-4 border border-foreground/20 rounded-lg">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
         <h3 className="text-lg font-semibold mb-2 sm:mb-0 truncate">{torrent.name}</h3>
         <div className="flex space-x-2">
@@ -82,7 +82,7 @@ const TorrentRow = (props: TorrentRowProps) => {
       {expandedTorrent === torrent.id && (
         <div className="mt-4 overflow-x-auto">
           {torrent.files
-            .filter((file, index) => !isSoftDeletedFn(torrent.id, index))
+            .filter((_, index) => !isSoftDeletedFn(torrent.id, index))
             .map(([filename, size, downloaded], index) => (
               <TorrentFileRow
                 key={index}

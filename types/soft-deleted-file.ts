@@ -1,9 +1,9 @@
-interface ISoftDeletedFile {
+interface SoftDeletedFileType {
   torrent: string
   fileIndex: number
 }
 
-class SoftDeletedFile implements ISoftDeletedFile {
+class SoftDeletedFile implements SoftDeletedFileType {
   torrent: string
   fileIndex: number
 
@@ -19,4 +19,4 @@ class SoftDeletedFile implements ISoftDeletedFile {
 
 export { SoftDeletedFile }
 
-export type { ISoftDeletedFile }
+export type { SoftDeletedFileType }

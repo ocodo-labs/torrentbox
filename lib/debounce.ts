@@ -1,9 +1,9 @@
 import { useState, useCallback } from 'react';
 
-export const useLeadingEdgeDebounce = (func, delay = 300) => {
-  const [debounceTimeout, setDebounceTimeout] = useState(null);
+export const useLeadingEdgeDebounce = (func: Function, delay: number = 300) => {
+  const [debounceTimeout, setDebounceTimeout] = useState<string | number | NodeJS.Timeout | null>(null);
   const debounce = useCallback(
-    (...args) => {
+    (...args: unknown[]) => {
       if (debounceTimeout) return;
       func(...args);
       setDebounceTimeout(
@@ -17,10 +17,10 @@ export const useLeadingEdgeDebounce = (func, delay = 300) => {
   return debounce;
 }
 
-export const useTrailingEdgeDebounce = (func, delay = 300) => {
-  const [debounceTimeout, setDebounceTimeout] = useState(null);
+export const useTrailingEdgeDebounce = (func: Function, delay: number = 300) => {
+  const [debounceTimeout, setDebounceTimeout] = useState<string | number | NodeJS.Timeout | null>(null);
   const debounce = useCallback(
-    (...args) => {
+    (...args:unknown[]) => {
       if (debounceTimeout) {
         clearTimeout(debounceTimeout);
       }

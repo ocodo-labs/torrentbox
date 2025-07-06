@@ -1,22 +1,17 @@
 import { FloatButton } from "@/components/float-button"
 import { LongPressFloatButton } from "@/components/long-press-float-button"
-import { DestructiveDownloadedFileAction, DestructiveTorrentAction } from "@/types/actions"
+import { useTorrentManagerContext } from "@/contexts/torrent-manager-context"
+import { type DestructiveDownloadedFileAction, type DestructiveTorrentAction } from "@/types/actions"
 import { Torrent } from "@/types/torrent"
 import { Binary, BookIcon, ChevronRightIcon, Clapperboard, Edit, Ellipsis, HeadphonesIcon, Trash, Tv } from "lucide-react"
-import { FC, useState } from "react"
+import { type FC, useState } from "react"
 
-type handleRenameType = (item: string, filename?: string) => void
-type handleActionType = (torrent: Torrent | string, action: DestructiveTorrentAction | DestructiveDownloadedFileAction) => void
-
-
-interface DownloadedSectionProps {
-  downloadedFiles: string[]
-  handleRename: handleRenameType
-  handleAction: handleActionType
-}
-
-export function DownloadedSection(props: DownloadedSectionProps) {
-  const { downloadedFiles, handleRename, handleAction } = props
+export function DownloadedSection() {
+  const {
+    handleAction,
+    handleRenameDownloaded,
+    downloadedFiles,
+  } = useTorrentManagerContext()
 
   if (downloadedFiles.length > 0) {
     return (
@@ -28,7 +23,7 @@ export function DownloadedSection(props: DownloadedSectionProps) {
               key={index}
               file={file}
               handleAction={handleAction}
-              handleRename={handleRename}
+              handleRename={handleRenameDownloaded}
             />
           ))}
         </div>
@@ -52,7 +47,7 @@ export const DownloadedFileRow: FC<DownloadedFileRowProps> = ({
 }) => {
   const [showMore, setShowMore] = useState<boolean>(false)
   return (
-    <div className="p-4 border rounded-lg">
+    <div className="p-4 border border-foreground/20 rounded-lg">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
         <h3 className="text-lg font-semibold mb-2 sm:mb-0">{file}</h3>
         <div className="flex space-x-2">

@@ -1,10 +1,28 @@
-"use client"
+import React, { useEffect } from "react";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+import { ThemeContext } from "@/contexts/theme-context";
 
-import { ThemeProvider as NextThemesProvider } from "next-themes"
-import { type ThemeProviderProps } from "next-themes/dist/types"
-import * as React from "react"
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [theme, setTheme] = useLocalStorage<'light' | 'dark'>("theme", "light");
 
-export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
-  return <NextThemesProvider {...props}>{children}</NextThemesProvider>
-}
+  useEffect(() =>
+    theme == 'dark'
+      ? document.body.classList.add('dark')
+      : document.body.classList.remove('dark')
+  , [theme])
 
+  const toggleTheme = () =>
+    (theme == 'light')
+      ? setTheme('dark')
+      : setTheme('light')
+
+  return (
+    <ThemeContext.Provider value={{
+      theme,
+      setTheme,
+      toggleTheme
+    }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};

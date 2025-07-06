@@ -1,26 +1,19 @@
 import { TorrentRow } from "@/components/torrent-row"
-import { DestructiveDownloadedFileAction, DestructiveTorrentAction } from "@/types/actions"
+import { useTorrentManagerContext } from "@/contexts/torrent-manager-context"
 import { Torrent } from "@/types/torrent"
 
-interface TorrentsSectionProps {
-  torrents: Torrent[]
-  expandedTorrent: string | null
-  toggleExpand: (id: string) => void
-  handleAction: (item: Torrent, action: DestructiveTorrentAction | DestructiveDownloadedFileAction) => void
-  handleRename: (item: Torrent, filename?: string) => void
-  handleSoftDelete: (torrent: Torrent, filename: string) => void
-  isSoftDeletedFn: (torrentId: string, index: number) => boolean
-}
+const TorrentsSection = () => {
 
-const TorrentsSection = (props: TorrentsSectionProps) => {
   const {
     torrents,
+    handleRenameTorrent,
+    handleAction,
+    softDeleteTorrentSubFile,
     expandedTorrent,
     toggleExpand,
-    handleAction,
-    handleRename,
-    handleSoftDelete,
-    isSoftDeletedFn } = props
+    isSoftDeleted,
+  } = useTorrentManagerContext()
+
   if (torrents.length > 0) {
     return (
       <section>
@@ -31,10 +24,10 @@ const TorrentsSection = (props: TorrentsSectionProps) => {
               key={torrent.id}
               torrent={torrent}
               handleAction={handleAction}
-              handleRename={handleRename}
-              handleSoftDelete={handleSoftDelete}
+              handleRename={handleRenameTorrent}
+              handleSoftDelete={softDeleteTorrentSubFile}
               toggleExpand={toggleExpand}
-              isSoftDeletedFn={isSoftDeletedFn}
+              isSoftDeletedFn={isSoftDeleted}
               expandedTorrent={expandedTorrent}
             />
           ))}

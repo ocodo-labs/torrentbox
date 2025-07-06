@@ -147,7 +147,7 @@ const TorrentSearch: React.FC<TorrentSearchProps> = (props) => {
     <section>
       <div className="flex space-x-4">
         <Input
-          className="rounded-full"
+          className="rounded-full border-foreground/20"
           value={searchQuery}
           placeholder="Search Torrents..."
           onChange={e => setSearchQuery(e.target.value)}
