@@ -67,7 +67,7 @@ const DownloadedFilesProvider: React.FC<DownloadedFilesProviderProps> = ({ child
                 const errorMsg = await response.text();
                 setErrors(prevErrors => [...prevErrors, errorMsg]);
             } else {
-                setFiles(prevFiles => prevFiles.filter(file => file.id !== fileId));
+                setFiles(prevFiles => prevFiles.filter(file => file.path !== fileId));
             }
         } catch (error) {
             setErrors(prevErrors => [...prevErrors, (error as Error).message]);
