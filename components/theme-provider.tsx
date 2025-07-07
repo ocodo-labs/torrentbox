@@ -3,7 +3,7 @@ import { useLocalStorage } from "@/hooks/use-local-storage";
 import { ThemeContext, themes, type Theme } from "@/contexts/theme-context";
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useLocalStorage<Theme>("theme", "med");
+  const [theme, setTheme] = useLocalStorage<Theme>("theme", "oli");
 
   useEffect(() => {
     if (theme) {

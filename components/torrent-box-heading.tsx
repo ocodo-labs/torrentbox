@@ -12,6 +12,7 @@ import { MagnetIcon } from '@/components/magnet-icon'
 import { useContext, useState } from 'react'
 import { BittorrentIcon } from '@/components/bit-torrent-icon'
 import { ThemeContext } from '@/contexts/theme-context'
+import { Olivetti1954 } from '@/components/olivetti-1954-logo'
 
 export function TorrentBoxHeading() {
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -24,6 +25,15 @@ export function TorrentBoxHeading() {
       setDialogOpen(true)     // slight delay prevents focus conflict
     }, 50)
   }
+
+  const themeIcons = (theme: string) => {
+    return {
+      light: (<Sun className="h-6 w-6" />),
+      dark: (<Moon className="h-6 w-6" />),
+      oli: (<Olivetti1954 className="h-6 w-6" />),
+    }[theme]
+  }
+
   return (
     <header className="flex items-center justify-between p-4 border-b">
       <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
@@ -49,7 +59,7 @@ export function TorrentBoxHeading() {
         size="icon"
         onClick={toggleTheme}
       >
-        {theme === 'light' ? <Moon className="h-6 w-6" /> : <Sun className="h-6 w-6" />}
+        {themeIcons(theme)}
       </Button>
 
       <TorrentNewMagnetDialog
