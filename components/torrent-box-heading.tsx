@@ -28,8 +28,8 @@ export function TorrentBoxHeading() {
 
   const themeIcons = (theme: string) => {
     return {
-      light: (<Sun className="h-6 w-6" />),
-      dark: (<Moon className="h-6 w-6" />),
+      light: (<Sun className="h-6 w-6 stroke-1" />),
+      dark: (<Moon className="h-6 w-6 stroke-1" />),
       oli: (<Olivetti1954 className="h-6 w-6" />),
     }[theme]
   }
@@ -39,7 +39,7 @@ export function TorrentBoxHeading() {
       <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="cursor-pointer">
-            <Menu className="h-6 w-6" />
+            <Menu className="h-6 w-6 stroke-1" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">

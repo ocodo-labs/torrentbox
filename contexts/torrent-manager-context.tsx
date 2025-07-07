@@ -182,7 +182,7 @@ export const TorrentManagerProvider: React.FC<{ children: React.ReactNode }> = (
         return
       }
 
-      toast(`Torrent ${action} completed`);
+      toast(`${torrent.name} ${action} completed`);
     } catch (error) {
       const correctedAction = action.substring(0, action.length - 1);
       console.log(`Error ${correctedAction}ing torrent:`, error);
@@ -197,23 +197,23 @@ export const TorrentManagerProvider: React.FC<{ children: React.ReactNode }> = (
     downloadedFile: string
   ) => {
 
-    downloadedFile = encodeURIComponent(downloadedFile)
+    const encodedDownloadedFileName = encodeURIComponent(downloadedFile)
     try {
       const response = await fetch(
-        `${serverBaseUrl}/torrents/${action}?filename=${downloadedFile}`,
+        `${serverBaseUrl}/torrents/${action}?filename=${encodedDownloadedFileName}`,
         { headers: json_header }
       );
 
       if (!response.ok) {
         console.log(`Network error performing file action: ${response.status}`);
-        toast(`Failed to ${action} file (${response.status})`);
+        toast(`Failed to ${action} ${downloadedFile} (${response.status})`);
         return;
       }
 
-      toast(`File action ${action} completed`);
+      toast(`${downloadedFile} ${action} completed`);
     } catch (error) {
-      console.log(`Error performing ${action} on file:`, error);
-      toast(`Failed to perform ${action} on file`);
+      console.log(`Error performing ${action} on ${downloadedFile}:`, error);
+      toast(`Failed to perform ${action} on ${downloadedFile}`);
     }
   }
 
@@ -227,8 +227,6 @@ export const TorrentManagerProvider: React.FC<{ children: React.ReactNode }> = (
     action: DestructiveTorrentAction | DestructiveDownloadedFileAction
   ) => {
     if (typeof item === 'string') {
-      console.log(`Downloaded File Action: ${action} ... ${item}`)
-      toast(`${action.substring(0, 1).toUpperCase()}${action.substring(1)} ${item}`)
       await executeDownloadedFileAction(action as DestructiveDownloadedFileAction, item)
       fetchTorrents()
       return
@@ -325,9 +323,9 @@ export const TorrentManagerProvider: React.FC<{ children: React.ReactNode }> = (
       })
 
       if (!response.ok) {
-        toast(`Failed to rename torrent (${response.status})`)
+        toast(`Failed to rename ${currentFilename} (${response.status})`)
       } else {
-        toast("Torrent renamed successfully")
+        toast(`Renamed ${currentFilename} ⇢  ${newName}`)
       }
     } catch (error) {
       console.error("Error renaming torrent:", error)
