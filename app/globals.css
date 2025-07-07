@@ -33,22 +33,9 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: "OcodoMonoNerdFont";
-  src: url("/fonts/OcodoMonoNerdFont-Light.woff2") format("woff2");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
-  --font-mono: OcodoMonoNerdFont;
   --font-sans: HelveticaNeue;
   --default-font-family: HelveticaNeue;
-}
-
-.font-mono {
-  font-family: var(--font-mono);
 }
 
 .font-sans {
@@ -141,6 +128,39 @@ body {
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.939 0.0204 118.95);
   --primary: oklch(30.837% 0.03925 313.478);
+  --primary-foreground: oklch(92.675% 0.01087 16.821);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.939 0.0204 118.95);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.939 0.0204 118.95);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.939 0.0204 118.95);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.939 0.0204 118.95);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.939 0.0204 118.95);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+.med {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.939 0.0204 118.95);
+  --card: oklch(0.2354 0.0019 286.25);
+  --card-foreground: oklch(0.939 0.0204 118.95);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.939 0.0204 118.95);
+  --primary: oklch(28.615% 0.01554 183.009);
   --primary-foreground: oklch(92.675% 0.01087 16.821);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.939 0.0204 118.95);
