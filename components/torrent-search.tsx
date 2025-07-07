@@ -7,9 +7,8 @@ import React, { useState } from "react"
 import canAutoplay from 'can-autoplay'
 import { toast } from "sonner"
 import { FloatBox } from "@/components/float-box"
-import { LongPressFloatButton } from "@/components/long-press-float-button"
+import { AsycJobLongPressFloatButton } from "@/components/long-press-float-button"
 import { LineMdDownloadIcon } from "@/components/line-md-download-icon"
-import { OcodoLoaderIcon } from "@/components/ocodo-loader-icon"
 
 interface TorrentSearchResult {
   magnet_link: string
@@ -20,7 +19,7 @@ interface TorrentSearchResult {
 }
 
 interface TorrentSearchResultWithFetchTorrents extends TorrentSearchResult {
-  fetchTorrents: () => void
+  fetchTorrents: () => Promise<void>
 }
 
 function TorrentSearchResultRow(props: TorrentSearchResultWithFetchTorrents) {
@@ -31,8 +30,6 @@ function TorrentSearchResultRow(props: TorrentSearchResultWithFetchTorrents) {
     size,
     fetchTorrents,
   } = props
-
-  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   function addedTorrent() {
     console.log('added torrent to transmission')
@@ -45,10 +42,7 @@ function TorrentSearchResultRow(props: TorrentSearchResultWithFetchTorrents) {
     })
   }
 
-
-
   const getTorrentMagnet = async (name: string, magnet_link: string) => {
-    setIsLoading(true)
     try {
       const response = await fetch(
         `${serverBaseUrl}/torrents/magnet/new`, {
@@ -61,15 +55,18 @@ function TorrentSearchResultRow(props: TorrentSearchResultWithFetchTorrents) {
         })
       })
       if (response.status == 200) {
+        await response.json()
         addedTorrent()
         toast(`Added: ${name}`)
-        fetchTorrents()
-        setIsLoading(false)
+        await fetchTorrents()
+        return
       } else {
         console.error(`TorrentBox: Failed to add magnet link for ${name}`)
       }
     } catch {
       toast(`Error adding ${name}`)
+    } finally {
+      return
     }
   }
 
@@ -89,22 +86,20 @@ function TorrentSearchResultRow(props: TorrentSearchResultWithFetchTorrents) {
             {seeds}
           </div>
         </FloatBox>
-        {!isLoading
-          ? <LongPressFloatButton
-            fillColor="bg-emerald-500"
-            hAlign='left'
-            vAlign='top'
-            title={`Download ${name}`}
-            onLongPress={() => getTorrentMagnet(name, magnet_link)}
-            icon={<LineMdDownloadIcon className="h-4 w-4" />} />
-          : <OcodoLoaderIcon className="h-4 w-4 animate-spin" />}
+        <AsycJobLongPressFloatButton
+          fillColor="bg-primary"
+          hAlign='left'
+          vAlign='top'
+          title={`Download ${name}`}
+          onLongPress={() => getTorrentMagnet(name, magnet_link)}
+          icon={<LineMdDownloadIcon className="h-4 w-4" />} />
       </div>
     </div>
   )
 }
 
 interface TorrentSearchProps {
-  fetchTorrents: (...args: unknown[]) => void
+  fetchTorrents: (...args: unknown[]) => Promise<void>
 }
 
 const TorrentSearch: React.FC<TorrentSearchProps> = (props) => {

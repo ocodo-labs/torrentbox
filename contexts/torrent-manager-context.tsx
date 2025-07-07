@@ -5,7 +5,7 @@ import { notifyCompletion } from '@/lib/utils';
 import type { DestructiveDownloadedFileAction, DestructiveTorrentAction } from '@/types/actions';
 import { type SoftDeletedFileType, SoftDeletedFile } from '@/types/soft-deleted-file';
 import { Torrent, TorrentData } from '@/types/torrent';
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react'
 import { toast } from 'sonner';
 
@@ -14,13 +14,12 @@ interface TorrentManagerContextType {
   downloadedFiles: string[]
   connectionError: boolean
   suggestionsLLMOnline: boolean
-  fetchTorrents: () => void
+  fetchTorrents: () => Promise<void>
   fetchSuggestions: (filename: string) => Promise<void>
   isSoftDeleted: (hash: string, index: number) => boolean
   softDeleteTorrentSubFile: (torrent: Torrent, filename: string) => void
   getTorrentSoftDeletedFiles: (torrent: Torrent) => void
-  cleanupSoftDeletedFiles: (torrent_id: string, name: string, files: string[]) => void
-  handleAction: (item: Torrent | string,  action: DestructiveDownloadedFileAction | DestructiveTorrentAction) => void
+  handleAction: (item: Torrent | string, action: DestructiveDownloadedFileAction | DestructiveTorrentAction) => Promise<void>
   handleRenameDownloaded: (item: string) => void
   handleRenameTorrent: (torrent: Torrent, filename?: string) => void
   confirmRename: () => void
@@ -33,10 +32,6 @@ interface TorrentManagerContextType {
   setExpandedTorrent: Dispatch<SetStateAction<string | null>>
   renameDialogOpen: boolean
   setRenameDialogOpen: Dispatch<SetStateAction<boolean>>
-  action: DestructiveTorrentAction | DestructiveDownloadedFileAction | null
-  setAction: Dispatch<SetStateAction<DestructiveTorrentAction | DestructiveDownloadedFileAction | null>>
-  currentActionType: 'torrent' | 'downloadedFile' | null
-  setCurrentActionType: Dispatch<SetStateAction<'torrent' | 'downloadedFile' | null | null>>
   currentTorrent: Torrent | null
   setCurrentTorrent: Dispatch<SetStateAction<Torrent | null>>
   currentTorrentFilename: string | null
@@ -67,14 +62,11 @@ export const TorrentManagerProvider: React.FC<{ children: React.ReactNode }> = (
   const [suggestionsLLMOnline, setSuggestionsLLMOnline] = useState(false)
   const [expandedTorrent, setExpandedTorrent] = useState<string | null>(null)
   const [renameDialogOpen, setRenameDialogOpen] = useState(false)
-  const [currentActionType, setCurrentActionType] = useState<'torrent' | 'downloadedFile' | null>(null);
   const [currentTorrent, setCurrentTorrent] = useState<Torrent | null>(null)
   const [currentTorrentFilename, setCurrentTorrentFilename] = useState<string | null>(null)
   const [currentDownloadedFile, setCurrentDownloadedFile] = useState<string | null>(null)
   const [newName, setNewName] = useState('')
   const [suggestions, setSuggestions] = useState<Set<string>>(new Set())
-  const [action, setAction] = useState<DestructiveTorrentAction | DestructiveDownloadedFileAction | null>(null);
-  const actionInProgress = useRef(false);
 
   const fetchTorrents = useLeadingEdgeDebounce(async () => {
     try {
@@ -92,13 +84,15 @@ export const TorrentManagerProvider: React.FC<{ children: React.ReactNode }> = (
       setDownloadedFiles(data.downloaded)
       newTorrents.forEach(t => notifyCompletion(t))
       setConnectionError(false)
+      return
     } catch {
       toast(`Fetch Error`)
       setConnectionError(true)
     } finally {
       fetchSuggestNamesStatus()
+      return
     }
-  }, 1100)
+  }, 1500)
 
   const fetchSuggestions = useCallback(async (filename: string) => {
     try {
@@ -169,153 +163,75 @@ export const TorrentManagerProvider: React.FC<{ children: React.ReactNode }> = (
     resetState()
     setRenameDialogOpen(false)
   }
-  const cleanupSoftDeletedFiles = useCallback(async (torrent_id: string, name: string, files: string[]) => {
+
+  const executeTorrentAction = async (
+    action: DestructiveTorrentAction,
+    torrent: Torrent
+  ) => {
+
     try {
+      const torrent_id = torrent.id;
       const response = await fetch(
-        `${serverBaseUrl}/torrents/cleanup`,
-        {
-          method: 'POST',
-          headers: json_header,
-          body: JSON.stringify({ torrent_id, files, name })
-        }
-      )
+        `${serverBaseUrl}/torrents/active/${action}?torrent_id=${torrent_id}`,
+        { headers: json_header }
+      );
 
       if (!response.ok) {
-        console.log(`Network error cleaning up soft deleted files: ${response.status}`)
-        toast(`Failed to cleanup files (${response.status})`)
+        console.log(`Network error performing torrent action: ${response.status}`);
+        toast(`Failed to ${action} torrent (${response.status})`);
         return
       }
 
-      try {
-        const allSoftDeleted = localStorage.getItem('soft-deleted-files')
-        if (allSoftDeleted) {
-          const softDeleted = JSON.parse(allSoftDeleted)
-          const cleanedSoftDeleted = softDeleted.filter((e: SoftDeletedFile) => e.torrent != torrent_id)
-          localStorage.setItem('soft-deleted-files', JSON.stringify(cleanedSoftDeleted))
-          setTorrentSoftDeletedFiles(cleanedSoftDeleted)
-        }
-      } catch (e) {
-        console.log("Error updating soft deleted files in localStorage:", e)
-        toast("Error updating soft deleted files in storage")
-      }
+      toast(`Torrent ${action} completed`);
     } catch (error) {
-      console.log("Error cleaning up soft deleted files:", error)
-      toast("Failed to cleanup deleted files")
+      const correctedAction = action.substring(0, action.length - 1);
+      console.log(`Error ${correctedAction}ing torrent:`, error);
+      toast(`Failed to ${action} torrent`);
     } finally {
-      fetchTorrents()
+      return
     }
-  }, [fetchTorrents, setTorrentSoftDeletedFiles])
+  }
 
-  const executeTorrentAction = useCallback(
-    async (action: DestructiveTorrentAction, files: string[] = []) => {
-      if (!currentTorrent) return;
+  const executeDownloadedFileAction = async (
+    action: DestructiveDownloadedFileAction,
+    downloadedFile: string
+  ) => {
 
-      try {
-        const torrent_id = currentTorrent.id;
-        const response = await fetch(
-          `${serverBaseUrl}/torrents/active/${action}?torrent_id=${torrent_id}`,
-          { headers: json_header }
-        );
+    downloadedFile = encodeURIComponent(downloadedFile)
+    try {
+      const response = await fetch(
+        `${serverBaseUrl}/torrents/${action}?filename=${downloadedFile}`,
+        { headers: json_header }
+      );
 
-        if (!response.ok) {
-          console.log(`Network error performing torrent action: ${response.status}`);
-          toast(`Failed to ${action} torrent (${response.status})`);
-          return;
-        }
-
-        if (files && files.length > 0) {
-          await cleanupSoftDeletedFiles(currentTorrent.id, currentTorrent.name, files);
-        }
-
-        toast(`Torrent ${action} completed`);
-      } catch (error) {
-        const correctedAction = action.substring(0, action.length - 1);
-        console.log(`Error ${correctedAction}ing torrent:`, error);
-        toast(`Failed to ${action} torrent`);
+      if (!response.ok) {
+        console.log(`Network error performing file action: ${response.status}`);
+        toast(`Failed to ${action} file (${response.status})`);
+        return;
       }
-    },
-    [currentTorrent, cleanupSoftDeletedFiles] // Dependencies for memoization
-  );
 
-  const executeDownloadedFileAction = useCallback(
-    async (action: DestructiveDownloadedFileAction) => {
-      if (!currentDownloadedFile) return;
-
-      try {
-        const response = await fetch(
-          `${serverBaseUrl}/torrents/${action}?filename=${currentDownloadedFile}`,
-          { headers: json_header }
-        );
-
-        if (!response.ok) {
-          console.log(`Network error performing file action: ${response.status}`);
-          toast(`Failed to ${action} file (${response.status})`);
-          return;
-        }
-
-        toast(`File action ${action} completed`);
-      } catch (error) {
-        console.log(`Error performing ${action} on file:`, error);
-        toast(`Failed to perform ${action} on file`);
-      }
-    },
-    [currentDownloadedFile]
-  );
+      toast(`File action ${action} completed`);
+    } catch (error) {
+      console.log(`Error performing ${action} on file:`, error);
+      toast(`Failed to perform ${action} on file`);
+    }
+  }
 
   const cancelRenameTorrent = () => {
     resetState()
     setRenameDialogOpen(false)
   }
 
-  useEffect(() => {
-    console.log('Effect Triggered - actionInProgress:', actionInProgress.current);
-
-    const executeAction = () => {
-      if (!currentActionType || (!currentDownloadedFile && !currentTorrent) || actionInProgress.current) {
-        console.log('Exiting Effect: actionInProgress:', actionInProgress.current);
-        if (actionInProgress.current) return
-        return;
-      }
-
-      console.log('Starting action execution');
-      actionInProgress.current = true; // Mark as in-progress
-
-      try {
-        console.log('Action started for type:', currentActionType);
-        switch (currentActionType) {
-          case 'downloadedFile':
-            if (currentDownloadedFile && action) {
-              executeDownloadedFileAction(action as DestructiveDownloadedFileAction);
-            }
-            break;
-          case 'torrent':
-            if (currentTorrent && action) {
-              executeTorrentAction(action as DestructiveTorrentAction);
-            }
-            break;
-          default:
-            break;
-        }
-      } catch (error) {
-        console.error("Error executing action:", error);
-      } finally {
-        actionInProgress.current = false; // Reset flag after action completes
-        console.log('Action completed, actionInProgress reset.');
-      }
-    };
-
-    executeAction(); // Execute action
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentActionType, action]);
-
-  const handleAction = useLeadingEdgeDebounce((item: Torrent | string, action: DestructiveTorrentAction | DestructiveDownloadedFileAction) => {
+  const handleAction = async (
+    item: Torrent | string,
+    action: DestructiveTorrentAction | DestructiveDownloadedFileAction
+  ) => {
     if (typeof item === 'string') {
       console.log(`Downloaded File Action: ${action} ... ${item}`)
       toast(`${action.substring(0, 1).toUpperCase()}${action.substring(1)} ${item}`)
-      setAction(action);
-      setCurrentDownloadedFile(item);
-      setCurrentActionType('downloadedFile');
+      await executeDownloadedFileAction(action as DestructiveDownloadedFileAction, item)
       fetchTorrents()
+      return
     }
 
     if (typeof item === 'object') {
@@ -323,13 +239,12 @@ export const TorrentManagerProvider: React.FC<{ children: React.ReactNode }> = (
       if (torrent.id) {
         console.log(`Torrent Action: ${action} ... ${torrent.name}`)
         toast(`${action.substring(0, 1).toUpperCase()}${action.substring(1)} ${torrent.name}`)
-        setAction(action);
-        setCurrentTorrent(torrent);
-        setCurrentActionType('torrent');
+        await executeTorrentAction(action as DestructiveTorrentAction, torrent)
         fetchTorrents()
+        return
       }
     }
-  }, 1300);
+  }
 
   const toggleExpand = (id: string) => {
     setExpandedTorrent(expandedTorrent === id ? null : id)
@@ -430,11 +345,9 @@ export const TorrentManagerProvider: React.FC<{ children: React.ReactNode }> = (
       suggestionsLLMOnline,
       fetchTorrents,
       fetchSuggestions,
-      toggleExpand,
       softDeleteTorrentSubFile,
       isSoftDeleted,
       getTorrentSoftDeletedFiles,
-      cleanupSoftDeletedFiles,
       handleAction,
       handleRenameDownloaded,
       confirmRenameDownloadedFile,
@@ -443,14 +356,11 @@ export const TorrentManagerProvider: React.FC<{ children: React.ReactNode }> = (
       renameTorrent,
       cancelRenameTorrent,
       resetState,
+      toggleExpand,
       expandedTorrent,
       setExpandedTorrent,
       renameDialogOpen,
       setRenameDialogOpen,
-      action,
-      setAction,
-      currentActionType,
-      setCurrentActionType,
       currentTorrent,
       setCurrentTorrent,
       currentTorrentFilename,

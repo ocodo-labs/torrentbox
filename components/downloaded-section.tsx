@@ -1,12 +1,13 @@
 import { FloatButton } from "@/components/float-button"
-import { LongPressFloatButton } from "@/components/long-press-float-button"
+import { AsycJobLongPressFloatButton, LongPressFloatButton } from "@/components/long-press-float-button"
 import { useTorrentManagerContext } from "@/contexts/torrent-manager-context"
 import { type DestructiveDownloadedFileAction, type DestructiveTorrentAction } from "@/types/actions"
 import { Torrent } from "@/types/torrent"
 import { Binary, BookIcon, ChevronRightIcon, Clapperboard, Edit, Ellipsis, HeadphonesIcon, Trash, Tv } from "lucide-react"
 import { type FC, useState } from "react"
 
-export function DownloadedSection() {
+
+export const DownloadedSection:FC = () => {
   const {
     handleAction,
     handleRenameDownloaded,
@@ -37,7 +38,7 @@ export function DownloadedSection() {
 interface DownloadedFileRowProps {
   file: string
   handleRename: (item: string, filename?: string) => void
-  handleAction: (torrent: Torrent | string, action: DestructiveTorrentAction | DestructiveDownloadedFileAction) => void
+  handleAction: (torrent: Torrent | string, action: DestructiveTorrentAction | DestructiveDownloadedFileAction) => Promise<void>
 }
 
 export const DownloadedFileRow: FC<DownloadedFileRowProps> = ({
@@ -47,7 +48,7 @@ export const DownloadedFileRow: FC<DownloadedFileRowProps> = ({
 }) => {
   const [showMore, setShowMore] = useState<boolean>(false)
   return (
-    <div className="p-4 border border-foreground/20 rounded-lg">
+    <div className="p-4 border border-foreground/10 dark:border-foreground/5 rounded-lg">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
         <h3 className="text-lg font-semibold mb-2 sm:mb-0">{file}</h3>
         <div className="flex space-x-2">
@@ -55,11 +56,11 @@ export const DownloadedFileRow: FC<DownloadedFileRowProps> = ({
             <FloatButton title="Rename"
               icon={<Edit className="h-4 w-4" />}
               onClick={() => handleRename(file)} />
-            <LongPressFloatButton title="Move to TV Shows"
+            <AsycJobLongPressFloatButton title="Move to TV Shows"
               fillColor="bg-primary"
               icon={<Tv className="h-4 w-4" />}
               onLongPress={() => handleAction(file, 'files/move/tvshows')} />
-            <LongPressFloatButton title="Move to Movies"
+            <AsycJobLongPressFloatButton title="Move to Movies"
               fillColor="bg-primary"
               icon={<Clapperboard className="h-4 w-4" />}
               onLongPress={() => handleAction(file, 'files/move/movies')} />
@@ -74,15 +75,15 @@ export const DownloadedFileRow: FC<DownloadedFileRowProps> = ({
               <FloatButton title="Close More places"
                 icon={<ChevronRightIcon className="h-4 w-4" />}
                 onClick={() => setShowMore(false)} />
-              <LongPressFloatButton title="Move to Books"
+              <AsycJobLongPressFloatButton title="Move to Books"
                 fillColor="bg-primary"
                 icon={<BookIcon className="h-4 w-4" />}
                 onLongPress={() => handleAction(file, 'files/move/books')} />
-              <LongPressFloatButton title="Move to Music"
+              <AsycJobLongPressFloatButton title="Move to Music"
                 fillColor="bg-primary"
                 icon={<HeadphonesIcon className="h-4 w-4" />}
                 onLongPress={() => handleAction(file, 'files/move/music')} />
-              <LongPressFloatButton title="Move to Software"
+              <AsycJobLongPressFloatButton title="Move to Software"
                 fillColor="bg-primary"
                 icon={<Binary className="h-4 w-4" />}
                 onLongPress={() => handleAction(file, 'files/move/software')} />

@@ -1,19 +1,16 @@
 import { FloatButton } from "@/components/float-button"
-import { LongPressFloatButton } from "@/components/long-press-float-button"
-import { OcodoLoaderIcon } from "@/components/ocodo-loader-icon"
+import { AsycJobLongPressFloatButton, LongPressFloatButton } from "@/components/long-press-float-button"
 import { TorrentFileRow } from "@/components/torrent-file-row"
-import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import type { DestructiveDownloadedFileAction, DestructiveTorrentAction } from "@/types/actions"
 import { Torrent } from "@/types/torrent"
 import { ChevronDown, ChevronUp, Edit, Trash, X } from "lucide-react"
-import { useState } from "react"
 
 interface TorrentRowProps {
   torrent: Torrent
   expandedTorrent: string | null
   toggleExpand: (id: string) => void
-  handleAction: (item: Torrent, action: DestructiveTorrentAction | DestructiveDownloadedFileAction) => void
+  handleAction: (item: Torrent, action: DestructiveTorrentAction | DestructiveDownloadedFileAction) => Promise<void>
   handleRename: (item: Torrent, filename?: string) => void
   handleSoftDelete: (torrent: Torrent, filename: string) => void
   isSoftDeletedFn: (torrentId: string, index: number) => boolean
@@ -30,8 +27,6 @@ const TorrentRow = (props: TorrentRowProps) => {
     isSoftDeletedFn
   } = props
 
-  const [isDeleting, setIsDeleting] = useState(false)
-
   return (
     <div key={torrent.id} className="p-4 border border-foreground/20 rounded-lg">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
@@ -45,24 +40,11 @@ const TorrentRow = (props: TorrentRowProps) => {
             fillColor="bg-primary"
             icon={<X className="h-4 w-4" />}
             onLongPress={() => handleAction(torrent, 'remove')} />
-          {!isDeleting
-            ? <LongPressFloatButton
-              title="Delete Torrent"
-              icon={<Trash className="h-4 w-4" />}
-              onLongPress={() => {
-                setIsDeleting(true);
-                handleAction(torrent, 'delete');
-                setTimeout(() => setIsDeleting(false), 1500)
-              }} />
-            :
-            <Button
-              variant={'ghost'}
-              disabled
-              size={'icon'}
-            >
-              <OcodoLoaderIcon className="h-4 w-4 animate-spin" />
-            </Button>
-          }
+          <AsycJobLongPressFloatButton
+            title="Delete Torrent"
+            icon={<Trash className="h-4 w-4" />}
+            onLongPress={() => handleAction(torrent, 'delete')}
+          />
           {
             torrent.files.length > 0 ?
               (<FloatButton

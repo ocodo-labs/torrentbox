@@ -1,9 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
 export const useLeadingEdgeDebounce = (func: Function, delay: number = 300) => {
-  const [debounceTimeout, setDebounceTimeout] = useState<string | number | NodeJS.Timeout | null>(null);
+  const [debounceTimeout, setDebounceTimeout] = useState<
+    string | number | NodeJS.Timeout | null
+  >(null);
   const debounce = useCallback(
-    (...args: unknown[]) => {
+    async (...args: unknown[]) => {
       if (debounceTimeout) return;
       func(...args);
       setDebounceTimeout(
@@ -15,12 +17,17 @@ export const useLeadingEdgeDebounce = (func: Function, delay: number = 300) => {
     [debounceTimeout, func, delay]
   );
   return debounce;
-}
+};
 
-export const useTrailingEdgeDebounce = (func: Function, delay: number = 300) => {
-  const [debounceTimeout, setDebounceTimeout] = useState<string | number | NodeJS.Timeout | null>(null);
+export const useTrailingEdgeDebounce = (
+  func: Function,
+  delay: number = 300
+) => {
+  const [debounceTimeout, setDebounceTimeout] = useState<
+    string | number | NodeJS.Timeout | null
+  >(null);
   const debounce = useCallback(
-    (...args:unknown[]) => {
+    async (...args: unknown[]) => {
       if (debounceTimeout) {
         clearTimeout(debounceTimeout);
       }
@@ -32,7 +39,6 @@ export const useTrailingEdgeDebounce = (func: Function, delay: number = 300) => 
       );
     },
     [debounceTimeout, func, delay]
-  )
+  );
   return debounce;
-}
-
+};
