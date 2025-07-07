@@ -150,9 +150,12 @@ const TorrentSearch: React.FC<TorrentSearchProps> = (props) => {
           type="search"
         />
         <Button
-          className="rounded-full"
+          className="rounded-full transition-colors duration-[1s]"
           onClick={torrentSearch}><SearchIcon className="mr-2 w-4 h-4" /> Search</Button>
-        <CircleX className="mt-1 size-8 cursor-pointer stroke-1" onClick={resetSearch} />
+        <CircleX
+          className="mt-1 size-8 cursor-pointer"
+          style={{ strokeWidth: 0.5 }}
+          onClick={resetSearch} />
       </div>
       {
         searchResults.length > 0 ? (

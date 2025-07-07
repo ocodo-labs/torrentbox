@@ -2,9 +2,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
-
-import { MagnetIcon } from "@/components/magnet-icon"
 import { toast } from "sonner"
+import { Magnet } from "lucide-react"
 
 type TorrentNewMagnetDialogProps = {
   open: boolean
@@ -42,7 +41,7 @@ export const TorrentNewMagnetDialog = ({ open, onOpenChange, postUrl }: TorrentN
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle><div className="flex"><MagnetIcon className="mr-2"/> Add Magnet Link </div></DialogTitle>
+          <DialogTitle><div className="flex"><Magnet className="mr-2 h-6 w-6" style={{strokeWidth:0.5}}/> Add Magnet Link </div></DialogTitle>
         </DialogHeader>
         <Textarea
           className="min-h-[6rem]"

@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { Menu, Moon, Sun } from 'lucide-react'
+import { IceCreamCone, LucideCoffee, Magnet, Menu, Moon, Sun } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -8,7 +8,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { serverBaseUrl } from '@/app/config'
 import { TorrentNewMagnetDialog } from '@/components/torrent-new-magnet-dialog'
-import { MagnetIcon } from '@/components/magnet-icon'
 import { useContext, useState } from 'react'
 import { BittorrentIcon } from '@/components/bit-torrent-icon'
 import { ThemeContext } from '@/contexts/theme-context'
@@ -28,9 +27,10 @@ export function TorrentBoxHeading() {
 
   const themeIcons = (theme: string) => {
     return {
-      light: (<Sun className="h-6 w-6 stroke-1" />),
-      dark: (<Moon className="h-6 w-6 stroke-1" />),
-      oli: (<Olivetti1954 className="h-6 w-6" />),
+      light: <Sun className="h-6 w-6" style={{strokeWidth:0.5}}/>,
+      dark: <Moon className="h-6 w-6" style={{strokeWidth:0.5}} />,
+      oli: <Olivetti1954 className="h-6 w-6" style={{strokeWidth:0.5}} />,
+      creme: <LucideCoffee className="h6 w-6" style={{strokeWidth:0.5}} />,
     }[theme]
   }
 
@@ -39,12 +39,12 @@ export function TorrentBoxHeading() {
       <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="cursor-pointer">
-            <Menu className="h-6 w-6 stroke-1" />
+            <Menu className="h-6 w-6" style={{strokeWidth: 0.5}} />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuItem onSelect={handleSelect}>
-            <MagnetIcon className='mr-2' /> Add magnet
+            <Magnet className='mr-2 w-6 h-6' style={{strokeWidth:0.5}} /> Add magnet
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
