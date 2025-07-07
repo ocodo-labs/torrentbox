@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { IceCreamCone, LucideCoffee, Magnet, Menu, Moon, Sun } from 'lucide-react'
+import { LucideCoffee, Magnet, Menu, Moon, Sun } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuTrigger,

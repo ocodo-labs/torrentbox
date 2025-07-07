@@ -2,8 +2,6 @@
 import { type SVGProps } from "react"
 
 export const BittorrentIcon = (props: SVGProps<SVGSVGElement>) => (
-
-
     <svg
       width={40}
       height={40}
