@@ -1,17 +1,17 @@
+import { serverBaseUrl } from '@/app/config'
+import { BittorrentIcon } from '@/components/bit-torrent-icon'
+import { Olivetti1954 } from '@/components/olivetti-1954-logo'
+import { TorrentNewMagnetDialog } from '@/components/torrent-new-magnet-dialog'
 import { Button } from '@/components/ui/button'
-import { LucideCoffee, Magnet, Menu, Moon, Sun } from 'lucide-react'
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { serverBaseUrl } from '@/app/config'
-import { TorrentNewMagnetDialog } from '@/components/torrent-new-magnet-dialog'
-import { useContext, useState } from 'react'
-import { BittorrentIcon } from '@/components/bit-torrent-icon'
 import { ThemeContext } from '@/contexts/theme-context'
-import { Olivetti1954 } from '@/components/olivetti-1954-logo'
+import { Magnet, Menu, Moon, Sun } from 'lucide-react'
+import { useContext, useState } from 'react'
 
 export function TorrentBoxHeading() {
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -28,9 +28,9 @@ export function TorrentBoxHeading() {
   const themeIcons = (theme: string) => {
     return {
       light: <Sun className="h-6 w-6" style={{strokeWidth:0.5}}/>,
-      dark: <Moon className="h-6 w-6" style={{strokeWidth:0.5}} />,
-      oli: <Olivetti1954 className="h-6 w-6" style={{strokeWidth:0.5}} />,
-      creme: <LucideCoffee className="h6 w-6" style={{strokeWidth:0.5}} />,
+      dark: <Moon className="h6 w-6" style={{strokeWidth:0.5}}/>,
+      oli: <Olivetti1954 className="h-6 w-6"/>,
+      'oli-dark': <Olivetti1954 className="h-6 w-6" style={{fill: "#FFFFFF"}}/>,
     }[theme]
   }
 

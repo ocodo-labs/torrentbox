@@ -120,7 +120,7 @@ body {
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-.dark {
+.oli-dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.939 0.0204 118.95);
   --card: oklch(0.2354 0.0019 286.25);
@@ -188,7 +188,7 @@ body {
   --sidebar-ring: oklch(0.708 0 0);
 }
 
-.creme {
+.dark {
   --radius: 0.625rem;
   --background: oklch(20.017% 0.00603 91.653);
   --foreground: oklch(80.435% 0.01962 67.442);
