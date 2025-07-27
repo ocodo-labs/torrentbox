@@ -121,6 +121,16 @@ const TorrentSearch: React.FC<TorrentSearchProps> = (props) => {
       setSearching(true)
       const response = await fetch(`${serverBaseUrl}/torrents/search/scrape?query=${encodeURIComponent(searchQuery)}`)
       const data = await response.json()
+      if (!response.ok) {
+        setSearching(false)
+        if (data.detail) { toast(data.detail) }
+        return
+      }
+      if (searchQuery.startsWith('magnet:')) {
+        setSearching(false)
+        if (data.info) { toast(data.info) }
+        return
+      }
       if (data?.results?.filter) {
         const filtered = data.results.filter((e: TorrentSearchResult) => {
           const hasSeeds = parseInt(e.seeds, 10) > 0
