@@ -10,6 +10,9 @@ export default defineConfig({
     // see vite docs to config allowed host names
     allowedHosts: ["torrentbox.hub"]
   },
+  build: {
+    outDir: './apiserver/dist'
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './'),

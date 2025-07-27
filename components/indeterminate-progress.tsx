@@ -18,18 +18,20 @@ const indeterminateAnimation = keyframes`
 
 // Styled components for the progress bar
 const ProgressBar = styled.div`
-  height: 4px;
   background-color: var(--border);
   width: 100%;
+  border-radius: 0.25em;
+  height: 0.5em;
   overflow: hidden;
 `;
 
 const ProgressBarValue = styled.div`
   width: 100%;
   height: 100%;
-  background-color: var(--border);
+  border-radius: 0.25em;
+  background-color: var(--primary);
   box-shadow: inset 0 0 3px 3px #FFF4;
-  animation: ${indeterminateAnimation} 1s infinite linear;
+  animation: ${indeterminateAnimation} 3s infinite linear;
   transform-origin: 0% 50%;
 `;
 

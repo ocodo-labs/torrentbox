@@ -16,6 +16,7 @@ interface LongPressButtonProps extends React.ComponentPropsWithoutRef<typeof But
   transformOrigin?: 'top' | 'right' | 'bottom' | 'left';
   longPressDuration?: number;
   children: React.ReactNode;
+  finishedDelay?: number;
   setPressing?: Dispatch<SetStateAction<boolean>>;
   onLongPress: () => void;
 }
@@ -24,6 +25,7 @@ export const LongPressButton: React.FC<LongPressButtonProps> = ({
   children,
   childrenClassName,
   fillUpColorClass,
+  finishedDelay = 500,
   longPressDuration = 500,
   onLongPress,
   setPressing,
@@ -157,7 +159,7 @@ export const LongPressButton: React.FC<LongPressButtonProps> = ({
       }
 
       if (fillPercentage == 100) {
-        setTimeout(() => setFillPercentage(0), 500)
+        setTimeout(() => setFillPercentage(0), finishedDelay)
       }
     }
   };
@@ -210,3 +212,4 @@ export const LongPressButton: React.FC<LongPressButtonProps> = ({
   );
 };
 
+export default LongPressButton;

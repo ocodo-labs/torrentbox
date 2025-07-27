@@ -1,0 +1,15 @@
+[project]
+name = "torrentbox-apiserver"
+version = "0.1.0"
+description = "API Server for hnstories"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "bs4>=0.0.2",
+    "fastapi-cache2[redis]>=0.2.2",
+    "fastapi[standard]>=0.115.13",
+    "ollama>=0.5.1",
+    "omegaconf>=2.3.0",
+    "transmission-rpc>=7.0.11",
+]
+

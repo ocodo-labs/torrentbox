@@ -236,7 +236,6 @@ export const TorrentManagerProvider: React.FC<{ children: React.ReactNode }> = (
       const torrent: Torrent = item as Torrent;
       if (torrent.id) {
         console.log(`Torrent Action: ${action} ... ${torrent.name}`)
-        toast(`${action.substring(0, 1).toUpperCase()}${action.substring(1)} ${torrent.name}`)
         await executeTorrentAction(action as DestructiveTorrentAction, torrent)
         fetchTorrents()
         return
@@ -322,10 +321,15 @@ export const TorrentManagerProvider: React.FC<{ children: React.ReactNode }> = (
         body: JSON.stringify(payload),
       })
 
-      if (!response.ok) {
-        toast(`Failed to rename ${currentFilename} (${response.status})`)
-      } else {
+      if (response.ok) {
         toast(`Renamed ${currentFilename} ⇢  ${newName}`)
+      } else {
+        const json = await response.json()
+        if (json.detail) {
+          toast.warning(json.detail)
+        } else {
+          toast.warning(`Failed to rename ${currentFilename} (${response.status})`)
+        }
       }
     } catch (error) {
       console.error("Error renaming torrent:", error)

@@ -1,0 +1,33 @@
+downloads: /mnt/Mirage/downloads
+
+media:
+  audiobooks: /mnt/Mirage/audiobooks
+  books: /mnt/Mirage/books
+  movies: /mnt/Mira/movies
+  music: /mnt/Mirage/Music
+  software: /mnt/Mirage/windows software
+  tvshows: /mnt/Mirage/tv-shows
+
+naming:
+  hosts:
+    - "http://polaris:11434"
+    - "http://pulsar:11434"
+    - "http://jupiter:11434"
+  models:
+    - "gemma3:latest"
+    - "llama3.1:latest"
+
+transmission:
+  port: 9091
+  host: helios
+
+valid_extensions: [
+    '.txt', '.md', '.rst', '.rtf', '.csv', '.tsv', '.json', '.xml', '.yaml', '.yml', '.ini', '.log',
+    '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.tif', '.webp', '.svg', '.ico', '.heif', '.heic', '.icns',
+    '.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a', '.wma',
+    '.mp4', '.mkv', '.avi', '.mov', '.webm', '.flv', '.wmv', '.3gp',
+    '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.odt', '.ods', '.odp',
+    '.zip', '.tar', '.gz', '.bz2', '.xz', '.7z', '.rar', '.dmg', '.pkg',
+    '.ttf', '.otf', '.woff', '.woff2',
+    '.epub', '.iso', '.swf', '.jsonld', '.srt', '.idx', '.sub',
+]
