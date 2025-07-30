@@ -1,7 +1,6 @@
-import { FloatBox } from "@/components/float-box"
 import { LongPressButton } from "@/components/long-press-button"
 import { OcodoLoaderIcon } from "@/components/ocodo-loader-icon"
-import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import { useState, type FC, type ReactNode } from "react"
 
 interface LongPressFloatButtonProps {
@@ -33,9 +32,9 @@ export const AsycJobLongPressFloatButton: FC<AsyncJobLongPressFloatButtonProps> 
   return (
     <>
       {isRunning ? (
-        <Button size={'icon'} >
-          <OcodoLoaderIcon className="w-4 h-4 animate-spin" />
-        </Button>
+        <div className="rounded-full p-2 bg-foreground/30">
+          <OcodoLoaderIcon className="w-6 h-6 animate-spin" />
+        </div>
       ) : (
         <LongPressFloatButton onLongPress={handleLongPress} {...props} />
       )}
@@ -49,16 +48,20 @@ export function LongPressFloatButton(props: LongPressFloatButtonProps) {
     title,
     icon,
     onLongPress,
-    fillColor,
-    vAlign = 'bottom',
-    hAlign = 'center' } = props
+    fillColor
+  } = props
 
   return (
-    <FloatBox body={title} hAlign={hAlign} vAlign={vAlign}>
-      <LongPressButton variant="ghost" size="icon" onLongPress={onLongPress} fillUpColorClass={fillColor} longPressDuration={1000}>
-        {icon}
-      </LongPressButton>
-    </FloatBox>
+    <Tooltip>
+      <TooltipTrigger>
+        <LongPressButton variant="ghost" size="icon" onLongPress={onLongPress} fillUpColorClass={fillColor} longPressDuration={1000}>
+          {icon}
+        </LongPressButton>
+      </TooltipTrigger>
+      <TooltipContent>
+        {title}
+      </TooltipContent>
+    </Tooltip>
   )
 }
 

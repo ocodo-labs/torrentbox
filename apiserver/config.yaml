@@ -1,12 +1,43 @@
 downloads: /mnt/Mirage/downloads
 
 media:
-  audiobooks: /mnt/Mirage/audiobooks
-  books: /mnt/Mirage/books
-  movies: /mnt/Mira/movies
-  music: /mnt/Mirage/Music
-  software: /mnt/Mirage/windows software
-  tvshows: /mnt/Mirage/tv-shows
+  audiobooks:
+    directory: /mnt/Mirage/audiobooks
+      - mp3
+      - m4a
+  books:
+    directory: /mnt/Mirage/books
+      - epub
+      - pdf
+      - zip
+  movies:
+    directory: /mnt/Mira/movies
+    exts:
+      - mp4
+      - mkv
+      - avi
+      - webm
+  music:
+    directory: /mnt/Mirage/Music
+      - mp3
+      - m4a
+      - ogg
+      - flac
+      - wav
+  software:
+    directory: /mnt/Mirage/windows software
+    exts:
+      - zip
+      - msi
+      - exe
+      - 7z
+  tvshows:
+    directory: /mnt/Mirage/tv-shows
+    exts:
+      - mp4
+      - mkv
+      - avi
+      - webm
 
 naming:
   hosts:
@@ -31,3 +62,24 @@ valid_extensions: [
     '.ttf', '.otf', '.woff', '.woff2',
     '.epub', '.iso', '.swf', '.jsonld', '.srt', '.idx', '.sub',
 ]
+
+filters:
+  words:
+    - the
+    - of
+    - BluRay
+    - x264
+    - x265
+    - 1080p
+    - BONE
+    - HEVC
+    - DC
+    - Criterion
+    - 10bit
+    - AAC
+    - "2.0"
+    - Tigole
+    - successfulcrab
+    - WebRip
+
+

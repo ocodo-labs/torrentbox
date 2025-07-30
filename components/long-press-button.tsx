@@ -178,11 +178,11 @@ export const LongPressButton: React.FC<LongPressButtonProps> = ({
   return (
     <Button
       className={cn(
-        `relative overflow-hidden group`, // Button itself is relative, creating a stacking context
+        `relative overflow-hidden group rounded-full`, // Button itself is relative, creating a stacking context
         className
       )}
-      variant={variant}
-      size={size}
+      variant='ghost'
+      size='icon'
       {...rest}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}

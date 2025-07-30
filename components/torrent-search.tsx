@@ -2,13 +2,14 @@ import { serverBaseUrl } from "@/app/config"
 import { IndeterminateProgress } from "@/components/indeterminate-progress"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { CircleX, SearchIcon } from "lucide-react"
+import { Circle, CircleX, SearchIcon } from "lucide-react"
 import React, { useState } from "react"
 import canAutoplay from 'can-autoplay'
 import { toast } from "sonner"
-import { FloatBox } from "@/components/float-box"
 import { AsycJobLongPressFloatButton } from "@/components/long-press-float-button"
 import { LineMdDownloadIcon } from "@/components/line-md-download-icon"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+
 
 interface TorrentSearchResult {
   magnet_link: string
@@ -16,6 +17,7 @@ interface TorrentSearchResult {
   seeds: string
   size: string
   category: string
+  existing: string[]
 }
 
 interface TorrentSearchResultWithFetchTorrents extends TorrentSearchResult {
@@ -28,6 +30,7 @@ function TorrentSearchResultRow(props: TorrentSearchResultWithFetchTorrents) {
     name,
     seeds,
     size,
+    existing,
     fetchTorrents,
   } = props
 
@@ -73,26 +76,48 @@ function TorrentSearchResultRow(props: TorrentSearchResultWithFetchTorrents) {
   return (
     <div className="flex justify-between items-center border-b-2 border-secondary-foreground/10">
       <div className="text-sm w-30 truncate mr-2 md:w-fit md:text-base">
-        <FloatBox className="md:hidden" body={name} popUpOnTap vAlign='bottom' hAlign='center'>
-          {name}
-        </FloatBox>
+        <div className="flex flex-row gap-2 items-center justify-start">
+          {
+            existing.length > 0 &&
+            <Tooltip>
+              <TooltipTrigger>
+                <Circle className="w-4 h-4" stroke="#AA6600" strokeWidth={3} />
+              </TooltipTrigger>
+              <TooltipContent>
+                Existing Download: {existing}
+              </TooltipContent>
+            </Tooltip>
+          }
+          {
+            existing.length == 0 &&
+            <Circle className="w-4 h-4" />
+          }
+          <div>
+            {name}
+          </div>
+        </div>
       </div>
       <div className="flex items-center gap-2 select-none">
         <div className="text-xs text-muted-foreground">
           {size}
         </div>
-        <FloatBox hAlign='center' vAlign='top' body='Seeds'>
-          <div className="text-xs w-3">
-            {seeds}
-          </div>
-        </FloatBox>
-        <AsycJobLongPressFloatButton
-          fillColor="bg-primary"
-          hAlign='left'
-          vAlign='top'
-          title={`Download ${name}`}
-          onLongPress={() => getTorrentMagnet(name, magnet_link)}
-          icon={<LineMdDownloadIcon className="h-4 w-4" />} />
+        <Tooltip>
+          <TooltipTrigger>
+            <div className="text-xs w-3">
+              {seeds}
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            Seeds
+          </TooltipContent>
+        </Tooltip>
+        <div className="ml-4 my-[3px]">
+          <AsycJobLongPressFloatButton
+            fillColor="bg-primary"
+            title={`Download ${name}`}
+            onLongPress={() => getTorrentMagnet(name, magnet_link)}
+            icon={<LineMdDownloadIcon className="h-4 w-4" />} />
+        </div>
       </div>
     </div>
   )

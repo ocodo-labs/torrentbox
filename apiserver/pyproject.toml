@@ -10,6 +10,7 @@ dependencies = [
     "fastapi[standard]>=0.115.13",
     "ollama>=0.5.1",
     "omegaconf>=2.3.0",
+    "pystache>=0.6.8",
     "transmission-rpc>=7.0.11",
 ]
 

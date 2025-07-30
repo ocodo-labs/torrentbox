@@ -4,9 +4,6 @@ import re
 import json
 import logging
 import requests
-from inspect import cleandoc
-from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from typing import Optional, List
@@ -20,6 +17,7 @@ from transmission_rpc import Client as Transmission
 from ollama import Client as Ollama
 from starlette.responses import Response
 from redis import Redis
+import pystache
 
 """
 I was one of those people who luckily was
@@ -43,8 +41,14 @@ a piece of genius.
 
 """
 
-
 redis = Redis(decode_responses=True)
+
+
+def render_mustache_template(template_path: str, context: dict) -> str:
+    with open(template_path, "r") as template_file:
+        template = template_file.read()
+    rendered_template = pystache.render(template, context)
+    return rendered_template
 
 
 def invalidate_cache(namespace: str):
@@ -173,184 +177,8 @@ def fix_suggestion_extensions(filename, suggestions):
 def filename_suggestions(
     filename, model=config.naming.models[0], models=config.naming.models, max_tries=10
 ):
-    prompt = cleandoc(
-        """
-You are a diligent and sensible media archivist. A machine is sending you this message expecting a JSON response.
-
-Using the filename provided at the end of this message, generate up to 5 improved name suggestions. Provide only one suggestion per variant unless additional options offer clear value to the user.
-
-Please adhere strictly to the JSON format in the examples. The response must be in pure JSON, without any markdown or additional formatting:
-
-**Rules for Improvement:**
-
-1. **No Corrections or Additions:**
-   - Do not correct spelling or paraphrase.
-   - Do not add words or characters that are not present in the original filename; however, use spaces instead of other punctuation.
-
-2. **Handling Movie or TV Show Titles:**
-   - If the filename indicates a movie or show, use its title with minimal details. Do not extrapolate or guess the name.
-   - Retain the release year, episode, part, season, and file extension from the original filename. If not present, do not add it.
-
-3. **Avoid Unnecessary Information:**
-   - Do not include encoding info, codec(s), resolution, source media, sharing groups, etc.
-
-4. **Inferring Media Type:**
-   - Use the file extension to infer the media type (e.g., audio, video, subtitles (sub,idx,srt)) when no other clues are available.
-
-5. **Naming for Various Media:**
-   - For text, music, images, etc., use the existing filename as the source for all information.
-
-6. **Preferred Naming Conventions:**
-   - Favor names with spaces and use parentheses for dates/years. Avoid dashes, underscores, or snake_case.
-   - Suggest variations that replace spaces with dots alongside those with spaces.
-
-7. **Response Format:**
-   - Only reply with the valid JSON response text. Do not include commentary, notes, or additional text.
-
-8. **File Extension Rules:**
-   - Never add a file extension if it is not present in the given filename.
-   - You are aware of media file extensions, for video, text, audio, subtitles, images, these should always be retained.
-   - Be sure that the file extension is valid, and not part of a sharing tag.
-
-9. **Strict Compliance:**
-   - Ensure that all the above rules are carefully followed. Double check.
-
-### Examples of Input Filenames and Suggestions:
-
-1. Input: `The_Witch_Part_2_The_Other_One_(2020)_[1080p]_[WEBRip]_[AMZN]`
-   - Suggestions:
-
-     {
-       "suggestions": [
-         "The Witch Part 2 The Other One (2020)",
-         "The Witch Part 2 The Other One",
-         "The.Witch.Part.2.The.Other.One.(2020)",
-         "The.Witch.Part.2.The.Other.One"
-       ]
-     }
-
-
-2. Input: `Spider-Man.No.Way.Home.2021.[2160p].UHD.BluRay.x264.DD5.1.mkv`
-   - Suggestions:
-
-     {
-       "suggestions": [
-         "Spider-Man No Way Home (2021)",
-         "Spider-Man No Way Home",
-         "Spider-Man.No.Way.Home.(2021)",
-         "Spider-Man.No.Way.Home"
-       ]
-     }
-
-
-3. Input: `The_Office_S01E01_[720p]_WEBRip_AAC.avi`
-   - Suggestions:
-
-     {
-       "suggestions": [
-         "The Office S01E01",
-         "The Office S01E01",
-         "The.Office.S01E01",
-         "The.Office.S01E01"
-       ]
-     }
-
-
-4. Input: `Inception+2010+[1080p]+BluRay+x264.mkv`
-   - Suggestions:
-
-     {
-       "suggestions": [
-         "Inception (2010)",
-         "Inception 2010",
-         "Inception",
-         "Inception.(2010)",
-         "Inception"
-       ]
-     }
-
-
-5. Input: `Breaking.Bad.S05E14.[1080p].WEBRip.x264.mp4`
-   - Suggestions:
-
-     {
-       "suggestions": [
-         "Breaking Bad S05E14",
-       ]
-     }
-
-
-#### Folder Names with Sharing Tags
-
-1. Input: `The_Witch_Part_2_The_Other_One_(2020)_[1080p]_[WEBRip]_[AMZN]`
-   - Suggestions:
-
-     {
-       "suggestions": [
-         "The Witch Part 2 The Other One (2020)",
-         "The Witch Part 2 The Other One 2020",
-         "The Witch Part 2 The Other One",
-         "The.Witch.Part.2.The.Other.One.(2020)",
-         "The.Witch.Part.2.The.Other.One"
-       ]
-     }
-
-
-2. Input: `Spider-Man_No_Way_Home_(2021)_[2160p]_[UHD]_[BluRay]`
-   - Suggestions:
-
-     {
-       "suggestions": [
-         "Spider-Man No Way Home (2021)",
-         "Spider-Man No Way Home 2021",
-         "Spider-Man No Way Home",
-         "Spider-Man.No.Way.Home.(2021)",
-         "Spider-Man.No.Way.Home.2021",
-       ]
-     }
-
-
-3. Input: `Breaking.Bad.S05E14_[1080p]_[WEBRip]`
-   - Suggestions:
-
-     {
-       "suggestions": [
-         "Breaking Bad S05E14",
-       ]
-     }
-
-
-4. Input: `Inception_(2010)_[1080p]_[BluRay]`
-   - Suggestions:
-
-     {
-       "suggestions": [
-         "Inception (2010)",
-         "Inception",
-         "Inception.(2010)",
-         "Inception"
-       ]
-     }
-
-
-5. Input: `The.Office.Season.1.[1080p].[WEBRip]`
-   - Suggestions:
-
-     {
-       "suggestions": [
-         "The Office Season 1",
-         "The.Office.Season.1",
-         "The.Office"
-       ]
-     }
-
-
-**FILENAME BELOW:**
-
-    %s
-
-    """
-        % filename
+    prompt = render_mustache_template(
+        os.path.join("templates", "prompt.mustache"), {"filename": filename}
     )
 
     suggestions = None
@@ -364,24 +192,18 @@ Please adhere strictly to the JSON format in the examples. The response must be 
         raise Exception(msg)
 
     ollama = Ollama(host=host)
-
-    logger.info(f"Ollama host found: {host}")
-
     ollama_host_models = get_ollama_models(host)
 
     if ollama_host_models is None:
         msg = f"No models on {host}"
         raise Exception(msg)
 
-    logger.info(f"Got {host} ollama model list:")
     for llm in ollama_host_models:
         logger.info(f" - {llm}")
 
-    # Extract the list of model names from host models
     host_model_names = [m.get("name") for m in ollama_host_models if "name" in m]
 
     if model not in host_model_names:
-        # Find the first model from config that exists in the host models
         fallback_model = next(
             (
                 m
@@ -393,10 +215,8 @@ Please adhere strictly to the JSON format in the examples. The response must be 
 
         if fallback_model:
             model = fallback_model
-            logger.info(f"Using fallback model from config: {model}")
         else:
             model = host_model_names[0]
-            logger.info(f"No config match, using host default model: {model}")
 
     while suggestions is None:
         response = ollama.chat(
@@ -406,16 +226,10 @@ Please adhere strictly to the JSON format in the examples. The response must be 
         try:
             logger.info("Ollama response message content")
             content = response["message"]["content"]
-
             content = clean_llm_json_response(content)
-
-            logger.info(content)
-
             suggestions = json.loads(content)
-
             logger.info("LLM suggested:")
             logger.info(suggestions)
-
             suggestions["suggestions"] = fix_suggestion_extensions(
                 filename, suggestions["suggestions"]
             )
@@ -429,6 +243,45 @@ Please adhere strictly to the JSON format in the examples. The response must be 
                 raise Exception(f"{try_count} max retries, unable to get suggestions")
 
     return suggestions
+
+
+def filter_words(word_list):
+    filter_words = [word.lower() for word in config.filters.words]
+    return [word for word in word_list if word.lower() not in filter_words]
+
+
+def preprocess_title(title: str) -> set:
+    title = os.path.splitext(title)[0]
+    title = re.sub(r"['\"]", "", title)
+    title = re.sub(r"[._+-]", " ", title)
+    words = [word for word in title.split() if word.isalnum()]
+    words = filter_words(words)
+    return list(set(words))
+
+
+def ordered_intersection(list1, list2):
+    return [word for word in list1 if word in list2]
+
+
+def get_matches_from(directory: str, torrent_name: str, valid_exts: List[str]) -> List[str]:
+    torrent_name_words = preprocess_title(torrent_name)
+    matches = []
+    for dirpath, _, files in os.walk(directory):
+        for file_name in files:
+            file_path = os.path.join(dirpath, file_name)
+            file_ext = os.path.splitext(file_name)[1][
+                1:
+            ].lower()  # Extracting extension without the dot
+            if file_ext not in valid_exts:
+                continue
+            file_name_words = preprocess_title(file_name)
+            intersection_words = ordered_intersection(file_name_words, torrent_name_words)
+            if intersection_words == file_name_words:
+                matches.append(file_path)
+            elif intersection_words == torrent_name_words[0:-1] and (torrent_name_words[-1]).isnumeric():
+                matches.append(file_path)
+
+    return matches
 
 
 def torrent_download_path(filename):
@@ -468,7 +321,6 @@ def torrent_file_rename(torrent_id, filename, newname):
 
         return result
     except Exception as e:
-
         logger.error(f"Internal error renaming torrent {filename} to {newname}")
         logger.error(result)
         logger.error(e)
@@ -495,6 +347,18 @@ def remove_torrent(torrent_id, delete=False):
     torrent = transmission.get_torrent(torrent_id)
     transmission.remove_torrent([torrent_id], delete_data=delete)
     return torrent
+
+
+def check_existing_media(torrents_data):
+    for torrent in torrents_data:
+        torrent_name = torrent["name"]
+        torrent["existing"] = []
+        directory = config.media.movies.directory
+        valid_exts = config.media.movies.exts
+        matches = get_matches_from(directory, torrent_name, valid_exts)
+        if matches:
+            torrent["existing"] = matches
+    return torrents_data
 
 
 def scrape_torrents(html):
@@ -658,6 +522,8 @@ async def search_torrents(query: Optional[str] = Query(None)):
             html = response.text
             torrents_data = scrape_torrents(html)
             if torrents_data:
+                # check here
+                torrents_data = check_existing_media(torrents_data)
                 return {"results": torrents_data}
             raise HTTPException(
                 status_code=404, detail=f"{query} - returned no results"
@@ -694,26 +560,32 @@ def get_torrents_active():
     for torrent in torrents:
         try:
             time_left = torrent.size_when_done - torrent.left_until_done
-            percent = int((time_left / torrent.size_when_done) * 100) if torrent.size_when_done else 0
+            percent = (
+                int((time_left / torrent.size_when_done) * 100)
+                if torrent.size_when_done
+                else 0
+            )
         except Exception:
             percent = 0
 
-        downloading.append({
-            "name": torrent.name,
-            "id": torrent.hash_string,
-            "percent": percent,
-            "files": torrent.get_files(),
-        })
+        downloading.append(
+            {
+                "name": torrent.name,
+                "id": torrent.hash_string,
+                "percent": percent,
+                "files": torrent.get_files(),
+            }
+        )
 
         exclude_from_downloaded.add(torrent.name)
 
-    exclude_from_downloaded.update(filename for filename in files if filename.endswith(".part"))
+    exclude_from_downloaded.update(
+        filename for filename in files if filename.endswith(".part")
+    )
     downloaded = set(folders + files).difference(exclude_from_downloaded)
 
-    return {
-        "downloading": downloading,
-        "downloaded": list(downloaded)
-    }
+    return {"downloading": downloading, "downloaded": list(downloaded)}
+
 
 @api.get("/torrents/active/remove")
 def torrent_remove(torrent_id: str):
@@ -773,7 +645,12 @@ def files_delete(filename):
 
 @api.get("/torrents/files/move/{destination}")
 def files_move_to_destination(destination: str, filename: str = Query(...)):
-    return download_torrent_files_move_to(filename, config.media[destination])
+    media = config.media[destination]
+    if media and media.directory:
+        directory = media.directory
+        return download_torrent_files_move_to(filename, directory)
+
+    raise HTTPException(404, f"Cannot find destination: {destination}")
 
 
 @api.get("/torrents/active/delete")
