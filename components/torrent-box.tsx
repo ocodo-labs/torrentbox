@@ -73,7 +73,7 @@ export const TorrentBox: FC = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground">
+    <div className="flex flex-col min-h-screen bg-background/90 text-foreground">
       <TorrentBoxHeading />
       <main className="flex-grow p-4 overflow-auto">
         {connectionError ? (

@@ -72,7 +72,7 @@ function TorrentSearchResultRow(props: TorrentSearchResultWithFetchTorrents) {
 
   return (
     <div className="flex justify-between items-center border-b-2 border-secondary-foreground/10">
-      <div className="text-sm w-30 truncate mr-2 md:w-fit md:text-base select-none">
+      <div className="text-sm w-30 truncate mr-2 md:w-fit md:text-base">
         <FloatBox className="md:hidden" body={name} popUpOnTap vAlign='bottom' hAlign='center'>
           {name}
         </FloatBox>

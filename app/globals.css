@@ -1,45 +1,42 @@
 @import "tailwindcss";
 
-/* HelveticaNeue Font */
-@font-face {
-  font-family: "HelveticaNeue";
-  src: url("/fonts/HelveticaNeue-Light.woff") format("woff");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "HelveticaNeue";
-  src: url("/fonts/HelveticaNeue.woff") format("woff");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "HelveticaNeue";
-  src: url("/fonts/HelveticaNeue-Medium.woff") format("woff");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "HelveticaNeue";
-  src: url("/fonts/HelveticaNeue-Bold.woff") format("woff");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
-  --font-sans: HelveticaNeue;
-  --default-font-family: HelveticaNeue;
+  --font-sans: Geist;
+  --default-font-family: Geist;
 }
 
 .font-sans {
   font-family: var(--font-sans);
+}
+
+
+.body-background-image {
+  background: var(--body-background-image-url) no-repeat;
+  background-attachment: fixed;
+  opacity: 0;
+  transition: opacity 10s linear;
+}
+
+.body-background-image.visible {
+  opacity: 1;
+}
+
+.body-background-gradient {
+  background: linear-gradient(to bottom,
+      rgba(233, 237, 222, 1) 0%,
+      rgba(233, 237, 222, 0) 200px,
+      hsla(76, 29%, 90%, 0.1) 500px,
+      rgb(233, 237, 222) 1000px);
+  background-attachment: fixed;
+}
+
+.dark.body-background-gradient {
+  background: linear-gradient(to bottom,
+      rgba(33, 33, 33, 1) 0%,
+      rgba(33, 33, 33, 0) 200px,
+      rgba(33, 33, 33, 0.1) 500px,
+      rgb(33, 33, 33) 1000px);
+  background-attachment: fixed;
 }
 
 :root {
@@ -77,9 +74,14 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+
 body {
-  place-items: center;
   min-height: 100vh;
+  background-color: var(--background);
+}
+.dark.body {
+  min-height: 100vh;
+  background-color: var(--background);
 }
 
 @theme inline {
