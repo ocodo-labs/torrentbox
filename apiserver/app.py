@@ -307,9 +307,6 @@ def torrent_file_rename(torrent_id, filename, newname):
     except Exception:
         raise HTTPException(404, f"Torrent {filename} not found")
 
-    if not os.path.exists(os.path.join(config.downloads, filename)):
-        raise HTTPException(400, f"Torrent {filename} download not yet started")
-
     try:
         logger.info("Attempting rename")
         logger.info(f"  torrent_id: {torrent_id}")

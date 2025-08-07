@@ -1,6 +1,6 @@
-import { ThemeProvider } from "@/components/theme-provider";
-import { TorrentBox } from "@/components/torrent-box";
+import { ThemeProvider } from "@/contexts/theme-provider";
 import { TorrentManagerProvider } from "@/contexts/torrent-manager-context";
+import { TorrentBox } from "@/components/torrent-box";
 import { Toaster } from "sonner";
 
 export default function App() {

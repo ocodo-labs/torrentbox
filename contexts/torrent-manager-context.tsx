@@ -181,15 +181,42 @@ export const TorrentManagerProvider: React.FC<{ children: React.ReactNode }> = (
         toast(`Failed to ${action} torrent (${response.status})`);
         return
       }
+      try {
+        if (action == 'remove') {
+          console.log(`${action} - torrent_id: ${torrent_id}/${torrent.name}`)
+          console.log("Torrent Soft Deleted Files:")
+          console.log(torrentSoftDeletedFiles)
+          const cleanup = await fetch(
+            `${serverBaseUrl}/torrents/cleanup`,
+            {
+              method: 'post',
+              body: JSON.stringify({
+                torrent_id: torrent_id,
+                name: torrent.name,
+                files: getTorrentSoftDeletedFiles(torrent),
+              }),
+              headers: json_header
+            }
+          )
 
-      toast(`${torrent.name} ${action} completed`);
+          if (!cleanup.ok) {
+            const data = await cleanup.json()
+            const failed = data.failed_to_delete
+            toast(`${torrent.name} deleted, some files were not deleted, ${failed.join(', ')}`)
+            return
+          }
+        }
+
+        toast(`${torrent.name} ${action} completed`);
+      } catch {
+        toast(`${torrent.name} cleanup failed.`)
+      }
     } catch (error) {
       const correctedAction = action.substring(0, action.length - 1);
       console.log(`Error ${correctedAction}ing torrent:`, error);
       toast(`Failed to ${action} torrent`);
-    } finally {
-      return
     }
+    return
   }
 
   const executeDownloadedFileAction = async (

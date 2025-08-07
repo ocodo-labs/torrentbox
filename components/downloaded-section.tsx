@@ -1,5 +1,5 @@
-import { FloatButton } from "@/components/float-button"
-import { AsycJobLongPressFloatButton, LongPressFloatButton } from "@/components/long-press-float-button"
+import { TooltipButton } from "@/components/float-button"
+import { AsycJobLongPressFloatButton, LongPressTooltipButton } from "@/components/long-press-float-button"
 import { useTorrentManagerContext } from "@/contexts/torrent-manager-context"
 import { type DestructiveDownloadedFileAction, type DestructiveTorrentAction } from "@/types/actions"
 import { Torrent } from "@/types/torrent"
@@ -53,7 +53,7 @@ export const DownloadedFileRow: FC<DownloadedFileRowProps> = ({
         <h3 className="text-lg font-semibold mb-2 sm:mb-0">{file}</h3>
         <div className="flex space-x-2">
           <>
-            <FloatButton title="Rename"
+            <TooltipButton title="Rename"
               icon={<Edit className="h-4 w-4" />}
               onClick={() => handleRename(file)} />
             <AsycJobLongPressFloatButton title="Move to TV Shows"
@@ -66,13 +66,13 @@ export const DownloadedFileRow: FC<DownloadedFileRowProps> = ({
               onLongPress={() => handleAction(file, 'files/move/movies')} />
           </>
           {!showMore &&
-            <FloatButton title="Show More places"
+            <TooltipButton title="Show More places"
               icon={<Ellipsis className="h-4 w-4" />}
               onClick={() => setShowMore(true)} />
           }
           {showMore &&
             <>
-              <FloatButton title="Close More places"
+              <TooltipButton title="Close More places"
                 icon={<ChevronRightIcon className="h-4 w-4" />}
                 onClick={() => setShowMore(false)} />
               <AsycJobLongPressFloatButton title="Move to Books"
@@ -89,7 +89,7 @@ export const DownloadedFileRow: FC<DownloadedFileRowProps> = ({
                 onLongPress={() => handleAction(file, 'files/move/software')} />
             </>
           }
-          <LongPressFloatButton title="Delete"
+          <LongPressTooltipButton title="Delete"
             icon={<Trash className="h-4 w-4" />}
             onLongPress={() => handleAction(file, 'files/delete')} />
         </div>

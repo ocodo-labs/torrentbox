@@ -1,9 +1,9 @@
+import { TooltipCompact } from "@/components/float-button"
 import { LongPressButton } from "@/components/long-press-button"
 import { OcodoLoaderIcon } from "@/components/ocodo-loader-icon"
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import { useState, type FC, type ReactNode } from "react"
 
-interface LongPressFloatButtonProps {
+interface LongPressTooltipButtonProps {
   title: string
   icon: ReactNode
   fillColor?: string
@@ -12,7 +12,7 @@ interface LongPressFloatButtonProps {
   hAlign?: 'left' | 'center' | 'right'
 }
 
-type AsyncJobLongPressFloatButtonProps = Omit<LongPressFloatButtonProps, 'onLongPress'> & {
+type AsyncJobLongPressFloatButtonProps = Omit<LongPressTooltipButtonProps, 'onLongPress'> & {
   onLongPress: () => Promise<void>
 }
 
@@ -36,13 +36,13 @@ export const AsycJobLongPressFloatButton: FC<AsyncJobLongPressFloatButtonProps> 
           <OcodoLoaderIcon className="w-6 h-6 animate-spin" />
         </div>
       ) : (
-        <LongPressFloatButton onLongPress={handleLongPress} {...props} />
+        <LongPressTooltipButton onLongPress={handleLongPress} {...props} />
       )}
     </>
   )
 }
 
-export function LongPressFloatButton(props: LongPressFloatButtonProps) {
+export function LongPressTooltipButton(props: LongPressTooltipButtonProps) {
 
   const {
     title,
@@ -52,16 +52,11 @@ export function LongPressFloatButton(props: LongPressFloatButtonProps) {
   } = props
 
   return (
-    <Tooltip>
-      <TooltipTrigger>
-        <LongPressButton variant="ghost" size="icon" onLongPress={onLongPress} fillUpColorClass={fillColor} longPressDuration={1000}>
-          {icon}
-        </LongPressButton>
-      </TooltipTrigger>
-      <TooltipContent>
-        {title}
-      </TooltipContent>
-    </Tooltip>
+    <TooltipCompact tooltipChildren={title}>
+      <LongPressButton variant="ghost" size="icon" onLongPress={onLongPress} fillUpColorClass={fillColor} longPressDuration={1000}>
+        {icon}
+      </LongPressButton>
+    </TooltipCompact>
   )
 }
 

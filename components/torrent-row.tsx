@@ -1,5 +1,5 @@
-import { FloatButton } from "@/components/float-button"
-import { AsycJobLongPressFloatButton, LongPressFloatButton } from "@/components/long-press-float-button"
+import { TooltipButton } from "@/components/float-button"
+import { AsycJobLongPressFloatButton, LongPressTooltipButton } from "@/components/long-press-float-button"
 import { TorrentFileRow } from "@/components/torrent-file-row"
 import { Progress } from "@/components/ui/progress"
 import type { DestructiveDownloadedFileAction, DestructiveTorrentAction } from "@/types/actions"
@@ -32,10 +32,10 @@ const TorrentRow = (props: TorrentRowProps) => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
         <h3 className="text-lg font-semibold mb-2 sm:mb-0 truncate">{torrent.name}</h3>
         <div className="flex space-x-2">
-          <FloatButton title="Rename"
+          <TooltipButton title="Rename"
             icon={<Edit className="h-4 w-4" />}
             onClick={() => handleRename(torrent)} />
-          <LongPressFloatButton
+          <LongPressTooltipButton
             title="Remove Torrent"
             fillColor="bg-primary"
             icon={<X className="h-4 w-4" />}
@@ -46,8 +46,8 @@ const TorrentRow = (props: TorrentRowProps) => {
             onLongPress={() => handleAction(torrent, 'delete')}
           />
           {
-            torrent.files.length > 0 ?
-              (<FloatButton
+            torrent.files.length > 1 ?
+              (<TooltipButton
                 hAlign='left'
                 vAlign='middle'
                 title={`${expandedTorrent === torrent.id ? 'Hide' : 'Show'} Torrent Files`}

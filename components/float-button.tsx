@@ -1,8 +1,26 @@
-import { FloatBox } from "@/components/float-box"
 import { Button } from "@/components/ui/button"
-import { ReactNode } from "react"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import type { ReactNode, FC } from "react"
 
-interface FloatButtonProps {
+interface TooltipCompactProps {
+  children: ReactNode
+  tooltipChildren: ReactNode
+}
+
+export const TooltipCompact:FC<TooltipCompactProps> = ({children, tooltipChildren}) => {
+  return (
+    <Tooltip>
+      <TooltipContent>
+        {tooltipChildren}
+      </TooltipContent>
+      <TooltipTrigger>
+        {children}
+      </TooltipTrigger>
+    </Tooltip>
+  )
+}
+
+interface TooltipButtonProps {
   title: string
   icon: ReactNode
   vAlign?: 'top' | 'middle' | 'bottom'
@@ -10,20 +28,18 @@ interface FloatButtonProps {
   onClick: () => void
 }
 
-export function FloatButton(props: FloatButtonProps) {
+export function TooltipButton(props: TooltipButtonProps) {
   const {
     title,
     icon,
-    vAlign = 'bottom',
-    hAlign = 'center',
     onClick,
    } = props
 
   return (
-    <FloatBox body={title} hAlign={hAlign} vAlign={vAlign}>
+    <TooltipCompact tooltipChildren={title}>
       <Button variant="ghost" size="icon" onClick={onClick}>
         {icon}
       </Button>
-    </FloatBox>
+    </TooltipCompact>
   )
 }
