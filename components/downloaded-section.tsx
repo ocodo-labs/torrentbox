@@ -1,6 +1,6 @@
 import { TooltipButton } from "@/components/float-button"
 import { AsycJobLongPressFloatButton, LongPressTooltipButton } from "@/components/long-press-float-button"
-import { useTorrentManagerContext } from "@/contexts/torrent-manager-context"
+import { useTorrentManagerContext } from "@/contexts/torrent-provider"
 import { type DestructiveDownloadedFileAction, type DestructiveTorrentAction } from "@/types/actions"
 import { Torrent } from "@/types/torrent"
 import { Binary, BookIcon, ChevronRightIcon, Clapperboard, Edit, Ellipsis, HeadphonesIcon, Trash, Tv } from "lucide-react"

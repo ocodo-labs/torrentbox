@@ -1,5 +1,5 @@
 import { ThemeProvider } from "@/contexts/theme-provider";
-import { TorrentManagerProvider } from "@/contexts/torrent-manager-context";
+import { TorrentManagerProvider } from "@/contexts/torrent-provider";
 import { TorrentBox } from "@/components/torrent-box";
 import { Toaster } from "sonner";
 

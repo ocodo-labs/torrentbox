@@ -1,5 +1,5 @@
 import { TorrentRow } from "@/components/torrent-row"
-import { useTorrentManagerContext } from "@/contexts/torrent-manager-context"
+import { useTorrentManagerContext } from "@/contexts/torrent-provider"
 import { Torrent } from "@/types/torrent"
 
 const TorrentsSection = () => {

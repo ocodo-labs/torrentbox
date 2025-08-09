@@ -9,7 +9,7 @@ import React, { createContext, useCallback, useContext, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react'
 import { toast } from 'sonner';
 
-interface TorrentManagerContextType {
+interface TorrentContextType {
   torrents: Torrent[]
   downloadedFiles: string[]
   connectionError: boolean
@@ -44,15 +44,15 @@ interface TorrentManagerContextType {
   setSuggestions: Dispatch<SetStateAction<Set<string>>>
 }
 
-export const useTorrentManagerContext = (): TorrentManagerContextType => {
-  const context = useContext(TorrentManagerContext)
+export const useTorrentManagerContext = (): TorrentContextType => {
+  const context = useContext(TorrentContext)
   if (!context) {
     throw new Error("useTorrentManagerContext must be used within a TorrentManagerProvider")
   }
   return context
 }
 
-const TorrentManagerContext = createContext<TorrentManagerContextType | undefined>(undefined);
+const TorrentContext = createContext<TorrentContextType | undefined>(undefined);
 
 export const TorrentManagerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [torrents, setTorrents] = useState<Torrent[]>([])
@@ -367,7 +367,7 @@ export const TorrentManagerProvider: React.FC<{ children: React.ReactNode }> = (
   }
 
   return (
-    <TorrentManagerContext.Provider value={{
+    <TorrentContext.Provider value={{
       torrents,
       downloadedFiles,
       connectionError,
@@ -402,6 +402,6 @@ export const TorrentManagerProvider: React.FC<{ children: React.ReactNode }> = (
       setSuggestions
     }}>
       {children}
-    </TorrentManagerContext.Provider>
+    </TorrentContext.Provider>
   );
 };
