@@ -1,18 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --font-sans: Geist;
-  --default-font-family: Geist;
+  --font-sans: Inter;
+  --default-font-family: Inter;
 }
 
 .font-sans {
   font-family: var(--font-sans);
 }
 
-
 .body-background-image {
   background: var(--body-background-image-url) no-repeat;
   background-attachment: fixed;
+  background-size: cover;
   opacity: 0;
   transition: opacity 10s linear;
 }
