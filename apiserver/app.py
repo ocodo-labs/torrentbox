@@ -99,12 +99,16 @@ def clean_llm_json_response(content: str) -> str:
 def get_ollama_host():
     ollama_host = redis.get("ollama_host")
     logger.info(ollama_host)
-    if ollama_host:
-        response = requests.get(ollama_host, timeout=1)
-        if response.status_code == 200:
-            return ollama_host
-        else:
-            redis.delete("ollama_host")
+    try:
+        if ollama_host:
+            response = requests.get(ollama_host, timeout=0.2)
+            if response.status_code == 200:
+                return ollama_host
+            else:
+                redis.delete("ollama_host")
+    except Exception:
+        redis.delete("ollama_host")
+
 
     for host in config.naming.hosts:
         try:
