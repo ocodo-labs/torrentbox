@@ -183,16 +183,11 @@ export const TorrentManagerProvider: React.FC<{ children: React.ReactNode }> = (
       }
       try {
         if (action == 'remove') {
-          console.log(`${action} - torrent_id: ${torrent_id}/${torrent.name}`)
-          console.log("Torrent Soft Deleted Files:")
-          console.log(torrentSoftDeletedFiles)
           const cleanup = await fetch(
             `${serverBaseUrl}/torrents/cleanup`,
             {
               method: 'post',
               body: JSON.stringify({
-                torrent_id: torrent_id,
-                name: torrent.name,
                 files: getTorrentSoftDeletedFiles(torrent),
               }),
               headers: json_header
@@ -201,7 +196,7 @@ export const TorrentManagerProvider: React.FC<{ children: React.ReactNode }> = (
 
           if (!cleanup.ok) {
             const data = await cleanup.json()
-            const failed = data.failed_to_delete
+            const failed = data.failed
             toast(`${torrent.name} deleted, some files were not deleted, ${failed.join(', ')}`)
             return
           }

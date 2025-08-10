@@ -1,5 +1,6 @@
 import os
 import shutil
+from pathlib import Path
 import re
 import json
 import logging
@@ -45,8 +46,7 @@ redis = Redis(decode_responses=True)
 
 
 def render_mustache_template(template_path: str, context: dict) -> str:
-    with open(template_path, "r") as template_file:
-        template = template_file.read()
+    template = Path(template_path).read_text()
     rendered_template = pystache.render(template, context)
     return rendered_template
 
@@ -78,7 +78,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-config_path = os.path.join(os.path.dirname(__file__), "config.yaml")
+config_path = Path(__file__).parent / "config.yaml"
 config = OmegaConf.load(config_path)
 
 print(OmegaConf.to_yaml(config))
@@ -108,7 +108,6 @@ def get_ollama_host():
                 redis.delete("ollama_host")
     except Exception:
         redis.delete("ollama_host")
-
 
     for host in config.naming.hosts:
         try:
@@ -148,7 +147,7 @@ def get_ollama_model(name, host=get_ollama_host()):
     raise ValueError(f"Model {name} not found")
 
 
-def fix_extension(extension):
+def use_valid_extension_or_remove(extension):
     if extension in config.valid_extensions:
         return extension
     else:
@@ -160,21 +159,15 @@ def dedupe_suggestions(suggestions):
 
 
 def fix_suggestion_extensions(filename, suggestions):
-    # Get the extension of the given filename
+    # Always use the extension of the given filename
     extension = os.path.splitext(filename)[1]
 
-    extension = fix_extension(extension)
-    logger.info("")
+    extension = use_valid_extension_or_remove(extension)
 
-    # Iterate over suggestions
     for i, s in enumerate(suggestions):
         s_base, s_ext = os.path.splitext(s)
-
-        # If the suggestion has a different extension, fix it
         if s_ext != extension:
             suggestions[i] = s_base + extension
-
-    # Return the modified list of suggestions
     return suggestions
 
 
@@ -282,8 +275,6 @@ def get_matches_from(directory: str, torrent_name: str, valid_exts: List[str]) -
             intersection_words = ordered_intersection(file_name_words, torrent_name_words)
             if intersection_words == file_name_words:
                 matches.append(file_path)
-            elif intersection_words == torrent_name_words[0:-1] and (torrent_name_words[-1]).isnumeric():
-                matches.append(file_path)
 
     return matches
 
@@ -312,19 +303,12 @@ def torrent_file_rename(torrent_id, filename, newname):
         raise HTTPException(404, f"Torrent {filename} not found")
 
     try:
-        logger.info("Attempting rename")
-        logger.info(f"  torrent_id: {torrent_id}")
-        logger.info(f"  filename  : {filename}")
-        logger.info(f"  newname   : {newname}")
         result = transmission.rename_torrent_path(
             torrent_id=torrent_id, location=filename, name=newname
         )
 
         return result
-    except Exception as e:
-        logger.error(f"Internal error renaming torrent {filename} to {newname}")
-        logger.error(result)
-        logger.error(e)
+    except Exception:
         raise HTTPException(
             500, f"Internal error renaming torrent {filename} to {newname}"
         )
@@ -400,7 +384,8 @@ def health_check():
 
 @api.get("/docs", include_in_schema=False)
 async def api_documentation(request: Request):
-    return HTMLResponse("""
+    return HTMLResponse(
+        """
 <!doctype html>
 <html lang="en">
   <head>
@@ -419,7 +404,8 @@ async def api_documentation(request: Request):
     />
 
   </body>
-</html>""")
+</html>"""
+    )
 
 
 class MagnetActionIn(BaseModel):
@@ -597,33 +583,33 @@ def torrent_remove(torrent_id: str):
 
 @api.post("/torrents/cleanup")
 def torrent_cleanup(payload: TorrentCleanupIn):
-    failures = []
-    torrent_id = payload.torrent_id
-    torrent_name = payload.name
-    files_to_delete = payload.files
+    failed = []
+    files = payload.files
 
-    for file in files_to_delete:
+    for file in files:
         try:
             filepath = os.path.join(config.downloads, file)
-            app.logger.info(f"Deleting torrent discarded file: {filepath}")
             if os.path.exists(filepath):
                 if os.path.isdir(filepath):
                     shutil.rmtree(filepath)
                 else:
                     os.remove(filepath)
             else:
-                failures.append(filepath)
+                failed.append(filepath)
         except Exception:
-            failures.append(filepath)
+            failed.append(filepath)
+
+    if files:
+        root = Path(files[0]).parents[-2] if files else None
+        directories = [directories for dirpaths, directories, files in os.walk(root)]
+        logger.info("Cleanup directories...")
+        logger.info(directories)
 
     info = "Ran torrent files cleanup, check failed_to_delete"
     invalidate_cache("torrents")
     return {
         "info": info,
-        "name": torrent_name,
-        "torrent_id": torrent_id,
-        "files": files_to_delete,
-        "failed_to_delete": failures,
+        "failed": failed,
     }
 
 
