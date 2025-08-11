@@ -68,6 +68,9 @@ filters:
     - the
     - of
     - BluRay
+    - BRip
+    - DVDRip
+    - TVRip
     - x264
     - x265
     - 1080p
@@ -76,10 +79,11 @@ filters:
     - DC
     - Criterion
     - 10bit
+    - xxx
     - AAC
     - "2.0"
     - Tigole
     - successfulcrab
     - WebRip
 
-
+images: /mnt/Mirage/ai_art/meta-photo-style-ai

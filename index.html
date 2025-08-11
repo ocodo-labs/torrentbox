@@ -15,7 +15,7 @@
     <script>
       document.documentElement.style.setProperty(
         "--body-background-image-url",
-        `url('https://hn.hub/api/random-image?t=${new Date().getTime()}')`
+        `url('/api/random-image?t=${new Date().getTime()}')`
       );
       setTimeout(() => document.querySelector('.body-background-image').classList.add('visible'), 600)
     </script>

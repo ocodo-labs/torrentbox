@@ -5,10 +5,11 @@ import re
 import json
 import logging
 import requests
+import random
 from fastapi import FastAPI, Request, APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from typing import Optional, List
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from omegaconf import OmegaConf
 from starlette.middleware.cors import CORSMiddleware
@@ -645,6 +646,23 @@ def torrent_delete(torrent_id: str):
     torrent = remove_torrent(torrent_id, delete=True)
     invalidate_cache("torrents")
     return {"info": f"Deleted torrent {torrent.name} & files"}
+
+
+@api.get("/random-image")
+def get_random_image():
+    image_dir = config.images or "/images"
+    if os.path.exists(image_dir):
+        image_files = [
+            f
+            for f in os.listdir(image_dir)
+            if f.lower().endswith((".png", ".jpg", ".jpeg", ".gif", ".webp"))
+        ]
+        if not image_files:
+            return {"info": "No jpeg images found in the specified path."}
+        random_image = random.choice(image_files)
+        image_path = os.path.join(image_dir, random_image)
+        return FileResponse(image_path)
+    return {"info": f"{image_dir} doesn't exist"}
 
 
 app.include_router(api, prefix="/api", tags=["api"])
