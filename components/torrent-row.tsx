@@ -3,6 +3,7 @@ import { AsycJobLongPressFloatButton, LongPressTooltipButton } from "@/component
 import { TorrentFileRow } from "@/components/torrent-file-row"
 import { Progress } from "@/components/ui/progress"
 import { useTorrentContext } from "@/contexts/torrent-provider"
+import { thinIconStyle } from "@/lib/styling"
 import { Torrent } from "@/types/torrent"
 import { ChevronDown, ChevronUp, Edit, Trash, X } from "lucide-react"
 
@@ -29,16 +30,16 @@ const TorrentRow = (props: TorrentRowProps) => {
         <h3 className="text-lg font-semibold mb-2 sm:mb-0 truncate">{torrent.name}</h3>
         <div className="flex space-x-2">
           <TooltipButton title="Rename"
-            icon={<Edit className="h-4 w-4" />}
+            icon={<Edit className="h-4 w-4" style={thinIconStyle}/>}
             onClick={() => handleRenameTorrent(torrent)} />
           <LongPressTooltipButton
             title="Remove Torrent"
             fillColor="bg-primary"
-            icon={<X className="h-4 w-4" />}
+            icon={<X className="h-4 w-4" style={thinIconStyle}/>}
             onLongPress={() => handleAction(torrent, 'remove')} />
           <AsycJobLongPressFloatButton
             title="Delete Torrent"
-            icon={<Trash className="h-4 w-4" />}
+            icon={<Trash className="h-4 w-4" style={thinIconStyle}/>}
             onLongPress={() => handleAction(torrent, 'delete')}
           />
           {
@@ -49,8 +50,8 @@ const TorrentRow = (props: TorrentRowProps) => {
                 title={`${expandedTorrent === torrent.id ? 'Hide' : 'Show'} Torrent Files`}
                 icon={
                   expandedTorrent === torrent.id
-                    ? <ChevronUp className="h-4 w-4" />
-                    : <ChevronDown className="h-4 w-4" />}
+                    ? <ChevronUp className="h-4 w-4" style={thinIconStyle}/>
+                    : <ChevronDown className="h-4 w-4" style={thinIconStyle}/>}
                 onClick={() => toggleExpand(torrent.id)} />)
               : ""
           }

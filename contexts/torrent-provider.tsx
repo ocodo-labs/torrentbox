@@ -1,6 +1,6 @@
 import { json_header, serverBaseUrl } from '@/app/config';
 import { useLeadingEdgeDebounce } from '@/lib/debounce';
-import { useLocalStorage } from '@/lib/use-local-storage';
+import { useLocalStorageBasic } from '@/hooks/use-local-storage-basic';
 import { notifyCompletion } from '@/lib/utils';
 import type { DestructiveDownloadedFileAction, DestructiveTorrentAction } from '@/types/actions';
 import { type SoftDeletedFileType, SoftDeletedFile } from '@/types/soft-deleted-file';
@@ -57,7 +57,7 @@ const TorrentContext = createContext<TorrentContextType | undefined>(undefined);
 export const TorrentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [torrents, setTorrents] = useState<Torrent[]>([])
   const [downloadedFiles, setDownloadedFiles] = useState<string[]>([])
-  const [torrentSoftDeletedFiles, setTorrentSoftDeletedFiles] = useLocalStorage('soft-deleted-files', [])
+  const [torrentSoftDeletedFiles, setTorrentSoftDeletedFiles] = useLocalStorageBasic('soft-deleted-files', [])
   const [connectionError, setConnectionError] = useState(false)
   const [suggestionsLLMOnline, setSuggestionsLLMOnline] = useState(false)
   const [expandedTorrent, setExpandedTorrent] = useState<string | null>(null)

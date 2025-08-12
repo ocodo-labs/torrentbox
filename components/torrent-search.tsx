@@ -1,6 +1,5 @@
 import { serverBaseUrl } from "@/app/config"
 import { IndeterminateProgress } from "@/components/indeterminate-progress"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Circle, CircleX, SearchIcon } from "lucide-react"
 import React, { useState } from "react"
@@ -9,6 +8,7 @@ import { toast } from "sonner"
 import { AsycJobLongPressFloatButton } from "@/components/long-press-float-button"
 import { LineMdDownloadIcon } from "@/components/line-md-download-icon"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { thinIconStyle } from "@/lib/styling"
 
 
 interface TorrentSearchResult {
@@ -116,7 +116,7 @@ function TorrentSearchResultRow(props: TorrentSearchResultWithFetchTorrents) {
             fillColor="bg-primary"
             title={`Download ${name}`}
             onLongPress={() => getTorrentMagnet(name, magnet_link)}
-            icon={<LineMdDownloadIcon className="h-4 w-4" />} />
+            icon={<LineMdDownloadIcon className="h-4 w-4" style={thinIconStyle} />} />
         </div>
       </div>
     </div>
@@ -184,12 +184,18 @@ const TorrentSearch: React.FC<TorrentSearchProps> = (props) => {
           onKeyDown={(e) => (e.code == "Enter") && torrentSearch()}
           type="search"
         />
-        <Button
-          className="rounded-full transition-colors duration-[1s]"
-          onClick={torrentSearch}><SearchIcon className="mr-2 w-4 h-4" /> Search</Button>
+        <div
+          className="flex flex-row px-4 items-center justify-center cursor-pointer hover:bg-primary/70 rounded-full bg-primary text-primary-foreground transition-colors duration-[1s]"
+          onClick={torrentSearch}>
+          <SearchIcon
+            style={thinIconStyle}
+            className="mr-2 w-4 h-4"
+          />
+          Search
+        </div>
         <CircleX
           className="mt-1 size-8 cursor-pointer"
-          style={{ strokeWidth: 0.5 }}
+          style={thinIconStyle}
           onClick={resetSearch} />
       </div>
       {

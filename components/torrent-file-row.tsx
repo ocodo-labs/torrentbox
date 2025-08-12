@@ -2,6 +2,7 @@ import { TooltipButton } from "@/components/float-button"
 import { LongPressTooltipButton } from "@/components/long-press-float-button"
 import { Progress } from "@/components/ui/progress"
 import { useTorrentContext } from "@/contexts/torrent-provider"
+import { thinIconStyle } from "@/lib/styling"
 import { Torrent } from "@/types/torrent"
 import { Edit, Trash } from "lucide-react"
 
@@ -34,12 +35,12 @@ const TorrentFileRow = (props: TorrentFileRowProps) => {
         <TooltipButton title="Rename"
           vAlign='middle'
           hAlign='left'
-          icon={<Edit className="h-4 w-4" />}
+          icon={<Edit className="h-4 w-4" style={thinIconStyle} />}
           onClick={() => handleRenameTorrent(torrent, filename)} />
         <LongPressTooltipButton
           vAlign='top'
           title="Delete"
-          icon={<Trash className="h-4 w-4" />}
+          icon={<Trash className="h-4 w-4" style={thinIconStyle} />}
           onLongPress={() => softDeleteTorrentSubFile(torrent, filename)} />
       </div>
     </div>
