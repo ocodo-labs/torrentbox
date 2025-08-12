@@ -1,12 +1,12 @@
 import { ThemeProvider } from "@/contexts/theme-provider";
-import { TorrentProvider } from "@/contexts/torrent-provider";
+import { TransmissionProvider } from "@/contexts/transmission-provider";
 import { TorrentBox } from "@/components/torrent-box";
 import { Toaster } from "sonner";
 
 export default function App() {
   return (
     <ThemeProvider>
-      <TorrentProvider>
+      <TransmissionProvider>
         <>
           <TorrentBox />
           <Toaster
@@ -14,7 +14,7 @@ export default function App() {
             theme='dark'
             richColors />
         </>
-      </TorrentProvider>
+      </TransmissionProvider>
     </ThemeProvider>
   );
 }

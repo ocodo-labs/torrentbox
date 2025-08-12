@@ -12,11 +12,11 @@ interface LongPressTooltipButtonProps {
   hAlign?: 'left' | 'center' | 'right'
 }
 
-type AsyncJobLongPressFloatButtonProps = Omit<LongPressTooltipButtonProps, 'onLongPress'> & {
+type AsyncJobLongPressTooltipButtonProps = Omit<LongPressTooltipButtonProps, 'onLongPress'> & {
   onLongPress: () => Promise<void>
 }
 
-export const AsycJobLongPressFloatButton: FC<AsyncJobLongPressFloatButtonProps> = ({ onLongPress, ...props }) => {
+export const AsycJobLongPressTooltipButton: FC<AsyncJobLongPressTooltipButtonProps> = ({ onLongPress, ...props }) => {
   const [isRunning, setIsRunning] = useState<boolean>(false)
 
   const handleLongPress = async () => {

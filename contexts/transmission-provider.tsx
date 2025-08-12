@@ -9,7 +9,7 @@ import React, { createContext, useCallback, useContext, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react'
 import { toast } from 'sonner';
 
-interface TorrentContextType {
+interface TransmissionContextType {
   torrents: Torrent[]
   downloadedFiles: string[]
   connectionError: boolean
@@ -45,17 +45,17 @@ interface TorrentContextType {
   setSuggestions: Dispatch<SetStateAction<Set<string>>>
 }
 
-export const useTorrentContext = (): TorrentContextType => {
-  const context = useContext(TorrentContext)
+export const useTransmissionContext = (): TransmissionContextType => {
+  const context = useContext(TransmissionContext)
   if (!context) {
-    throw new Error("useTorrentManagerContext must be used within a TorrentManagerProvider")
+    throw new Error("useTransmissionContext must be used within a TorrentManagerProvider")
   }
   return context
 }
 
-const TorrentContext = createContext<TorrentContextType | undefined>(undefined);
+const TransmissionContext = createContext<TransmissionContextType | undefined>(undefined);
 
-export const TorrentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [torrents, setTorrents] = useState<Torrent[]>([])
   const [downloadedFiles, setDownloadedFiles] = useState<string[]>([])
   const [torrentSoftDeletedFiles, setTorrentSoftDeletedFiles] = useLocalStorageBasic('soft-deleted-files', [])
@@ -365,7 +365,7 @@ export const TorrentProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }
 
   return (
-    <TorrentContext.Provider value={{
+    <TransmissionContext.Provider value={{
       torrents,
       downloadedFiles,
       connectionError,
@@ -401,6 +401,6 @@ export const TorrentProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setSuggestions
     }}>
       {children}
-    </TorrentContext.Provider>
+    </TransmissionContext.Provider>
   );
 };

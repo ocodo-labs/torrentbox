@@ -553,15 +553,18 @@ def get_torrents_active():
                 if torrent.size_when_done
                 else 0
             )
+            speed = torrent.rate_download
         except Exception:
             percent = 0
+            speed = 0
 
         downloading.append(
             {
-                "name": torrent.name,
-                "id": torrent.hash_string,
-                "percent": percent,
                 "files": torrent.get_files(),
+                "id": torrent.hash_string,
+                "name": torrent.name,
+                "percent": percent,
+                "speed": speed,
             }
         )
 

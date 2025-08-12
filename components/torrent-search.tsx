@@ -5,7 +5,7 @@ import { Circle, CircleX, SearchIcon } from "lucide-react"
 import React, { useState } from "react"
 import canAutoplay from 'can-autoplay'
 import { toast } from "sonner"
-import { AsycJobLongPressFloatButton } from "@/components/long-press-float-button"
+import { AsycJobLongPressTooltipButton } from "@/components/long-press-float-button"
 import { LineMdDownloadIcon } from "@/components/line-md-download-icon"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { thinIconStyle } from "@/lib/styling"
@@ -112,7 +112,7 @@ function TorrentSearchResultRow(props: TorrentSearchResultWithFetchTorrents) {
           </TooltipContent>
         </Tooltip>
         <div className="ml-4 my-[3px]">
-          <AsycJobLongPressFloatButton
+          <AsycJobLongPressTooltipButton
             fillColor="bg-primary"
             title={`Download ${name}`}
             onLongPress={() => getTorrentMagnet(name, magnet_link)}

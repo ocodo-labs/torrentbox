@@ -5,6 +5,7 @@ import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
 import { Check, ChevronRight, Circle } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { thinIconStyle } from "@/lib/styling"
 
 const DropdownMenu = DropdownMenuPrimitive.Root
 
@@ -107,7 +108,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
       <DropdownMenuPrimitive.ItemIndicator>
-        <Check className="h-4 w-4" />
+        <Check className="h-4 w-4 cursor-pointer " style={thinIconStyle} />
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
     {children}

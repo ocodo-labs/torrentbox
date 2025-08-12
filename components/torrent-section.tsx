@@ -1,12 +1,12 @@
 import { TorrentRow } from "@/components/torrent-row"
-import { useTorrentContext } from "@/contexts/torrent-provider"
+import { useTransmissionContext } from "@/contexts/transmission-provider"
 import { Torrent } from "@/types/torrent"
 
 const TorrentsSection = () => {
 
   const {
     torrents,
-  } = useTorrentContext()
+  } = useTransmissionContext()
 
   if (torrents.length > 0) {
     return (

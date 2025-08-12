@@ -1,7 +1,7 @@
 import { TooltipButton } from "@/components/float-button"
 import { LongPressTooltipButton } from "@/components/long-press-float-button"
 import { Progress } from "@/components/ui/progress"
-import { useTorrentContext } from "@/contexts/torrent-provider"
+import { useTransmissionContext } from "@/contexts/transmission-provider"
 import { thinIconStyle } from "@/lib/styling"
 import { Torrent } from "@/types/torrent"
 import { Edit, Trash } from "lucide-react"
@@ -21,7 +21,7 @@ const TorrentFileRow = (props: TorrentFileRowProps) => {
     downloaded,
   } = props
 
-  const { handleRenameTorrent, softDeleteTorrentSubFile } = useTorrentContext()
+  const { handleRenameTorrent, softDeleteTorrentSubFile } = useTransmissionContext()
   const shortFilename = filename.replace(torrent.name, '')
   const progressValue = (downloaded / size) * 100
 
