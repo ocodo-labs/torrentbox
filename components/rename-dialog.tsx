@@ -2,6 +2,7 @@ import { IndeterminateProgress } from '@/components/indeterminate-progress'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 import { Description } from '@radix-ui/react-dialog'
 import type { Dispatch, SetStateAction } from 'react'
 
@@ -44,10 +45,15 @@ const RenameDialog = (props: RenameDialogProps) => {
         <div className='grid grid-cols-1 gap-0'>
           {suggestionsServiceOnline && suggestions.length == 0 ? (<IndeterminateProgress />) : ""}
           {suggestions.map((suggestion, index) => (
-            <div key={index} className={index % 2 === 0 ? 'bg-muted' : ''}>
-              <Button variant="ghost" onClick={() => setNewName(suggestion)}>
-                {suggestion}
-              </Button>
+            <div
+              key={index}
+              className={
+                cn(
+                  index % 2 === 0 ? 'bg-muted' : '',
+                  "p-2 cursor-pointer transition-all duration-500 hover:bg-foreground/20"
+                )}
+              onClick={() => setNewName(suggestion)}>
+              {suggestion}
             </div>
           ))}
         </div>

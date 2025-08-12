@@ -53,7 +53,7 @@ export function LongPressTooltipButton(props: LongPressTooltipButtonProps) {
 
   return (
     <TooltipCompact tooltipChildren={title}>
-      <LongPressButton variant="ghost" size="icon" onLongPress={onLongPress} fillUpColorClass={fillColor} longPressDuration={1000}>
+      <LongPressButton onLongPress={onLongPress} fillUpColorClass={fillColor} longPressDuration={1000}>
         {icon}
       </LongPressButton>
     </TooltipCompact>

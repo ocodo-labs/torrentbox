@@ -14,6 +14,7 @@ interface TorrentContextType {
   downloadedFiles: string[]
   connectionError: boolean
   suggestionsLLMOnline: boolean
+  canRename: (torrent: Torrent) => boolean
   fetchTorrents: () => Promise<void>
   fetchSuggestions: (filename: string) => Promise<void>
   isSoftDeleted: (hash: string, index: number) => boolean
@@ -67,6 +68,8 @@ export const TorrentProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [currentDownloadedFile, setCurrentDownloadedFile] = useState<string | null>(null)
   const [newName, setNewName] = useState('')
   const [suggestions, setSuggestions] = useState<Set<string>>(new Set())
+
+  const canRename = (torrent: Torrent) => torrent?.files?.length > 0
 
   const fetchTorrents = useLeadingEdgeDebounce(async () => {
     try {
@@ -367,6 +370,7 @@ export const TorrentProvider: React.FC<{ children: React.ReactNode }> = ({ child
       downloadedFiles,
       connectionError,
       suggestionsLLMOnline,
+      canRename,
       fetchTorrents,
       fetchSuggestions,
       softDeleteTorrentSubFile,

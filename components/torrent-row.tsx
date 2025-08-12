@@ -22,6 +22,7 @@ const TorrentRow = (props: TorrentRowProps) => {
     toggleExpand,
     expandedTorrent,
     isSoftDeleted,
+    canRename,
   } = useTorrentContext()
 
   return (
@@ -29,17 +30,19 @@ const TorrentRow = (props: TorrentRowProps) => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
         <h3 className="text-lg font-semibold mb-2 sm:mb-0 truncate">{torrent.name}</h3>
         <div className="flex space-x-2">
+          {canRename(torrent) &&
           <TooltipButton title="Rename"
-            icon={<Edit className="h-4 w-4" style={thinIconStyle}/>}
-            onClick={() => handleRenameTorrent(torrent)} />
+            icon={<Edit className="h-4 w-4 cursor-pointer" style={thinIconStyle}/>}
+            onClick={() => handleRenameTorrent(torrent)} /> }
+          {canRename(torrent) &&
           <LongPressTooltipButton
             title="Remove Torrent"
             fillColor="bg-primary"
-            icon={<X className="h-4 w-4" style={thinIconStyle}/>}
-            onLongPress={() => handleAction(torrent, 'remove')} />
+            icon={<X className="h-4 w-4 cursor-pointer" style={thinIconStyle}/>}
+            onLongPress={() => handleAction(torrent, 'remove')} />}
           <AsycJobLongPressFloatButton
             title="Delete Torrent"
-            icon={<Trash className="h-4 w-4" style={thinIconStyle}/>}
+            icon={<Trash className="h-4 w-4 cursor-pointer" style={thinIconStyle}/>}
             onLongPress={() => handleAction(torrent, 'delete')}
           />
           {
@@ -50,8 +53,8 @@ const TorrentRow = (props: TorrentRowProps) => {
                 title={`${expandedTorrent === torrent.id ? 'Hide' : 'Show'} Torrent Files`}
                 icon={
                   expandedTorrent === torrent.id
-                    ? <ChevronUp className="h-4 w-4" style={thinIconStyle}/>
-                    : <ChevronDown className="h-4 w-4" style={thinIconStyle}/>}
+                    ? <ChevronUp className="h-4 w-4 cursor-pointer" style={thinIconStyle}/>
+                    : <ChevronDown className="h-4 w-4 cursor-pointer" style={thinIconStyle}/>}
                 onClick={() => toggleExpand(torrent.id)} />)
               : ""
           }

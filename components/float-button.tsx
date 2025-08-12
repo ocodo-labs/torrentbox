@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import type { ReactNode, FC } from "react"
 
@@ -37,9 +36,11 @@ export function TooltipButton(props: TooltipButtonProps) {
 
   return (
     <TooltipCompact tooltipChildren={title}>
-      <Button variant="ghost" size="icon" onClick={onClick}>
+      <div
+      onClick={onClick}
+      className="cursor-pointer p-2 rounded-full hover:bg-foreground/20 duration-500 transition-colors">
         {icon}
-      </Button>
+      </div>
     </TooltipCompact>
   )
 }
