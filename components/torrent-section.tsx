@@ -1,18 +1,12 @@
 import { TorrentRow } from "@/components/torrent-row"
-import { useTorrentManagerContext } from "@/contexts/torrent-provider"
+import { useTorrentContext } from "@/contexts/torrent-provider"
 import { Torrent } from "@/types/torrent"
 
 const TorrentsSection = () => {
 
   const {
     torrents,
-    handleRenameTorrent,
-    handleAction,
-    softDeleteTorrentSubFile,
-    expandedTorrent,
-    toggleExpand,
-    isSoftDeleted,
-  } = useTorrentManagerContext()
+  } = useTorrentContext()
 
   if (torrents.length > 0) {
     return (
@@ -23,12 +17,6 @@ const TorrentsSection = () => {
             <TorrentRow
               key={torrent.id}
               torrent={torrent}
-              handleAction={handleAction}
-              handleRename={handleRenameTorrent}
-              handleSoftDelete={softDeleteTorrentSubFile}
-              toggleExpand={toggleExpand}
-              isSoftDeletedFn={isSoftDeleted}
-              expandedTorrent={expandedTorrent}
             />
           ))}
         </div>

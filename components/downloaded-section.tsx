@@ -1,6 +1,6 @@
 import { TooltipButton } from "@/components/float-button"
 import { AsycJobLongPressFloatButton, LongPressTooltipButton } from "@/components/long-press-float-button"
-import { useTorrentManagerContext } from "@/contexts/torrent-provider"
+import { useTorrentContext } from "@/contexts/torrent-provider"
 import { type DestructiveDownloadedFileAction, type DestructiveTorrentAction } from "@/types/actions"
 import { Torrent } from "@/types/torrent"
 import { Binary, BookIcon, ChevronRightIcon, Clapperboard, Edit, Ellipsis, HeadphonesIcon, Trash, Tv } from "lucide-react"
@@ -12,7 +12,7 @@ export const DownloadedSection:FC = () => {
     handleAction,
     handleRenameDownloaded,
     downloadedFiles,
-  } = useTorrentManagerContext()
+  } = useTorrentContext()
 
   if (downloadedFiles.length > 0) {
     return (

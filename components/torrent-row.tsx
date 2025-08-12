@@ -2,30 +2,26 @@ import { TooltipButton } from "@/components/float-button"
 import { AsycJobLongPressFloatButton, LongPressTooltipButton } from "@/components/long-press-float-button"
 import { TorrentFileRow } from "@/components/torrent-file-row"
 import { Progress } from "@/components/ui/progress"
-import type { DestructiveDownloadedFileAction, DestructiveTorrentAction } from "@/types/actions"
+import { useTorrentContext } from "@/contexts/torrent-provider"
 import { Torrent } from "@/types/torrent"
 import { ChevronDown, ChevronUp, Edit, Trash, X } from "lucide-react"
 
 interface TorrentRowProps {
   torrent: Torrent
-  expandedTorrent: string | null
-  toggleExpand: (id: string) => void
-  handleAction: (item: Torrent, action: DestructiveTorrentAction | DestructiveDownloadedFileAction) => Promise<void>
-  handleRename: (item: Torrent, filename?: string) => void
-  handleSoftDelete: (torrent: Torrent, filename: string) => void
-  isSoftDeletedFn: (torrentId: string, index: number) => boolean
 }
 
 const TorrentRow = (props: TorrentRowProps) => {
   const {
-    torrent,
-    handleRename,
+    torrent
+  } = props
+
+  const {
+    handleRenameTorrent,
     handleAction,
-    handleSoftDelete,
     toggleExpand,
     expandedTorrent,
-    isSoftDeletedFn
-  } = props
+    isSoftDeleted,
+  } = useTorrentContext()
 
   return (
     <div key={torrent.id} className="p-4 border border-foreground/20 rounded-lg">
@@ -34,7 +30,7 @@ const TorrentRow = (props: TorrentRowProps) => {
         <div className="flex space-x-2">
           <TooltipButton title="Rename"
             icon={<Edit className="h-4 w-4" />}
-            onClick={() => handleRename(torrent)} />
+            onClick={() => handleRenameTorrent(torrent)} />
           <LongPressTooltipButton
             title="Remove Torrent"
             fillColor="bg-primary"
@@ -64,7 +60,7 @@ const TorrentRow = (props: TorrentRowProps) => {
       {expandedTorrent === torrent.id && (
         <div className="mt-4 overflow-x-auto">
           {torrent.files
-            .filter((_, index) => !isSoftDeletedFn(torrent.id, index))
+            .filter((_, index) => !isSoftDeleted(torrent.id, index))
             .map(([filename, size, downloaded], index) => (
               <TorrentFileRow
                 key={index}
@@ -72,8 +68,6 @@ const TorrentRow = (props: TorrentRowProps) => {
                 filename={filename}
                 size={size}
                 downloaded={downloaded}
-                handleRename={handleRename}
-                handleSoftDelete={handleSoftDelete}
               />
             ))}
         </div>

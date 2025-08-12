@@ -65,8 +65,6 @@ valid_extensions: [
 
 filters:
   words:
-    - the
-    - of
     - BluRay
     - BRip
     - DVDRip
@@ -74,14 +72,12 @@ filters:
     - x264
     - x265
     - 1080p
-    - BONE
+    - 720p
     - HEVC
     - DC
-    - Criterion
     - 10bit
     - xxx
     - AAC
-    - "2.0"
     - Tigole
     - successfulcrab
     - WebRip

@@ -1,6 +1,7 @@
 import { TooltipButton } from "@/components/float-button"
 import { LongPressTooltipButton } from "@/components/long-press-float-button"
 import { Progress } from "@/components/ui/progress"
+import { useTorrentContext } from "@/contexts/torrent-provider"
 import { Torrent } from "@/types/torrent"
 import { Edit, Trash } from "lucide-react"
 
@@ -9,8 +10,6 @@ interface TorrentFileRowProps {
   filename: string
   size: number
   downloaded: number
-  handleRename: (item: Torrent, filename: string) => void
-  handleSoftDelete: (torrent: Torrent, filename: string) => void
 }
 
 const TorrentFileRow = (props: TorrentFileRowProps) => {
@@ -19,10 +18,9 @@ const TorrentFileRow = (props: TorrentFileRowProps) => {
     filename,
     size,
     downloaded,
-    handleRename,
-    handleSoftDelete,
   } = props
 
+  const { handleRenameTorrent, softDeleteTorrentSubFile } = useTorrentContext()
   const shortFilename = filename.replace(torrent.name, '')
   const progressValue = (downloaded / size) * 100
 
@@ -37,12 +35,12 @@ const TorrentFileRow = (props: TorrentFileRowProps) => {
           vAlign='middle'
           hAlign='left'
           icon={<Edit className="h-4 w-4" />}
-          onClick={() => handleRename(torrent, filename)} />
+          onClick={() => handleRenameTorrent(torrent, filename)} />
         <LongPressTooltipButton
           vAlign='top'
           title="Delete"
           icon={<Trash className="h-4 w-4" />}
-          onLongPress={() => handleSoftDelete(torrent, filename)} />
+          onLongPress={() => softDeleteTorrentSubFile(torrent, filename)} />
       </div>
     </div>
   )

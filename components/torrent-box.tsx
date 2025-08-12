@@ -7,7 +7,7 @@ import { ConnectionErrorPanel } from "@/components/connection-error-panel"
 import { Torrent } from "@/types/torrent"
 import { type FC, useEffect, useState } from "react"
 import { toast } from "sonner"
-import { useTorrentManagerContext } from "@/contexts/torrent-provider"
+import { useTorrentContext } from "@/contexts/torrent-provider"
 
 export const TorrentBox: FC = () => {
   const [mounted, setMounted] = useState(false)
@@ -27,7 +27,7 @@ export const TorrentBox: FC = () => {
     newName,
     setNewName,
     suggestions,
-  } = useTorrentManagerContext()
+  } = useTorrentContext()
 
   useEffect(() => {
     setMounted(true)

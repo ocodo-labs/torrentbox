@@ -44,7 +44,7 @@ interface TorrentContextType {
   setSuggestions: Dispatch<SetStateAction<Set<string>>>
 }
 
-export const useTorrentManagerContext = (): TorrentContextType => {
+export const useTorrentContext = (): TorrentContextType => {
   const context = useContext(TorrentContext)
   if (!context) {
     throw new Error("useTorrentManagerContext must be used within a TorrentManagerProvider")
@@ -54,7 +54,7 @@ export const useTorrentManagerContext = (): TorrentContextType => {
 
 const TorrentContext = createContext<TorrentContextType | undefined>(undefined);
 
-export const TorrentManagerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const TorrentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [torrents, setTorrents] = useState<Torrent[]>([])
   const [downloadedFiles, setDownloadedFiles] = useState<string[]>([])
   const [torrentSoftDeletedFiles, setTorrentSoftDeletedFiles] = useLocalStorage('soft-deleted-files', [])
