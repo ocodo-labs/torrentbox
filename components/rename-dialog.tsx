@@ -1,7 +1,9 @@
 import { IndeterminateProgress } from '@/components/indeterminate-progress'
+import { NeuralNetwork } from '@/components/neural-network-icon'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { thinIconStyle } from '@/lib/styling'
 import { cn } from '@/lib/utils'
 import { Description } from '@radix-ui/react-dialog'
 import type { Dispatch, SetStateAction } from 'react'
@@ -34,7 +36,12 @@ const RenameDialog = (props: RenameDialogProps) => {
       <DialogContent>
         <Description style={{ 'display': 'none' }}>Rename</Description>
         <DialogHeader>
-          <DialogTitle>{title}{suggestionsServiceOnline ? " (AI Suggestions Available)" : ""}</DialogTitle>
+          <DialogTitle>
+            <div className="flex flex-row items-center justify-start gap-2">
+              {suggestionsServiceOnline ? <NeuralNetwork style={thinIconStyle} className="w-4 h-4" /> : ''}
+              {title}
+            </div>
+          </DialogTitle>
         </DialogHeader>
         <Input
           value={newName}

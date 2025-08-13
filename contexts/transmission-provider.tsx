@@ -8,12 +8,21 @@ import { Torrent, TorrentData } from '@/types/torrent';
 import React, { createContext, useCallback, useContext, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react'
 import { toast } from 'sonner';
+import videoFileExtensions from 'video-extensions';
+import subtitleFileExtensions from '@/lib/subtitle-file-extensions';
 
 interface TransmissionContextType {
   torrents: Torrent[]
   downloadedFiles: string[]
   connectionError: boolean
   suggestionsLLMOnline: boolean
+  getFilenames: (torrent: Torrent) => string[]
+  getActiveFilenames: (torrent: Torrent) => string[]
+  getShowVideoFilenames: (torrent: Torrent) => string[]
+  getShowSubtitleFilenames: (torrent: Torrent) => string[]
+  getShowFilenames: (torrent: Torrent) => string[]
+  getVideoFilenames: (torrent: Torrent) => string[]
+  isTVShowSeasonTorrent: (torrent: Torrent) => boolean
   canRename: (torrent: Torrent) => boolean
   fetchTorrents: () => Promise<void>
   fetchSuggestions: (filename: string) => Promise<void>
@@ -33,6 +42,8 @@ interface TransmissionContextType {
   setExpandedTorrent: Dispatch<SetStateAction<string | null>>
   renameDialogOpen: boolean
   setRenameDialogOpen: Dispatch<SetStateAction<boolean>>
+  showTVShowRenameDialog: boolean
+  setShowTVShowRenameDialog: Dispatch<SetStateAction<boolean>>
   currentTorrent: Torrent | null
   setCurrentTorrent: Dispatch<SetStateAction<Torrent | null>>
   currentTorrentFilename: string | null
@@ -68,6 +79,31 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [currentDownloadedFile, setCurrentDownloadedFile] = useState<string | null>(null)
   const [newName, setNewName] = useState('')
   const [suggestions, setSuggestions] = useState<Set<string>>(new Set())
+  const [showTVShowRenameDialog, setShowTVShowRenameDialog] = useState(false)
+
+  const getFilenames = (torrent: Torrent) => torrent.files.map(e => e[0])
+
+  const getActiveFilenames = (torrent: Torrent) =>
+    torrent.files.
+      filter((_, i) => !isSoftDeleted(torrent.id, i)).
+      map(e => e[0])
+
+  const getShowFilenames = (torrent: Torrent) => getActiveFilenames(torrent).
+    filter((f) => f.toLowerCase().match(/(s\d+e\d+|\d+x\d{2,})/))
+
+  const getShowVideoFilenames = (torrent: Torrent) => getVideoFilenames(torrent).
+    filter((f) => f.toLowerCase().match(/(s\d+e\d+|\d+x\d{2,})/))
+
+  const getShowSubtitleFilenames = (torrent: Torrent) => getActiveFilenames(torrent).
+    filter((f) => subtitleFileExtensions.some(e => f.toLowerCase().endsWith(e)))
+
+
+  const getVideoFilenames = (torrent: Torrent) => getActiveFilenames(torrent)
+    .filter((f) => videoFileExtensions.some(e => f.toLowerCase().endsWith(e)))
+
+  const isTVShowSeasonTorrent = (torrent: Torrent) => {
+    return getVideoFilenames(torrent).length == getShowVideoFilenames(torrent).length
+  }
 
   const canRename = (torrent: Torrent) => torrent?.files?.length > 0
 
@@ -370,6 +406,13 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       downloadedFiles,
       connectionError,
       suggestionsLLMOnline,
+      getActiveFilenames,
+      getShowFilenames,
+      getVideoFilenames,
+      getShowVideoFilenames,
+      getShowSubtitleFilenames,
+      getFilenames,
+      isTVShowSeasonTorrent,
       canRename,
       fetchTorrents,
       fetchSuggestions,
@@ -389,6 +432,8 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setExpandedTorrent,
       renameDialogOpen,
       setRenameDialogOpen,
+      showTVShowRenameDialog,
+      setShowTVShowRenameDialog,
       currentTorrent,
       setCurrentTorrent,
       currentTorrentFilename,

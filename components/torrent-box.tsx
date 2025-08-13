@@ -8,6 +8,10 @@ import { Torrent } from "@/types/torrent"
 import { type FC, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { useTransmissionContext } from "@/contexts/transmission-provider"
+import { Dialog, DialogContent } from "@radix-ui/react-dialog"
+import { DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 export const TorrentBox: FC = () => {
   const [mounted, setMounted] = useState(false)
@@ -21,6 +25,8 @@ export const TorrentBox: FC = () => {
     cancelRenameTorrent,
     renameDialogOpen,
     setRenameDialogOpen,
+    setShowTVShowRenameDialog,
+    showTVShowRenameDialog,
     currentTorrent,
     currentTorrentFilename,
     currentDownloadedFile,
@@ -97,6 +103,35 @@ export const TorrentBox: FC = () => {
         onConfirm={confirmRename}
         onCancel={cancelRenameTorrent}
       />
+      {showTVShowRenameDialog &&
+        (
+          <Dialog open={showTVShowRenameDialog} onOpenChange={setShowTVShowRenameDialog}>
+            <DialogContent>
+              <DialogDescription style={{ 'display': 'none' }}>Rename</DialogDescription>
+              <DialogHeader>
+                <DialogTitle>
+                  <div className="flex flex-row items-center justify-start gap-2">
+                    title
+                  </div>
+                </DialogTitle>
+              </DialogHeader>
+              <Input
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                onKeyDown={(e) => (e.code == "Enter") && setShowTVShowRenameDialog(false)}
+              />
+
+              <div className='grid grid-cols-1 gap-0'>
+              </div>
+
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setShowTVShowRenameDialog(false)}>Cancel</Button>
+                <Button onClick={() => setShowTVShowRenameDialog(false)}>Rename show files</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )
+      }
     </div >
   )
 }

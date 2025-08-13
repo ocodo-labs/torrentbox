@@ -10,15 +10,16 @@ import { useTransmissionContext } from "@/contexts/transmission-provider";
 import { thinIconStyle } from "@/lib/styling";
 import { Torrent } from "@/types/torrent";
 import { ChevronDown, ChevronUp, Edit, Trash, X } from "lucide-react";
+import type { FC } from "react";
 
 interface TorrentRowProps {
   torrent: Torrent;
 }
 
-const TorrentRow = (props: TorrentRowProps) => {
-  const { torrent } = props;
-
+const TorrentRow:FC<TorrentRowProps> = ({torrent}) => {
   const {
+    isTVShowSeasonTorrent,
+    setShowTVShowRenameDialog,
     handleRenameTorrent,
     handleAction,
     toggleExpand,
@@ -40,9 +41,22 @@ const TorrentRow = (props: TorrentRowProps) => {
             {torrent.name}
           </TooltipCompact>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex flex-row items-center gap-2 ">
+          {canRename(torrent) && isTVShowSeasonTorrent(torrent) && (
+            <TooltipButton
+              onClick={() => setShowTVShowRenameDialog(true)}
+              title="Rename Show Files"
+              icon={
+                <Edit
+                  className="h-4 w-4 cursor-pointer"
+                  style={thinIconStyle}
+                />
+              }
+            />
+          )}
           {canRename(torrent) && (
             <TooltipButton
+              onClick={() => handleRenameTorrent(torrent)}
               title="Rename"
               icon={
                 <Edit
@@ -50,17 +64,19 @@ const TorrentRow = (props: TorrentRowProps) => {
                   style={thinIconStyle}
                 />
               }
-              onClick={() => handleRenameTorrent(torrent)}
             />
           )}
           {canRename(torrent) && (
             <LongPressTooltipButton
+              onLongPress={() => handleAction(torrent, "remove")}
               title="Remove Torrent"
               fillColor="bg-primary"
               icon={
-                <X className="h-4 w-4 cursor-pointer" style={thinIconStyle} />
+                <X
+                  className="h-4 w-4 cursor-pointer"
+                  style={thinIconStyle}
+                />
               }
-              onLongPress={() => handleAction(torrent, "remove")}
             />
           )}
           <AsycJobLongPressTooltipButton

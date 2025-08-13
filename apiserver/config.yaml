@@ -65,8 +65,10 @@ valid_extensions: [
 
 filters:
   words:
+    - YIFY
     - BluRay
     - BRip
+    - BrRip
     - DVDRip
     - TVRip
     - x264
@@ -76,8 +78,13 @@ filters:
     - HEVC
     - DC
     - 10bit
+    - 10bi
+    - DSNP
+    - REPACK
+    - DDP5.1
     - xxx
     - AAC
+    - AMZN
     - Tigole
     - successfulcrab
     - WebRip
