@@ -33,12 +33,9 @@ const TorrentFileRow = (props: TorrentFileRowProps) => {
       </div>
       <div className="flex items-center gap-2 ml-4">
         <TooltipButton title="Rename"
-          vAlign='middle'
-          hAlign='left'
           icon={<Edit className="h-4 w-4" style={thinIconStyle} />}
           onClick={() => handleRenameTorrent(torrent, filename)} />
         <LongPressTooltipButton
-          vAlign='top'
           title="Delete"
           icon={<Trash className="h-4 w-4" style={thinIconStyle} />}
           onLongPress={() => softDeleteTorrentSubFile(torrent, filename)} />
