@@ -1,4 +1,4 @@
-import { TooltipButton } from "@/components/float-button";
+import { TooltipButton } from "@/components/tooltip-compact";
 import {
   AsycJobLongPressTooltipButton,
   LongPressTooltipButton,

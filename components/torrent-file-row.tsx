@@ -1,4 +1,4 @@
-import { TooltipButton } from "@/components/float-button"
+import { TooltipButton } from "@/components/tooltip-compact"
 import { LongPressTooltipButton } from "@/components/long-press-float-button"
 import { Progress } from "@/components/ui/progress"
 import { useTransmissionContext } from "@/contexts/transmission-provider"

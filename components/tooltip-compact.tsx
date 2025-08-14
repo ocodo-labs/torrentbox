@@ -6,7 +6,7 @@ interface TooltipCompactProps {
   tooltipChildren: ReactNode
 }
 
-export const TooltipCompact:FC<TooltipCompactProps> = ({children, tooltipChildren}) => {
+export const TooltipCompact: FC<TooltipCompactProps> = ({ children, tooltipChildren }) => {
   return (
     <Tooltip>
       <TooltipContent>
@@ -22,25 +22,16 @@ export const TooltipCompact:FC<TooltipCompactProps> = ({children, tooltipChildre
 interface TooltipButtonProps {
   title: string
   icon: ReactNode
-  vAlign?: 'top' | 'middle' | 'bottom'
-  hAlign?: 'left' | 'center' | 'right'
   onClick: () => void
 }
 
-export function TooltipButton(props: TooltipButtonProps) {
-  const {
-    title,
-    icon,
-    onClick,
-   } = props
-
-  return (
-    <TooltipCompact tooltipChildren={title}>
-      <div
+export const TooltipButton: FC<TooltipButtonProps> = ({ title, icon, onClick }) => (
+  <TooltipCompact tooltipChildren={title}>
+    <div
       onClick={onClick}
-      className="cursor-pointer p-2 rounded-full hover:bg-foreground/20 duration-500 transition-colors">
-        {icon}
-      </div>
-    </TooltipCompact>
-  )
-}
+      className={`cursor-pointer p-2 rounded-full hover:bg-foreground/20 duration-500 transition-colors`}>
+      {icon}
+    </div>
+  </TooltipCompact>
+)
+
