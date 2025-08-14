@@ -11,6 +11,7 @@ import { thinIconStyle } from "@/lib/styling";
 import { Torrent } from "@/types/torrent";
 import { ChevronDown, ChevronUp, Edit, Trash, Tv2, X } from "lucide-react";
 import type { FC } from "react";
+import { playSound } from "@/lib/play-sound";
 
 interface TorrentRowProps {
   torrent: Torrent;
@@ -23,9 +24,10 @@ const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
     handleRenameTorrent,
     handleAction,
     toggleExpand,
+    clearSoftDeleted,
     expandedTorrent,
     setCurrentTorrent,
-    isSoftDeleted,
+    getActiveFiles,
     canRename,
   } = useTransmissionContext();
 
@@ -88,7 +90,11 @@ const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
             icon={
               <Trash className="h-4 w-4 cursor-pointer" style={thinIconStyle} />
             }
-            onLongPress={() => handleAction(torrent, "delete")}
+            onLongPress={async () => {
+              playSound("/sounds/torrent-delete.mp3")
+              clearSoftDeleted(torrent)
+              return handleAction(torrent, "delete")
+            }}
           />
           {torrent.files.length > 1 ? (
             <TooltipButton
@@ -117,17 +123,15 @@ const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
       <Progress value={torrent.percent} className="w-full" />
       {expandedTorrent === torrent.id && (
         <div className="mt-4 overflow-x-auto">
-          {torrent.files
-            .filter((_, index) => !isSoftDeleted(torrent.id, index))
-            .map(([filename, size, downloaded], index) => (
-              <TorrentFileRow
-                key={index}
-                torrent={torrent}
-                filename={filename}
-                size={size}
-                downloaded={downloaded}
-              />
-            ))}
+          {getActiveFiles(torrent).map(([filename, size, downloaded], index) => (
+            <TorrentFileRow
+              key={index}
+              torrent={torrent}
+              filename={filename}
+              size={size}
+              downloaded={downloaded}
+            />
+          ))}
         </div>
       )}
     </div>

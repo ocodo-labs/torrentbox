@@ -3,12 +3,12 @@ import { IndeterminateProgress } from "@/components/indeterminate-progress"
 import { Input } from "@/components/ui/input"
 import { Circle, CircleX, SearchIcon } from "lucide-react"
 import React, { useState } from "react"
-import canAutoplay from 'can-autoplay'
 import { toast } from "sonner"
 import { AsycJobLongPressTooltipButton } from "@/components/long-press-tooltip-button"
 import { LineMdDownloadIcon } from "@/components/line-md-download-icon"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { thinIconStyle } from "@/lib/styling"
+import { playSound } from "@/lib/play-sound"
 
 
 interface TorrentSearchResult {
@@ -36,13 +36,7 @@ function TorrentSearchResultRow(props: TorrentSearchResultWithFetchTorrents) {
 
   function addedTorrent() {
     console.log('added torrent to transmission')
-
-    canAutoplay.audio().then(({ result }: { result: boolean }) => {
-      if (result === true) {
-        const sound = new Audio("/sounds/torrent-download.mp3")
-        sound.play()
-      }
-    })
+    playSound("/sounds/torrent-download.mp3")
   }
 
   const getTorrentMagnet = async (name: string, magnet_link: string) => {

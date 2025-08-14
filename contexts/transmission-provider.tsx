@@ -4,7 +4,7 @@ import { useLocalStorageBasic } from '@/hooks/use-local-storage-basic';
 import { notifyCompletion } from '@/lib/utils';
 import type { DestructiveDownloadedFileAction, DestructiveTorrentAction } from '@/types/actions';
 import { type SoftDeletedFileType, SoftDeletedFile } from '@/types/soft-deleted-file';
-import { Torrent, TorrentData } from '@/types/torrent';
+import { Torrent, TransmissionData, type TorrentFile } from '@/types/torrent';
 import React, { createContext, useCallback, useContext, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react'
 import { toast } from 'sonner';
@@ -18,6 +18,7 @@ interface TransmissionContextType {
   suggestionsLLMOnline: boolean
   getFilenames: (torrent: Torrent) => string[]
   getActiveFilenames: (torrent: Torrent) => string[]
+  getActiveFiles: (torrent: Torrent) => TorrentFile[]
   getShowVideoFilenames: (torrent: Torrent) => string[]
   getShowSubtitleFilenames: (torrent: Torrent) => string[]
   getShowFilenames: (torrent: Torrent) => string[]
@@ -29,6 +30,7 @@ interface TransmissionContextType {
   isSoftDeleted: (hash: string, index: number) => boolean
   softDeleteTorrentSubFile: (torrent: Torrent, filename: string) => void
   getTorrentSoftDeletedFiles: (torrent: Torrent) => void
+  clearSoftDeleted: (torrent: Torrent) => void
   handleAction: (item: Torrent | string, action: DestructiveDownloadedFileAction | DestructiveTorrentAction) => Promise<void>
   handleRenameDownloaded: (item: string) => void
   handleRenameTorrent: (torrent: Torrent, filename?: string) => void
@@ -88,6 +90,10 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       filter((_, i) => !isSoftDeleted(torrent.id, i)).
       map(e => e[0])
 
+  const getActiveFiles = (torrent: Torrent) =>
+    torrent.files.
+      filter((_, i) => !isSoftDeleted(torrent.id, i))
+
   const getShowFilenames = (torrent: Torrent) => getActiveFilenames(torrent).
     filter((f) => f.toLowerCase().match(/(s\d+e\d+|\d+x\d{2,})/))
 
@@ -116,7 +122,7 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         setConnectionError(true)
         return
       }
-      const data: TorrentData = await res.json()
+      const data: TransmissionData = await res.json()
       const newTorrents = data.downloading.map(t => new Torrent(t))
       setTorrents(newTorrents)
       setDownloadedFiles(data.downloaded)
@@ -232,6 +238,7 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
             }
           )
 
+
           if (!cleanup.ok) {
             const data = await cleanup.json()
             const failed = data.failed
@@ -243,6 +250,8 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         toast(`${torrent.name} ${action} completed`);
       } catch {
         toast(`${torrent.name} cleanup failed.`)
+      } finally {
+        clearSoftDeleted(torrent)
       }
     } catch (error) {
       const correctedAction = action.substring(0, action.length - 1);
@@ -367,6 +376,12 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       .map(e => e[0])
   }
 
+  const clearSoftDeleted = (torrent: Torrent) => {
+    setTorrentSoftDeletedFiles(
+      torrentSoftDeletedFiles.filter((entry: SoftDeletedFile) => entry.torrent != torrent.id)
+    )
+  }
+
   const renameTorrent = async (torrent: Torrent, currentFilename: string, newName: string) => {
     const payload = {
       filename: currentFilename,
@@ -406,6 +421,7 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       connectionError,
       suggestionsLLMOnline,
       getActiveFilenames,
+      getActiveFiles,
       getShowFilenames,
       getVideoFilenames,
       getShowVideoFilenames,
@@ -418,6 +434,7 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       softDeleteTorrentSubFile,
       isSoftDeleted,
       getTorrentSoftDeletedFiles,
+      clearSoftDeleted,
       handleAction,
       handleRenameDownloaded,
       confirmRenameDownloadedFile,

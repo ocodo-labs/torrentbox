@@ -5,6 +5,7 @@ import { useTransmissionContext } from "@/contexts/transmission-provider"
 import { thinIconStyle } from "@/lib/styling"
 import { Torrent } from "@/types/torrent"
 import { Edit, Trash } from "lucide-react"
+import { playSound } from "@/lib/play-sound"
 
 interface TorrentFileRowProps {
   torrent: Torrent
@@ -38,7 +39,11 @@ const TorrentFileRow = (props: TorrentFileRowProps) => {
         <LongPressTooltipButton
           title="Delete"
           icon={<Trash className="h-4 w-4" style={thinIconStyle} />}
-          onLongPress={() => softDeleteTorrentSubFile(torrent, filename)} />
+          onLongPress={() => {
+            playSound("/sounds/torrent-file-delete.mp3")
+            softDeleteTorrentSubFile(torrent, filename)
+          }
+          } />
       </div>
     </div>
   )

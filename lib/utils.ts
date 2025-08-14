@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { Torrent } from "@/types/torrent"
-import canAutoplay from "can-autoplay"
+import { playSound } from "@/lib/play-sound"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -9,7 +9,6 @@ export function cn(...inputs: ClassValue[]) {
 
 export function notifyCompletion(
   torrent: Torrent,
-  // from /public/
   sound: string = '/sounds/torrent-finished.mp3'
 ) {
   const key = `torrent_completed_${torrent.id}`;
@@ -18,12 +17,7 @@ export function notifyCompletion(
 
   if (torrent.percent === 100 && !isNotified) {
     if (!isFirstRun) {
-      canAutoplay.audio().then(({ result }: { result: boolean }) => {
-        if (result === true) {
-          const player = new Audio(sound);
-          player.play();
-        }
-      })
+      playSound(sound)
     }
   }
 

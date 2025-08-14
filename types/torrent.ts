@@ -1,8 +1,10 @@
-class Torrent {
+export type TorrentFile = [string, number, number, number, boolean, number];
+
+export class Torrent {
     id: string;
     name: string;
     percent: number;
-    files: [string, number, number, number, boolean, number][];
+    files: TorrentFile[];
     speed: number;
     constructor({
         id,
@@ -14,7 +16,7 @@ class Torrent {
         id: string;
         name: string;
         percent: number;
-        files: [string, number, number, number, boolean, number][];
+        files: TorrentFile[];
         speed: number;
     }) {
         this.id = id;
@@ -25,12 +27,7 @@ class Torrent {
     }
 }
 
-class TorrentData {
+export class TransmissionData {
     downloaded: string[] = []
     downloading: Torrent[] = []
-}
-
-export {
-    Torrent,
-    TorrentData,
 }
