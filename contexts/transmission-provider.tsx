@@ -97,12 +97,11 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const getShowSubtitleFilenames = (torrent: Torrent) => getActiveFilenames(torrent).
     filter((f) => subtitleFileExtensions.some(e => f.toLowerCase().endsWith(e)))
 
-
   const getVideoFilenames = (torrent: Torrent) => getActiveFilenames(torrent)
     .filter((f) => videoFileExtensions.some(e => f.toLowerCase().endsWith(e)))
 
   const isTVShowSeasonTorrent = (torrent: Torrent) => {
-    return getVideoFilenames(torrent).length == getShowVideoFilenames(torrent).length
+    return getVideoFilenames(torrent).length > 1 && getVideoFilenames(torrent).length == getShowVideoFilenames(torrent).length
   }
 
   const canRename = (torrent: Torrent) => torrent?.files?.length > 0

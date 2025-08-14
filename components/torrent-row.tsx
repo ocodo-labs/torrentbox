@@ -16,7 +16,7 @@ interface TorrentRowProps {
   torrent: Torrent;
 }
 
-const TorrentRow:FC<TorrentRowProps> = ({torrent}) => {
+const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
   const {
     isTVShowSeasonTorrent,
     setShowTVShowRenameDialog,
@@ -24,6 +24,7 @@ const TorrentRow:FC<TorrentRowProps> = ({torrent}) => {
     handleAction,
     toggleExpand,
     expandedTorrent,
+    setCurrentTorrent,
     isSoftDeleted,
     canRename,
   } = useTransmissionContext();
@@ -44,7 +45,10 @@ const TorrentRow:FC<TorrentRowProps> = ({torrent}) => {
         <div className="flex flex-row items-center gap-2 ">
           {canRename(torrent) && isTVShowSeasonTorrent(torrent) && (
             <TooltipButton
-              onClick={() => setShowTVShowRenameDialog(true)}
+              onClick={() => {
+                setCurrentTorrent(torrent)
+                setShowTVShowRenameDialog(true)
+              }}
               title="Rename Show Files"
               icon={
                 <Tv2

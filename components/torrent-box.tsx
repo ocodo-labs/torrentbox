@@ -8,8 +8,7 @@ import { Torrent } from "@/types/torrent"
 import { type FC, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { useTransmissionContext } from "@/contexts/transmission-provider"
-import { Dialog, DialogContent } from "@radix-ui/react-dialog"
-import { DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
@@ -28,6 +27,7 @@ export const TorrentBox: FC = () => {
     setShowTVShowRenameDialog,
     showTVShowRenameDialog,
     currentTorrent,
+    getShowVideoFilenames,
     currentTorrentFilename,
     currentDownloadedFile,
     newName,
@@ -111,7 +111,7 @@ export const TorrentBox: FC = () => {
               <DialogHeader>
                 <DialogTitle>
                   <div className="flex flex-row items-center justify-start gap-2">
-                    title
+                    Rename Episodes
                   </div>
                 </DialogTitle>
               </DialogHeader>
@@ -122,6 +122,13 @@ export const TorrentBox: FC = () => {
               />
 
               <div className='grid grid-cols-1 gap-0'>
+                <div>{currentTorrent?.name} Hi</div>
+                {
+                  currentTorrent && getShowVideoFilenames(currentTorrent).
+                    map(
+                      (f) => <div>{f}</div>
+                    )
+                }
               </div>
 
               <DialogFooter>
