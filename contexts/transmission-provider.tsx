@@ -232,6 +232,8 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
             {
               method: 'post',
               body: JSON.stringify({
+                torrent_id: torrent.id,
+                name: torrent.name,
                 files: getTorrentSoftDeletedFiles(torrent),
               }),
               headers: json_header
