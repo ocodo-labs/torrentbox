@@ -8,9 +8,15 @@ interface LongPressTooltipButtonProps {
   icon: ReactNode
   fillColor?: string
   onLongPress: () => void
-  vAlign?: 'top' | 'middle' | 'bottom'
-  hAlign?: 'left' | 'center' | 'right'
 }
+
+export const LongPressTooltipButton: FC<LongPressTooltipButtonProps> = ({ title, icon, onLongPress, fillColor }) => (
+  <TooltipCompact tooltipChildren={title}>
+    <LongPressButton onLongPress={onLongPress} fillUpColorClass={fillColor} longPressDuration={1000}>
+      {icon}
+    </LongPressButton>
+  </TooltipCompact>
+)
 
 type AsyncJobLongPressTooltipButtonProps = Omit<LongPressTooltipButtonProps, 'onLongPress'> & {
   onLongPress: () => Promise<void>
@@ -41,22 +47,3 @@ export const AsycJobLongPressTooltipButton: FC<AsyncJobLongPressTooltipButtonPro
     </>
   )
 }
-
-export function LongPressTooltipButton(props: LongPressTooltipButtonProps) {
-
-  const {
-    title,
-    icon,
-    onLongPress,
-    fillColor
-  } = props
-
-  return (
-    <TooltipCompact tooltipChildren={title}>
-      <LongPressButton onLongPress={onLongPress} fillUpColorClass={fillColor} longPressDuration={1000}>
-        {icon}
-      </LongPressButton>
-    </TooltipCompact>
-  )
-}
-

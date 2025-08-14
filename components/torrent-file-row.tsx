@@ -1,5 +1,5 @@
 import { TooltipButton } from "@/components/tooltip-compact"
-import { LongPressTooltipButton } from "@/components/long-press-float-button"
+import { LongPressTooltipButton } from "@/components/long-press-tooltip-button"
 import { Progress } from "@/components/ui/progress"
 import { useTransmissionContext } from "@/contexts/transmission-provider"
 import { thinIconStyle } from "@/lib/styling"

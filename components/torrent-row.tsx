@@ -3,13 +3,13 @@ import prettyBytes from 'pretty-bytes'
 import {
   AsycJobLongPressTooltipButton,
   LongPressTooltipButton,
-} from "@/components/long-press-float-button";
+} from "@/components/long-press-tooltip-button";
 import { TorrentFileRow } from "@/components/torrent-file-row";
 import { Progress } from "@/components/ui/progress";
 import { useTransmissionContext } from "@/contexts/transmission-provider";
 import { thinIconStyle } from "@/lib/styling";
 import { Torrent } from "@/types/torrent";
-import { ChevronDown, ChevronUp, Edit, Trash, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Edit, Trash, Tv2, X } from "lucide-react";
 import type { FC } from "react";
 
 interface TorrentRowProps {
@@ -47,7 +47,7 @@ const TorrentRow:FC<TorrentRowProps> = ({torrent}) => {
               onClick={() => setShowTVShowRenameDialog(true)}
               title="Rename Show Files"
               icon={
-                <Edit
+                <Tv2
                   className="h-4 w-4 cursor-pointer"
                   style={thinIconStyle}
                 />
@@ -88,8 +88,6 @@ const TorrentRow:FC<TorrentRowProps> = ({torrent}) => {
           />
           {torrent.files.length > 1 ? (
             <TooltipButton
-              hAlign="left"
-              vAlign="middle"
               title={`${expandedTorrent === torrent.id ? "Hide" : "Show"
                 } Torrent Files`}
               icon={

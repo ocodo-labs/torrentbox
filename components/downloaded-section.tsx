@@ -2,7 +2,7 @@ import { TooltipButton } from "@/components/tooltip-compact";
 import {
   AsycJobLongPressTooltipButton,
   LongPressTooltipButton,
-} from "@/components/long-press-float-button";
+} from "@/components/long-press-tooltip-button";
 import { useTransmissionContext } from "@/contexts/transmission-provider";
 import { thinIconStyle } from "@/lib/styling";
 import {
