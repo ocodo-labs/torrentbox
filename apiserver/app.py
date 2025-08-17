@@ -419,6 +419,16 @@ class TorrentRenameIn(BaseModel):
     newname: str
 
 
+class RenameEntry(BaseModel):
+    filename: str
+    newname: str
+
+
+class TorrentFilesRenameIn(BaseModel):
+    torrent_id: str
+    renames: List[RenameEntry]
+
+
 class DownloadedFileRenameIn(BaseModel):
     filename: str
     newname: str
@@ -483,9 +493,30 @@ async def post_torrents_downloaded_rename(payload: DownloadedFileRenameIn):
 
 @api.post("/torrents/active/rename")
 async def torrent_file_rename_route(payload: TorrentRenameIn):
-    response = torrent_file_rename(**payload.dict())
+    response = torrent_file_rename(**payload.model_dump())
     invalidate_cache("torrents")
     return response
+
+
+@api.post("/torrents/active/files/rename")
+async def torrent_files_rename_route(payload: TorrentFilesRenameIn):
+    errors = []
+    responses = []
+    torrent_id = payload.torrent_id
+    renames = payload.renames
+
+    for rename in renames:
+        try:
+            response = torrent_file_rename(torrent_id, rename.filename, rename.newname)
+            responses.append(response)
+        except Exception as e:
+            errors.append(e.__str__())
+
+    return {
+        "detail": f"Rename files in {torrent_id}",
+        "responses": responses,
+        "errors": errors,
+    }
 
 
 class QueryIn(BaseModel):

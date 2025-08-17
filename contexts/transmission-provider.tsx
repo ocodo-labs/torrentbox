@@ -12,6 +12,11 @@ import videoFileExtensions from 'video-extensions';
 import subtitleFileExtensions from '@/lib/subtitle-file-extensions';
 import { playSound } from '@/lib/play-sound';
 
+export interface FileRenameType {
+  filename: string
+  newname: string
+}
+
 interface TransmissionContextType {
   torrents: Torrent[]
   downloadedFiles: string[]
@@ -37,6 +42,7 @@ interface TransmissionContextType {
   handleRenameTorrent: (torrent: Torrent, filename?: string) => void
   confirmRename: () => void
   cancelRenameTorrent: () => void
+  batchRenameTorrentFiles: (torrent: Torrent, renames: FileRenameType[]) => void
   renameTorrent: (torrent: Torrent, currentFilename: string, newName: string) => void
   confirmRenameDownloadedFile: () => void
   resetState: () => void
@@ -241,7 +247,6 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
             }
           )
 
-
           if (!cleanup.ok) {
             const data = await cleanup.json()
             const failed = data.failed
@@ -251,7 +256,7 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         }
 
         toast(`${torrent.name} ${action} completed`);
-	playSound("/sounds/torrent-remove.mp3");
+        playSound("/sounds/torrent-remove.mp3");
       } catch {
         toast(`${torrent.name} cleanup failed.`)
       } finally {
@@ -387,6 +392,36 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     )
   }
 
+  const batchRenameTorrentFiles = async (torrent: Torrent, renames: FileRenameType[]) => {
+    const payload = {
+      torrent_id: torrent.id,
+      renames: renames,
+    }
+
+    try {
+      const response = await fetch(`${serverBaseUrl}/torrents/active/files/rename`,
+        {
+          method: "POST",
+          headers: json_header,
+          body: JSON.stringify(payload),
+        }
+      )
+
+      if (response.ok) {
+        const json = await response.json()
+        if (json.errors.length == 0) {
+          toast('Renamed torrent files')
+        } else {
+          toast('Renamed torrent files with errors')
+          console.error("Renaming Torrent Files...")
+          json.errors.forEach((e: string) => console.error(e))
+        }
+      }
+    } catch {
+      toast("Network error on batch rename")
+    }
+  }
+
   const renameTorrent = async (torrent: Torrent, currentFilename: string, newName: string) => {
     const payload = {
       filename: currentFilename,
@@ -446,6 +481,7 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       handleRenameTorrent,
       confirmRename,
       renameTorrent,
+      batchRenameTorrentFiles,
       cancelRenameTorrent,
       resetState,
       toggleExpand,

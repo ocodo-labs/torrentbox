@@ -34,7 +34,6 @@ const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
 
   const [showRenameView, setShowRenameView] = useState(false)
 
-
   return (
     <div
       key={torrent.id}
@@ -147,7 +146,7 @@ const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
 
 const TVShowRenameView: FC<{ torrent: Torrent }> = ({ torrent }) => {
 
-  const { getShowVideoFilenames } = useTransmissionContext();
+  const { getShowVideoFilenames, batchRenameTorrentFiles } = useTransmissionContext();
 
   const [isRegex, setIsRegex] = useState(false);
   const [pattern, setPattern] = useState("");
@@ -156,23 +155,35 @@ const TVShowRenameView: FC<{ torrent: Torrent }> = ({ torrent }) => {
     filename => {
       const basename = filename.replace(`${torrent.name}/`, '')
       const ext = basename.split('.').pop()
-      const originalNoExt = basename.replace(`.${ext}`, '')
+      const basenameNoExt = basename.replace(`.${ext}`, '')
 
-      let replaced = originalNoExt.replace(pattern, replacement)
+      let replaced = basenameNoExt.replace(pattern, replacement)
       if (isRegex) {
         try {
-          replaced = originalNoExt.replace(new RegExp(pattern), replacement)
+          replaced = basenameNoExt.replace(new RegExp(pattern), replacement)
         } catch {
-
+          // ignore regex errors
         }
       }
-      return { replaced, basename, ext, originalNoExt }
+      return { filename, basename, basenameNoExt, replaced, ext }
     }
   )
 
   const replacements = entries.map(e => e.replaced)
   const hasDupes = Array.from(new Set(replacements)).length != replacements.length
-  const changed = entries.filter(e => e.replaced != e.originalNoExt)
+  const changed = entries.filter(e => e.replaced != e.basenameNoExt)
+  const batchRenamePayload = entries.map(e => {
+    return {
+      newname: `${e.replaced}.${e.ext}`,
+      filename: e.filename
+    }
+  })
+
+  const getReplacementBlockMessage = () => {
+    if (hasDupes) return "Rename error, duplication";
+    if (changed.length === 0) return "No names changed";
+    return "No rename pattern";
+  };
 
   return (
     <div className="grid grid-cols-1 items-center justify-between  mb-2">
@@ -219,17 +230,13 @@ const TVShowRenameView: FC<{ torrent: Torrent }> = ({ torrent }) => {
                 />
               }
               onLongPress={async () => {
+                batchRenameTorrentFiles(torrent, batchRenamePayload)
                 return playSound("/sounds/torrent-remove.mp3")
               }}
             />
           )
           : (
-            <TooltipCompact tooltipChildren={
-              hasDupes
-                ? 'Rename error, duplication'
-                : changed.length == 0
-                  ? 'No names changed'
-                  : 'No rename pattern'}>
+            <TooltipCompact tooltipChildren={getReplacementBlockMessage()}>
               <TriangleAlert className="p-2 h-8 w-8 bg-red-900 text-white rounded-full" strokeWidth={1} />
             </TooltipCompact>
           )
