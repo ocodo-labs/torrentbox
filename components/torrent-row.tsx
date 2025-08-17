@@ -181,7 +181,6 @@ const TVShowRenameView: FC<{ torrent: Torrent }> = ({ torrent }) => {
 
   const getReplacementBlockMessage = () => {
     if (hasDupes) return "Rename error, duplication";
-    if (changed.length === 0) return "No names changed";
     return "No rename pattern";
   };
 
@@ -217,8 +216,9 @@ const TVShowRenameView: FC<{ torrent: Torrent }> = ({ torrent }) => {
         </div>
 
         {/* Replace Action Button */}
-        {pattern != "" && !hasDupes && changed.length > 0
-          ? (
+        {
+          pattern != "" && !hasDupes && changed.length > 0
+          && (
             <AsycJobLongPressTooltipButton
               className="bg-emerald-800 text-white hover:bg-emerald-700"
               fillColor="bg-primary"
@@ -235,12 +235,14 @@ const TVShowRenameView: FC<{ torrent: Torrent }> = ({ torrent }) => {
               }}
             />
           )
-          : (
+        }
+        {
+          pattern != "" && !hasDupes
+          && (
             <TooltipCompact tooltipChildren={getReplacementBlockMessage()}>
               <TriangleAlert className="p-2 h-8 w-8 bg-red-900 text-white rounded-full" strokeWidth={1} />
             </TooltipCompact>
-          )
-        }
+          )}
       </div>
       {
         entries.map(
