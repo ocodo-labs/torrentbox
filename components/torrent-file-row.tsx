@@ -5,7 +5,7 @@ import { useTransmissionContext } from "@/contexts/transmission-provider"
 import { thinIconStyle } from "@/lib/styling"
 import { Torrent } from "@/types/torrent"
 import { Edit, Trash } from "lucide-react"
-import { playSound } from "@/lib/play-sound"
+import type { FC } from "react"
 
 interface TorrentFileRowProps {
   torrent: Torrent
@@ -14,16 +14,10 @@ interface TorrentFileRowProps {
   downloaded: number
 }
 
-const TorrentFileRow = (props: TorrentFileRowProps) => {
-  const {
-    torrent,
-    filename,
-    size,
-    downloaded,
-  } = props
+const TorrentFileRow: FC<TorrentFileRowProps> = ({ torrent, filename, size, downloaded }) => {
 
   const { handleRenameTorrent, softDeleteTorrentSubFile } = useTransmissionContext()
-  const shortFilename = filename.replace(torrent.name, '')
+  const shortFilename = filename.replace(`${torrent.name}/`, '')
   const progressValue = (downloaded / size) * 100
 
   return (
@@ -40,10 +34,8 @@ const TorrentFileRow = (props: TorrentFileRowProps) => {
           title="Delete"
           icon={<Trash className="h-4 w-4" style={thinIconStyle} />}
           onLongPress={() => {
-            playSound("/sounds/torrent-file-delete.mp3")
-            softDeleteTorrentSubFile(torrent, filename)
-          }
-          } />
+            return softDeleteTorrentSubFile(torrent, filename)
+          }} />
       </div>
     </div>
   )

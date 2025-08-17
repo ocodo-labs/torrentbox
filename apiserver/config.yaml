@@ -7,6 +7,7 @@ media:
       - m4a
   books:
     directory: /mnt/Mirage/books
+    exts:
       - epub
       - pdf
       - zip

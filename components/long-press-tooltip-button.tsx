@@ -8,11 +8,15 @@ interface LongPressTooltipButtonProps {
   icon: ReactNode
   fillColor?: string
   onLongPress: () => void
+  childrenClassName?: string
+  className?: string
 }
 
-export const LongPressTooltipButton: FC<LongPressTooltipButtonProps> = ({ title, icon, onLongPress, fillColor }) => (
+export const LongPressTooltipButton: FC<LongPressTooltipButtonProps> = ({
+   title, icon, onLongPress, fillColor, childrenClassName, className
+  }) => (
   <TooltipCompact tooltipChildren={title}>
-    <LongPressButton onLongPress={onLongPress} fillUpColorClass={fillColor} longPressDuration={1000}>
+    <LongPressButton childrenClassName={childrenClassName} className={className} onLongPress={onLongPress} fillUpColorClass={fillColor} longPressDuration={1000}>
       {icon}
     </LongPressButton>
   </TooltipCompact>

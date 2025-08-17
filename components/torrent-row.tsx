@@ -9,9 +9,11 @@ import { Progress } from "@/components/ui/progress";
 import { useTransmissionContext } from "@/contexts/transmission-provider";
 import { thinIconStyle } from "@/lib/styling";
 import { Torrent } from "@/types/torrent";
-import { ChevronDown, ChevronUp, Edit, Trash, Tv2, X } from "lucide-react";
-import type { FC } from "react";
+import { ChevronDown, ChevronUp, CircleCheckBig, Edit, RegexIcon, Trash, TriangleAlert, Tv2, X } from "lucide-react";
+import { useState, type FC } from "react";
 import { playSound } from "@/lib/play-sound";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 interface TorrentRowProps {
   torrent: Torrent;
@@ -20,16 +22,18 @@ interface TorrentRowProps {
 const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
   const {
     isTVShowSeasonTorrent,
-    setShowTVShowRenameDialog,
+    getActiveFiles,
     handleRenameTorrent,
     handleAction,
     toggleExpand,
     clearSoftDeleted,
-    expandedTorrent,
     setCurrentTorrent,
-    getActiveFiles,
     canRename,
+    expandedTorrent,
   } = useTransmissionContext();
+
+  const [showRenameView, setShowRenameView] = useState(false)
+
 
   return (
     <div
@@ -49,7 +53,7 @@ const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
             <TooltipButton
               onClick={() => {
                 setCurrentTorrent(torrent)
-                setShowTVShowRenameDialog(true)
+                setShowRenameView(!showRenameView)
               }}
               title="Rename Show Files"
               icon={
@@ -120,6 +124,9 @@ const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
           )}
         </div>
       </div>
+      {showRenameView && expandedTorrent === null &&
+        <TVShowRenameView torrent={torrent} />
+      }
       <Progress value={torrent.percent} className="w-full" />
       {expandedTorrent === torrent.id && (
         <div className="mt-4 overflow-x-auto">
@@ -137,5 +144,137 @@ const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
     </div>
   );
 };
+
+const TVShowRenameView: FC<{ torrent: Torrent }> = ({ torrent }) => {
+
+  const { getShowVideoFilenames } = useTransmissionContext();
+
+  const [isRegex, setIsRegex] = useState(false);
+  const [pattern, setPattern] = useState("");
+  const [replacement, setReplacement] = useState("");
+  const entries = getShowVideoFilenames(torrent).map(
+    filename => {
+      const basename = filename.replace(`${torrent.name}/`, '')
+      const ext = basename.split('.').pop()
+      const originalNoExt = basename.replace(`.${ext}`, '')
+
+      let replaced = originalNoExt.replace(pattern, replacement)
+      if (isRegex) {
+        try {
+          replaced = originalNoExt.replace(new RegExp(pattern), replacement)
+        } catch {
+
+        }
+      }
+      return { replaced, basename, ext, originalNoExt }
+    }
+  )
+
+  const replacements = entries.map(e => e.replaced)
+  const hasDupes = Array.from(new Set(replacements)).length != replacements.length
+  const changed = entries.filter(e => e.replaced != e.originalNoExt)
+
+  return (
+    <div className="grid grid-cols-1 items-center justify-between  mb-2">
+      <div className="flex flex-row gap-4 items-center justify-items-stretch mb-2">
+        <div className="text-nowrap">Replace</div>
+        <div className="relative">
+          <Input
+            className="rounded-full border-foreground/20"
+            onChange={(e) => setPattern(e.target.value)}
+          />
+          <div
+            onClick={() => setIsRegex(!isRegex)}
+            className={cn(
+              "bg-background/70 cursor-pointer absolute right-1 top-1 p-1 px-3 rounded-full"
+            )}>
+            <TooltipCompact tooltipChildren={isRegex ? "Regex On" : "Regex Off"}>
+              <RegexIcon className={
+                cn(
+                  "w-3 h-3 cursor-pointer text-foreground/50",
+                  isRegex && "text-foreground")
+              } />
+            </TooltipCompact>
+          </div>
+        </div>
+        <div className="text-nowrap">With</div>
+        <div>
+          <Input
+            className="rounded-full border-foreground/20"
+            onChange={(e) => setReplacement(e.target.value)}
+          />
+        </div>
+
+        {/* Replace Action Button */}
+        {pattern != "" && !hasDupes && changed.length > 0
+          ? (
+            <AsycJobLongPressTooltipButton
+              className="bg-emerald-800 text-white hover:bg-emerald-700"
+              fillColor="bg-primary"
+              title="Apply Rename"
+              icon={
+                <CircleCheckBig
+                  className="h-4 w-4 cursor-pointer"
+                  style={thinIconStyle}
+                />
+              }
+              onLongPress={async () => {
+                return playSound("/sounds/torrent-remove.mp3")
+              }}
+            />
+          )
+          : (
+            <TooltipCompact tooltipChildren={
+              hasDupes
+                ? 'Rename error, duplication'
+                : changed.length == 0
+                  ? 'No names changed'
+                  : 'No rename pattern'}>
+              <TriangleAlert className="p-2 h-8 w-8 bg-red-900 text-white rounded-full" strokeWidth={1} />
+            </TooltipCompact>
+          )
+        }
+      </div>
+      {
+        entries.map(
+          entry => {
+            const { basename, ext, replaced } = entry
+            return (
+              <div className={
+                `
+              grid
+              grid-cols-2
+              items-center
+              justify-between
+              p-2
+              bg-foreground/10
+              overflow-x-auto
+              border-b-1
+              border-foreground/20
+              `
+              }>
+                <div>
+                  {basename}
+                </div>
+                {replacements.filter(e => e == replaced).length > 1
+                  ? (
+                    <div className="text-red-600">
+                      {replaced}.{ext}
+                    </div>
+                  )
+                  : (
+                    <div className="text-primary">
+                      {replaced}.{ext}
+                    </div>
+                  )
+                }
+              </div>
+            )
+          }
+        )
+      }
+    </div >
+  )
+}
 
 export { TorrentRow };

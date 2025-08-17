@@ -10,6 +10,7 @@ import type { Dispatch, SetStateAction } from 'react'
 import { toast } from 'sonner';
 import videoFileExtensions from 'video-extensions';
 import subtitleFileExtensions from '@/lib/subtitle-file-extensions';
+import { playSound } from '@/lib/play-sound';
 
 interface TransmissionContextType {
   torrents: Torrent[]
@@ -250,6 +251,7 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         }
 
         toast(`${torrent.name} ${action} completed`);
+	playSound("/sounds/torrent-remove.mp3");
       } catch {
         toast(`${torrent.name} cleanup failed.`)
       } finally {
@@ -366,6 +368,7 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     if (!isSoftDeleted(hash, index)) {
       setTorrentSoftDeletedFiles([...torrentSoftDeletedFiles, new SoftDeletedFile(hash, index)])
     }
+    playSound("/sounds/torrent-file-delete.mp3")
   }
 
   const getTorrentSoftDeletedFiles = (torrent: Torrent): string[] => {
