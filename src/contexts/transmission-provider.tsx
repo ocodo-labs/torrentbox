@@ -1,4 +1,4 @@
-import { json_header, serverBaseUrl } from '@/app/config';
+import { json_header, serverBaseUrl } from '@/config';
 import { useLeadingEdgeDebounce } from '@/lib/debounce';
 import { useLocalStorageBasic } from '@/hooks/use-local-storage-basic';
 import { notifyCompletion } from '@/lib/utils';

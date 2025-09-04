@@ -1,4 +1,4 @@
-import { serverBaseUrl } from "@/app/config"
+import { serverBaseUrl } from "@/config"
 import { IndeterminateProgress } from "@/components/indeterminate-progress"
 import { Input } from "@/components/ui/input"
 import { Circle, CircleX, SearchIcon } from "lucide-react"

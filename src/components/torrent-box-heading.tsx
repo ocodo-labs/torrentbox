@@ -1,4 +1,4 @@
-import { serverBaseUrl } from '@/app/config'
+import { serverBaseUrl } from '@/config'
 import { BittorrentIcon } from '@/components/bit-torrent-icon'
 import { Olivetti1954 } from '@/components/olivetti-1954-logo'
 import { TorrentNewMagnetDialog } from '@/components/torrent-new-magnet-dialog'
