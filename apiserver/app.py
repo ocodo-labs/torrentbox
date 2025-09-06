@@ -325,8 +325,16 @@ def set_video_title(filename: str, title: str = None):
     Or use the given title.
     """
     path = Path(filename)
+    logger.info(f'Setting video title on {path}')
 
-    title = path.stem() if not title else title
+    try:
+        if not title:
+            title = path.stem.replace('.',' ').replace('_', ' ')
+
+    except Exception as e:
+        logger.info(f"Error: {e}")
+
+    logger.info(f'title: {title}')
 
     if not path.exists():
         raise FileNotFoundError(f"File not found: {filename}")
@@ -339,7 +347,9 @@ def set_video_title(filename: str, title: str = None):
             text=True,
         )
         if result.returncode != 0:
-            raise RuntimeError(f"Failed to set MKV title: {result.stderr}")
+            message = f"Failed to set MKV title: {result.stderr}"
+            logger.info(message)
+            raise RuntimeError(message)
 
     elif filename.endswith(".mp4"):
         # Uses ffmpeg to set the title (creates a new file)
@@ -366,6 +376,8 @@ def set_video_title(filename: str, title: str = None):
 
     else:
         raise ValueError(f"Unsupported file type: {filename}")
+
+    return title
 
 
 def torrent_video_files(torrent_id):
@@ -447,6 +459,27 @@ def scrape_torrents(html):
     return torrents
 
 
+
+class FilenameIn(BaseModel):
+    filename: str
+
+
+@api.post("/video/autotitle")
+async def video_autotitle(filename_in: FilenameIn):
+    """
+    Call set_video_title
+    """
+    filename = filename_in.filename
+    try:
+        logger.info(f'setting auto title on {filename}')
+        title = set_video_title(filename)
+        return {"detail": f"{filename} titled: {title}"}
+    except FileNotFoundError:
+        raise HTTPException(404, f"{filename} not found")
+    except Exception:
+        raise HTTPException(500, f"Error setting video title on {filename}")
+
+
 @api.get("/torrents/retitle")
 def retitle_downloads(torrent_id):
     """
@@ -456,6 +489,7 @@ def retitle_downloads(torrent_id):
     try:
         videos = torrent_video_files(torrent_id)
         for video in videos:
+            logger.info(f"Setting title on {video}")
             set_video_title(video)
 
     except FileNotFoundError as e:
@@ -785,6 +819,12 @@ def get_random_image():
         image_path = os.path.join(image_dir, random_image)
         return FileResponse(image_path)
     return {"info": f"{image_dir} doesn't exist"}
+
+
+@api.get("/url-list")
+def get_all_urls():
+    url_list = [{"path": route.path, "name": route.name} for route in api.routes]
+    return url_list
 
 
 app.include_router(api, prefix="/api", tags=["api"])
