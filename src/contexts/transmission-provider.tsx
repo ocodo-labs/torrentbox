@@ -42,6 +42,7 @@ interface TransmissionContextType {
   handleRenameTorrent: (torrent: Torrent, filename?: string) => void
   confirmRename: () => void
   cancelRenameTorrent: () => void
+  autoTitleVideos: (torrent: Torrent) => void
   batchRenameTorrentFiles: (torrent: Torrent, renames: FileRenameType[]) => void
   renameTorrent: (torrent: Torrent, currentFilename: string, newName: string) => void
   confirmRenameDownloadedFile: () => void
@@ -213,6 +214,19 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     resetState()
     setRenameDialogOpen(false)
+  }
+
+  const autoTitleVideos = async (torrent: Torrent) => {
+    const torrent_id = torrent.id
+    try {
+      const response = await fetch(`${serverBaseUrl}/torrents/retitle?torrent_id=${torrent_id}`)
+      if (response.ok) {
+        toast(`Auto titled videos in ${torrent.name}`)
+        return
+      }
+    } finally {
+      toast(`Failed to auto title videos in ${torrent.name}`)
+    }
   }
 
   const executeTorrentAction = async (
@@ -500,7 +514,8 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       newName,
       setNewName,
       suggestions,
-      setSuggestions
+      setSuggestions,
+      autoTitleVideos,
     }}>
       {children}
     </TransmissionContext.Provider>

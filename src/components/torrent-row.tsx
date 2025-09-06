@@ -42,7 +42,7 @@ const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
         <div className="text-lg font-semibold mb-2 sm:mb-0 truncate">
           <TooltipCompact tooltipChildren={
-            `${torrent.percent}% ${prettyBytes(torrent.speed)}/s`
+            torrent.percent > 0 && `${torrent.percent}% ${prettyBytes(torrent.speed)}/s of ${prettyBytes(torrent.total)}`
           }>
             {torrent.name}
           </TooltipCompact>

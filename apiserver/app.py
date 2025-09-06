@@ -1,4 +1,5 @@
 import os
+import subprocess
 import shutil
 from pathlib import Path
 import re
@@ -156,7 +157,7 @@ def use_valid_extension_or_remove(extension):
 
 
 def dedupe_suggestions(suggestions):
-    return set(suggestions)
+    return list(set(suggestions))
 
 
 def fix_suggestion_extensions(filename, suggestions):
@@ -261,7 +262,9 @@ def ordered_intersection(list1, list2):
     return [word for word in list1 if word in list2]
 
 
-def get_matches_from(directory: str, torrent_name: str, valid_exts: List[str]) -> List[str]:
+def get_matches_from(
+    directory: str, torrent_name: str, valid_exts: List[str]
+) -> List[str]:
     torrent_name_words = preprocess_title(torrent_name)
     matches = []
     for dirpath, _, files in os.walk(directory):
@@ -273,7 +276,9 @@ def get_matches_from(directory: str, torrent_name: str, valid_exts: List[str]) -
             if file_ext not in valid_exts:
                 continue
             file_name_words = preprocess_title(file_name)
-            intersection_words = ordered_intersection(file_name_words, torrent_name_words)
+            intersection_words = ordered_intersection(
+                file_name_words, torrent_name_words
+            )
             if intersection_words == file_name_words:
                 matches.append(file_path)
 
@@ -298,12 +303,9 @@ def download_torrent_files_move_to(filename, destination):
 
 def torrent_file_rename(torrent_id, filename, newname):
     result = None
-    try:
-        transmission = Transmission(host=config.transmission.host)
-    except Exception:
-        raise HTTPException(404, f"Torrent {filename} not found")
 
     try:
+        transmission = Transmission(host=config.transmission.host)
         result = transmission.rename_torrent_path(
             torrent_id=torrent_id, location=filename, name=newname
         )
@@ -313,6 +315,75 @@ def torrent_file_rename(torrent_id, filename, newname):
         raise HTTPException(
             500, f"Internal error renaming torrent {filename} to {newname}"
         )
+
+
+def set_video_title(filename: str, title: str = None):
+    """
+    Retitle video (Covers mp4 or mkv) using the filename stem
+    (filename minus extension)
+
+    Or use the given title.
+    """
+    path = Path(filename)
+
+    title = path.stem() if not title else title
+
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {filename}")
+
+    if filename.endswith(".mkv"):
+        # Uses mkvpropedit to set the title
+        result = subprocess.run(
+            ["mkvpropedit", filename, "--edit", "info", "--set", f"title={title}"],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(f"Failed to set MKV title: {result.stderr}")
+
+    elif filename.endswith(".mp4"):
+        # Uses ffmpeg to set the title (creates a new file)
+        temp_file = filename.replace(".mp4", "_titled.mp4")
+        result = subprocess.run(
+            [
+                "ffmpeg",
+                "-i",
+                filename,
+                "-metadata",
+                f"title={title}",
+                "-codec",
+                "copy",
+                temp_file,
+            ],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(f"Failed to set MP4 title: {result.stderr}")
+
+        # Replace original file with the titled one
+        Path(temp_file).replace(filename)
+
+    else:
+        raise ValueError(f"Unsupported file type: {filename}")
+
+
+def torrent_video_files(torrent_id):
+    try:
+        transmission = Transmission(host=config.transmission.host)
+        torrent = transmission.get_torrent(torrent_id=torrent_id)
+        files = torrent.get_files()
+        video_extensions = list(
+            set(config.media.movies.exts + config.media.tvshows.exts)
+        )
+        video_files = [
+            file
+            for file in files
+            if any(file.lower().endswith(ext.lower()) for ext in video_extensions)
+        ]
+        return video_files
+    except Exception:
+        return []
 
 
 def downloaded_file_rename(filename, newname, overwrite=False):
@@ -347,29 +418,51 @@ def check_existing_media(torrents_data):
     return torrents_data
 
 
+def scrape_tpb_rows(row):
+    name = row.select_one('a[href^="https://tpb.party/torrent/"]')
+    category = row.select_one('a[href^="https://tpb.party/browse/"]')
+    magnet_link = row.select_one('a[href^="magnet:"]')
+    cells = row.select("td")
+
+    return {
+        "name": name.get_text(strip=True),
+        "category": category.get_text(strip=True).replace("\n", " "),
+        "magnet_link": magnet_link.get("href"),
+        # likely to error when tpb changes layout.
+        "seeds": cells[5].get_text(strip=True),
+        "size": cells[4].get_text(strip=True),
+    }
+
+
 def scrape_torrents(html):
     soup = BeautifulSoup(html, "html.parser")
-    torrents_data = []
+    torrents = []
     rows = soup.select("#searchResult tr")
     rows = [row for row in rows if len(row.select("td")) >= 8]
 
     for row in rows:
-        name = row.select_one('a[href^="https://tpb.party/torrent/"]')
-        category = row.select_one('a[href^="https://tpb.party/browse/"]')
-        magnet_link = row.select_one('a[href^="magnet:"]')
+        torrent = scrape_tpb_rows(row)
+        torrents.append(torrent)
 
-        cells = row.select("td")
-        torrent = {
-            "name": name.get_text(strip=True),
-            "category": category.get_text(strip=True).replace("\n", " "),
-            "magnet_link": magnet_link.get("href"),
-            "seeds": cells[5].get_text(strip=True),
-            "size": cells[4].get_text(strip=True),
-        }
+    return torrents
 
-        torrents_data.append(torrent)
 
-    return torrents_data
+@api.get("/torrents/retitle")
+def retitle_downloads(torrent_id):
+    """
+    Apply set_video_title on torrent video files (covers mp4 and mkv)
+    """
+
+    try:
+        videos = torrent_video_files(torrent_id)
+        for video in videos:
+            set_video_title(video)
+
+    except FileNotFoundError as e:
+        raise HTTPException(404, f"Video file not found (in Torrent: {torrent_id}) error: {e}")
+
+    except Exception:
+        raise HTTPException(500, f"Unable to retitle videos in Torrent: {torrent_id}")
 
 
 @api.get("/health", tags=["api"])
@@ -480,21 +573,18 @@ async def torrent_add(payload: MagnetActionIn):
     magnet_url = payload.magnet_url
     transmission = Transmission(host=config.transmission.host)
     result = transmission.add_torrent(magnet_url)
-    invalidate_cache("torrents")
     return {"info": f"Added torrent {result}"}
 
 
 @api.post("/torrents/downloaded/rename")
 async def post_torrents_downloaded_rename(payload: DownloadedFileRenameIn):
     response = downloaded_file_rename(**payload.dict())
-    invalidate_cache("torrents")
     return response
 
 
 @api.post("/torrents/active/rename")
 async def torrent_file_rename_route(payload: TorrentRenameIn):
     response = torrent_file_rename(**payload.model_dump())
-    invalidate_cache("torrents")
     return response
 
 
@@ -531,7 +621,6 @@ async def search_torrents(query: Optional[str] = Query(None)):
     if query.startswith("magnet:"):
         transmission = Transmission(host=config.transmission.host)
         result = transmission.add_torrent(query)
-        invalidate_cache("torrents")
         return {"info": f"Added torrent {result}"}
 
     url = f"https://tpb.party/search/{query}/1/99/0"
@@ -596,6 +685,7 @@ def get_torrents_active():
                 "name": torrent.name,
                 "percent": percent,
                 "speed": speed,
+                "total": torrent.size_when_done,
             }
         )
 
@@ -612,7 +702,6 @@ def get_torrents_active():
 @api.get("/torrents/active/remove")
 def torrent_remove(torrent_id: str):
     torrent = remove_torrent(torrent_id)
-    invalidate_cache("torrents")
     return {"info": f"Removed torrent {torrent.name}"}
 
 
@@ -641,7 +730,7 @@ def torrent_cleanup(payload: TorrentCleanupIn):
         logger.info(directories)
 
     info = "Ran torrent files cleanup, check failed_to_delete"
-    invalidate_cache("torrents")
+
     return {
         "info": info,
         "failed": failed,
@@ -678,7 +767,6 @@ def files_move_to_destination(destination: str, filename: str = Query(...)):
 @api.get("/torrents/active/delete")
 def torrent_delete(torrent_id: str):
     torrent = remove_torrent(torrent_id, delete=True)
-    invalidate_cache("torrents")
     return {"info": f"Deleted torrent {torrent.name} & files"}
 
 
