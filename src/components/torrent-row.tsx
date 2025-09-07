@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { useTransmissionContext } from "@/contexts/transmission-provider";
 import { thinIconStyle } from "@/lib/styling";
 import { Torrent } from "@/types/torrent";
-import { ChevronDown, ChevronUp, CircleCheckBig, Edit, RegexIcon, Trash, TriangleAlert, Tv2, X } from "lucide-react";
+import { ChevronDown, ChevronUp, CircleCheckBig, Edit, RegexIcon, Trash, TriangleAlert, Tv2, Type, X } from "lucide-react";
 import { useState, type FC } from "react";
 import { playSound } from "@/lib/play-sound";
 import { Input } from "@/components/ui/input";
@@ -29,10 +29,14 @@ const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
     clearSoftDeleted,
     setCurrentTorrent,
     canRename,
+    autoTitleVideos,
     expandedTorrent,
   } = useTransmissionContext();
 
   const [showRenameView, setShowRenameView] = useState(false)
+
+  const hasTitleableVideo = ['mp4', 'mkv'].map((i) => torrent.files.filter((e) => e[0].endsWith(i))).length > 0
+  const complete = torrent.percent == 100
 
   return (
     <div
@@ -48,6 +52,17 @@ const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
           </TooltipCompact>
         </div>
         <div className="flex flex-row items-center gap-2 ">
+          {hasTitleableVideo && complete && <LongPressTooltipButton
+            title="Auto title videos"
+            fillColor="bg-primary"
+            icon={
+              <Type
+                className="h-4 w-4 cursor-pointer"
+                style={thinIconStyle}
+              />
+            }
+            onLongPress={() => autoTitleVideos(torrent)}
+          />}
           {canRename(torrent) && isTVShowSeasonTorrent(torrent) && (
             <TooltipButton
               onClick={() => {

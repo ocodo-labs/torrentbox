@@ -44,6 +44,54 @@ a piece of genius.
 
 """
 
+class QueryIn(BaseModel):
+    query: Optional[str] = None
+
+
+class MagnetActionIn(BaseModel):
+    magnet_url: str
+
+
+class TorrentRenameIn(BaseModel):
+    torrent_id: Optional[str] = None
+    filename: str
+    newname: str
+
+
+class RenameEntry(BaseModel):
+    filename: str
+    newname: str
+
+
+class TorrentFilesRenameIn(BaseModel):
+    torrent_id: str
+    renames: List[RenameEntry]
+
+
+class DownloadedFileRenameIn(BaseModel):
+    filename: str
+    newname: str
+
+
+class TorrentActionIn(BaseModel):
+    torrent_id: str
+
+
+class TorrentCleanupIn(BaseModel):
+    torrent_id: str
+    name: str
+    files: List[str]
+
+
+class SuggestNamesIn(BaseModel):
+    filename: str
+    model: Optional[str] = None
+
+
+class FilenameIn(BaseModel):
+    filename: str
+
+
 redis = Redis(decode_responses=True)
 
 
@@ -325,7 +373,7 @@ def set_video_title(filename: str, title: str = None):
     Or use the given title.
     """
     path = Path(filename)
-    logger.info(f'Setting video title on {path}')
+    logger.info(f'Setting Title for {path}')
 
     try:
         if not title:
@@ -334,7 +382,7 @@ def set_video_title(filename: str, title: str = None):
     except Exception as e:
         logger.info(f"Error: {e}")
 
-    logger.info(f'title: {title}')
+    logger.info(f'Title: {title}')
 
     if not path.exists():
         raise FileNotFoundError(f"File not found: {filename}")
@@ -384,15 +432,21 @@ def torrent_video_files(torrent_id):
     try:
         transmission = Transmission(host=config.transmission.host)
         torrent = transmission.get_torrent(torrent_id=torrent_id)
+
         files = torrent.get_files()
+        logger.info(f'Files from {torrent_id}')
+        logger.info(files)
         video_extensions = list(
             set(config.media.movies.exts + config.media.tvshows.exts)
         )
+        logger.info('Video extensions from config movies and tvshows')
+        logger.info(video_extensions)
         video_files = [
-            file
+            Path(config.downloads) / file.name
             for file in files
-            if any(file.lower().endswith(ext.lower()) for ext in video_extensions)
+            if any(file.name.lower().endswith(ext.lower()) for ext in video_extensions)
         ]
+        logger.info(f'Getting video files for {torrent_id}')
         return video_files
     except Exception:
         return []
@@ -459,44 +513,29 @@ def scrape_torrents(html):
     return torrents
 
 
-
-class FilenameIn(BaseModel):
-    filename: str
-
-
-@api.post("/video/autotitle")
-async def video_autotitle(filename_in: FilenameIn):
+@api.get("/torrents/retitle/videos")
+def retitle_videos(torrent_id):
     """
-    Call set_video_title
-    """
-    filename = filename_in.filename
-    try:
-        logger.info(f'setting auto title on {filename}')
-        title = set_video_title(filename)
-        return {"detail": f"{filename} titled: {title}"}
-    except FileNotFoundError:
-        raise HTTPException(404, f"{filename} not found")
-    except Exception:
-        raise HTTPException(500, f"Error setting video title on {filename}")
-
-
-@api.get("/torrents/retitle")
-def retitle_downloads(torrent_id):
-    """
-    Apply set_video_title on torrent video files (covers mp4 and mkv)
+    Apply set_video_title on all video files in torrent (only covers mp4 and mkv)
     """
 
     try:
         videos = torrent_video_files(torrent_id)
         for video in videos:
             logger.info(f"Setting title on {video}")
-            set_video_title(video)
+            set_video_title(video.__str__())
+        return {
+            "detail": f"Video titles set on {torrent_id}"
+        }
+
+    except RuntimeError as e:
+        raise HTTPException(500, e)
 
     except FileNotFoundError as e:
         raise HTTPException(404, f"Video file not found (in Torrent: {torrent_id}) error: {e}")
 
-    except Exception:
-        raise HTTPException(500, f"Unable to retitle videos in Torrent: {torrent_id}")
+    except ValueError as e:
+        raise HTTPException(500, f"Unable to retitle videos in Torrent: {torrent_id} [{e}]")
 
 
 @api.get("/health", tags=["api"])
@@ -534,46 +573,6 @@ async def api_documentation(request: Request):
   </body>
 </html>"""
     )
-
-
-class MagnetActionIn(BaseModel):
-    magnet_url: str
-
-
-class TorrentRenameIn(BaseModel):
-    torrent_id: Optional[str] = None
-    filename: str
-    newname: str
-
-
-class RenameEntry(BaseModel):
-    filename: str
-    newname: str
-
-
-class TorrentFilesRenameIn(BaseModel):
-    torrent_id: str
-    renames: List[RenameEntry]
-
-
-class DownloadedFileRenameIn(BaseModel):
-    filename: str
-    newname: str
-
-
-class TorrentActionIn(BaseModel):
-    torrent_id: str
-
-
-class TorrentCleanupIn(BaseModel):
-    torrent_id: str
-    name: str
-    files: List[str]
-
-
-class SuggestNamesIn(BaseModel):
-    filename: str
-    model: Optional[str] = None
 
 
 @api.get("/llm/status")
@@ -641,10 +640,6 @@ async def torrent_files_rename_route(payload: TorrentFilesRenameIn):
         "responses": responses,
         "errors": errors,
     }
-
-
-class QueryIn(BaseModel):
-    query: Optional[str] = None
 
 
 @api.get("/torrents/search/scrape")
@@ -821,9 +816,9 @@ def get_random_image():
     return {"info": f"{image_dir} doesn't exist"}
 
 
-@api.get("/url-list")
+@api.get("/urls")
 def get_all_urls():
-    url_list = [{"path": route.path, "name": route.name} for route in api.routes]
+    url_list = [{"path": f'/api{route.path}', "name": route.name, "methods": route.methods} for route in api.routes]
     return url_list
 
 

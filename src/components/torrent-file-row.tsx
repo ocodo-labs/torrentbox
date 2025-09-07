@@ -27,6 +27,7 @@ const TorrentFileRow: FC<TorrentFileRowProps> = ({ torrent, filename, size, down
         <Progress value={progressValue} className="w-full mt-1" />
       </div>
       <div className="flex items-center gap-2 ml-4">
+
         <TooltipButton title="Rename"
           icon={<Edit className="h-4 w-4" style={thinIconStyle} />}
           onClick={() => handleRenameTorrent(torrent, filename)} />

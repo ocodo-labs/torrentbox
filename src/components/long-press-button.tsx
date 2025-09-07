@@ -63,7 +63,10 @@ export const LongPressButton: React.FC<LongPressButtonProps> = ({
         cancelAnimationFrame(fillAnimationFrameId.current);
       }
       fillAnimationFrameId.current = undefined;
-      setFillPercentage(100);
+      setTimeout(
+        () => setFillPercentage(() => 0),
+        200
+      )
       onLongPress();
     }
   }, [longPressDuration, onLongPress]);
