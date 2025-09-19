@@ -354,6 +354,10 @@ def torrent_file_rename(torrent_id, filename, newname):
 
     try:
         transmission = Transmission(host=config.transmission.host)
+        newname = Path(newname).name
+
+        logger.info(f'Torrent file rename (id: "{torrent_id}" filename: "{filename}" newname: "{newname}" )')
+
         result = transmission.rename_torrent_path(
             torrent_id=torrent_id, location=filename, name=newname
         )
