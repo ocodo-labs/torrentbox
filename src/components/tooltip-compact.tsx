@@ -7,16 +7,20 @@ interface TooltipCompactProps {
 }
 
 export const TooltipCompact: FC<TooltipCompactProps> = ({ children, tooltipChildren }) => {
-  return (
-    <Tooltip>
-      <TooltipContent>
-        {tooltipChildren}
-      </TooltipContent>
-      <TooltipTrigger>
-        {children}
-      </TooltipTrigger>
-    </Tooltip>
-  )
+  if (!tooltipChildren) {
+    return children
+  } else {
+    return (
+      <Tooltip>
+        <TooltipContent>
+          {tooltipChildren}
+        </TooltipContent>
+        <TooltipTrigger>
+          {children}
+        </TooltipTrigger>
+      </Tooltip>
+    )
+  }
 }
 
 interface TooltipButtonProps {

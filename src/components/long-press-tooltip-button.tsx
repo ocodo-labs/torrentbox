@@ -13,13 +13,13 @@ interface LongPressTooltipButtonProps {
 }
 
 export const LongPressTooltipButton: FC<LongPressTooltipButtonProps> = ({
-   title, icon, onLongPress, fillColor, childrenClassName, className
-  }) => (
-  <TooltipCompact tooltipChildren={title}>
+  title, icon, onLongPress, fillColor, childrenClassName, className
+}) => (
+  <TooltipCompact tooltipChildren={title} >
     <LongPressButton childrenClassName={childrenClassName} className={className} onLongPress={onLongPress} fillUpColorClass={fillColor} longPressDuration={1000}>
       {icon}
     </LongPressButton>
-  </TooltipCompact>
+  </TooltipCompact >
 )
 
 type AsyncJobLongPressTooltipButtonProps = Omit<LongPressTooltipButtonProps, 'onLongPress'> & {
