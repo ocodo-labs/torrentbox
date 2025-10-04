@@ -3,10 +3,9 @@ import { TooltipCompact } from "@/components/tooltip-compact";
 import { Input } from "@/components/ui/input";
 import { useTransmissionContext } from "@/contexts/transmission-provider";
 import { playSound } from "@/lib/play-sound";
-import { thinIconStyle } from "@/lib/styling";
 import { cn } from "@/lib/utils";
 import type { Torrent } from "@/types/torrent";
-import { CircleCheckBig, RegexIcon } from "lucide-react";
+import { RegexIcon, ReplaceAllIcon, ReplaceIcon } from "lucide-react";
 import { useState, type FC } from "react";
 
 export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
@@ -14,6 +13,7 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
   const { getShowVideoFilenames, batchRenameTorrentFiles } = useTransmissionContext();
 
   const [isRegex, setIsRegex] = useState(false);
+  const [isRepeated, setIsRepeated] = useState(false);
   const [pattern, setPattern] = useState("");
   const [replacement, setReplacement] = useState("");
   const entries = getShowVideoFilenames(torrent).map(
@@ -22,7 +22,10 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
       const ext = basename.split('.').pop()
       const basenameNoExt = basename.replace(`.${ext}`, '')
 
-      let replaced = basenameNoExt.replace(pattern, replacement)
+      let replaced = isRepeated
+      ? basenameNoExt.replaceAll(pattern, replacement)
+      : basenameNoExt.replace(pattern, replacement)
+
       if (isRegex) {
         try {
           replaced = basenameNoExt.replace(new RegExp(pattern), replacement)
@@ -54,16 +57,27 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
             onChange={(e) => setPattern(e.target.value)}
           />
           <div
-            onClick={() => setIsRegex(!isRegex)}
             className={cn(
-              "bg-background/70 cursor-pointer absolute right-1 top-1 p-1 px-3 rounded-full"
+              "bg-background/70 absolute right-1 top-1 p-1 px-3 rounded-full flex flex-row gap-2"
             )}>
             <TooltipCompact tooltipChildren={isRegex ? "Regex On" : "Regex Off"}>
               <RegexIcon className={
                 cn(
                   "w-3 h-3 cursor-pointer text-foreground/50",
                   isRegex && "text-foreground")
-              } />
+              }
+                onClick={() => setIsRegex(!isRegex)}
+              />
+            </TooltipCompact>
+            <TooltipCompact tooltipChildren={isRepeated ? "Replace All" : "Replace One"}>
+              {isRepeated
+                ? <ReplaceAllIcon
+                  className={cn("w-3 h-3 cursor-pointer text-foreground/90")}
+                  onClick={() => setIsRepeated(!isRepeated)} />
+                : <ReplaceIcon
+                  className={cn("w-3 h-3 cursor-pointer text-foreground/50")}
+                  onClick={() => setIsRepeated(!isRepeated)} />
+              }
             </TooltipCompact>
           </div>
         </div>
@@ -84,10 +98,10 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
               fillColor="bg-primary"
               title="Apply Rename"
               icon={
-                <CircleCheckBig
-                  className="h-4 w-4 cursor-pointer"
-                  style={thinIconStyle}
-                />
+                <div
+                  className="cursor-pointer px-3"
+
+                >Rename</div>
               }
               onLongPress={async () => {
                 batchRenameTorrentFiles(torrent, batchRenamePayload)
