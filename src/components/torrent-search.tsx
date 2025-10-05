@@ -1,15 +1,16 @@
 import { serverBaseUrl } from "@/config"
 import { IndeterminateProgress } from "@/components/indeterminate-progress"
 import { Input } from "@/components/ui/input"
-import { Circle, CircleX, SearchIcon } from "lucide-react"
+import { Circle, CircleX, Pin, SearchIcon } from "lucide-react"
 import React, { useState } from "react"
 import { toast } from "sonner"
 import { AsycJobLongPressTooltipButton } from "@/components/long-press-tooltip-button"
 import { LineMdDownloadIcon } from "@/components/line-md-download-icon"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { thinIconStyle } from "@/lib/styling"
+import { pinnedSearchQueryClasses, thinIconStyle } from "@/lib/styling"
 import { playSound } from "@/lib/play-sound"
-
+import { useLocalStorage } from 'usehooks-ts'
+import { TooltipCompact } from "@/components/tooltip-compact"
 
 interface TorrentSearchResult {
   magnet_link: string
@@ -39,7 +40,7 @@ function TorrentSearchResultRow(props: TorrentSearchResultWithFetchTorrents) {
     playSound("/sounds/torrent-download.mp3")
   }
 
-  const getTorrentMagnet = async (name: string, magnet_link: string) => {
+  async function postTorrentMagnet(name: string, magnet_link: string) {
     try {
       const response = await fetch(
         `${serverBaseUrl}/torrents/magnet/new`, {
@@ -109,7 +110,7 @@ function TorrentSearchResultRow(props: TorrentSearchResultWithFetchTorrents) {
           <AsycJobLongPressTooltipButton
             fillColor="bg-primary"
             title={`Download ${name}`}
-            onLongPress={() => getTorrentMagnet(name, magnet_link)}
+            onLongPress={() => postTorrentMagnet(name, magnet_link)}
             icon={<LineMdDownloadIcon className="h-4 w-4" style={thinIconStyle} />} />
         </div>
       </div>
@@ -127,11 +128,26 @@ const TorrentSearch: React.FC<TorrentSearchProps> = (props) => {
   const [searchResults, setSearchResults] = useState([])
   const [searching, setSearching] = useState(false)
   const noResultsMessage = `No Torrents Found for ${searchQuery}`
+  const [pinnedSearchQueries, setPinnedSearchQueries] = useLocalStorage<string[]>('pinned-search-queries', [])
 
   function resetSearch() {
     setSearchQuery('')
     setSearchResults([])
     setSearching(false)
+  }
+
+  function pinQuery() {
+    setPinnedSearchQueries(
+      Array.from(
+        new Set(pinnedSearchQueries.concat(searchQuery))
+      )
+    )
+  }
+
+  function unpinQuery(query: string) {
+    setPinnedSearchQueries(
+      pinnedSearchQueries.filter((e: string) => e != query)
+    )
   }
 
   async function torrentSearch() {
@@ -187,11 +203,40 @@ const TorrentSearch: React.FC<TorrentSearchProps> = (props) => {
           />
           Search
         </div>
+        {searchQuery != '' && !pinnedSearchQueries
+          .map(e => e.toLocaleLowerCase())
+          .includes(searchQuery.toLocaleLowerCase()) &&
+          <TooltipCompact tooltipChildren={'Pin Query'}>
+            <Pin
+              onClick={() => pinQuery()}
+              className="mt-1 size-6 cursor-pointer"
+              style={thinIconStyle} />
+          </TooltipCompact>
+        }
         <CircleX
           className="mt-1 size-8 cursor-pointer"
           style={thinIconStyle}
           onClick={resetSearch} />
       </div>
+      {
+        pinnedSearchQueries.length > 0 &&
+        <div className="flex flex-wrap gap-2 my-4">
+          {
+            pinnedSearchQueries.map(
+              (e: string) =>
+                <div className={pinnedSearchQueryClasses}>
+                  <div onClick={() => setSearchQuery(e)}>
+                    {e}
+                  </div>
+                  <div className="absolute top-0 right-[-4px]">
+                    <CircleX size={12} style={thinIconStyle} onClick={() => unpinQuery(e)} />
+                  </div>
+                </div>
+            )
+          }
+        </div>
+      }
+
       {
         searchResults.length > 0 ? (
           <div className="mt-4 overflow-x-auto">
