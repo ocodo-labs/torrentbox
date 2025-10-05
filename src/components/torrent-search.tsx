@@ -154,7 +154,10 @@ const TorrentSearch: React.FC<TorrentSearchProps> = (props) => {
     if (searchQuery != "") {
       setSearchResults([])
       setSearching(true)
-      const response = await fetch(`${serverBaseUrl}/torrents/search/scrape?query=${encodeURIComponent(searchQuery)}`)
+      const query = encodeURIComponent(searchQuery)
+      const response = await fetch(
+        `${serverBaseUrl}/torrents/search/scrape?query=${query}`
+      )
       const data = await response.json()
       if (!response.ok) {
         setSearching(false)
@@ -169,7 +172,9 @@ const TorrentSearch: React.FC<TorrentSearchProps> = (props) => {
       if (data?.results?.filter) {
         const filtered = data.results.filter((e: TorrentSearchResult) => {
           const hasSeeds = parseInt(e.seeds, 10) > 0
-          const isNotPorn = !e.category.toLowerCase().includes("porn")
+          const isNotPorn = !e.category
+            .toLowerCase()
+            .includes("porn")
           return hasSeeds && isNotPorn
         })
         setSearchResults(filtered)
@@ -195,7 +200,21 @@ const TorrentSearch: React.FC<TorrentSearchProps> = (props) => {
           type="search"
         />
         <div
-          className="flex flex-row px-4 items-center justify-center cursor-pointer hover:bg-primary/70 rounded-full bg-primary text-primary-foreground transition-colors duration-[1s]"
+          className={
+            `
+            cursor-pointer
+            flex flex-row
+            items-center
+            justify-center
+            rounded-full
+            px-4
+            bg-primary
+            hover:bg-primary/70
+            text-primary-foreground
+            transition-colors
+            duration-[1s]
+            `
+          }
           onClick={torrentSearch}>
           <SearchIcon
             style={thinIconStyle}
@@ -229,7 +248,10 @@ const TorrentSearch: React.FC<TorrentSearchProps> = (props) => {
                     {e}
                   </div>
                   <div className="absolute top-[-5px] right-[-6px]">
-                    <CircleX size={16} className="bg-background rounded-full p-[1px]" onClick={() => unpinQuery(e)} />
+                    <CircleX
+                      size={16}
+                      className="bg-background rounded-full p-[1px]"
+                      onClick={() => unpinQuery(e)} />
                   </div>
                 </div>
             )

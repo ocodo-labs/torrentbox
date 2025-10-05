@@ -1,6 +1,5 @@
 import { json_header, serverBaseUrl } from '@/config';
 import { useLeadingEdgeDebounce } from '@/lib/debounce';
-import { useLocalStorageBasic } from '@/hooks/use-local-storage-basic';
 import { notifyCompletion } from '@/lib/utils';
 import type { DestructiveDownloadedFileAction, DestructiveTorrentAction } from '@/types/actions';
 import { type SoftDeletedFileType, SoftDeletedFile } from '@/types/soft-deleted-file';
@@ -11,6 +10,7 @@ import { toast } from 'sonner';
 import videoFileExtensions from 'video-extensions';
 import subtitleFileExtensions from '@/lib/subtitle-file-extensions';
 import { playSound } from '@/lib/play-sound';
+import { useLocalStorage } from 'usehooks-ts';
 
 export interface FileRenameType {
   filename: string
@@ -79,7 +79,7 @@ const TransmissionContext = createContext<TransmissionContextType | undefined>(u
 export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [torrents, setTorrents] = useState<Torrent[]>([])
   const [downloadedFiles, setDownloadedFiles] = useState<string[]>([])
-  const [torrentSoftDeletedFiles, setTorrentSoftDeletedFiles] = useLocalStorageBasic('soft-deleted-files', [])
+  const [torrentSoftDeletedFiles, setTorrentSoftDeletedFiles] = useLocalStorage<SoftDeletedFile[]>('soft-deleted-files', [])
   const [connectionError, setConnectionError] = useState(false)
   const [suggestionsLLMOnline, setSuggestionsLLMOnline] = useState(false)
   const [expandedTorrent, setExpandedTorrent] = useState<string | null>(null)
