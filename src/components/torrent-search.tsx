@@ -228,8 +228,8 @@ const TorrentSearch: React.FC<TorrentSearchProps> = (props) => {
                   <div onClick={() => setSearchQuery(e)}>
                     {e}
                   </div>
-                  <div className="absolute top-0 right-[-4px]">
-                    <CircleX size={12} style={thinIconStyle} onClick={() => unpinQuery(e)} />
+                  <div className="absolute top-[-5px] right-[-6px]">
+                    <CircleX size={16} className="bg-background rounded-full p-[1px]" onClick={() => unpinQuery(e)} />
                   </div>
                 </div>
             )
