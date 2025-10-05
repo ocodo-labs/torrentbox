@@ -218,7 +218,11 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const autoTitleVideos = async (torrent: Torrent) => {
     const torrent_id = torrent.id
-    const videosLength = torrent.files.filter((f) => ['mp4', 'mkv'].some((e) => f[0].endsWith(e))).length
+    const videosLength = torrent.files
+      .filter((f) => ['mp4', 'mkv']
+        .some((e) => f[0]
+          .endsWith(e)))
+      .length
     const videos = videosLength > 1 ? 'videos' : 'video'
     const message = `Auto titled ${videos} in ${torrent.name}`
     const errorMessage = `Error when titling ${videos} in ${torrent.name}`
