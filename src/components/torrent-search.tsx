@@ -21,6 +21,7 @@ import {
   useSensors,
   type DragEndEvent,
   DragOverlay,
+  type DragStartEvent,
 } from '@dnd-kit/core';
 
 import {
@@ -127,40 +128,45 @@ export const PinnedSearchQueries: FC<PinnedSearchQueriesType> = ({
       coordinateGetter: sortableKeyboardCoordinates,
     }))
 
+  function handleDragStart(event: DragStartEvent) {
+    setActiveId(event.active.id as string);
+  }
+
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
 
-    if (active && over) {
-      if (active.id !== over.id) {
-        setQueries(
-          (queries: string[]) => {
-            const oldIndex = queries.findIndex((v:string) => active.id == v);
-            const newIndex = queries.findIndex((v:string) => over.id == v);
-
-            return arrayMove<string>(queries, oldIndex, newIndex);
-          });
-      }
+    if (active && over && active.id !== over.id) {
+      setQueries((queries) => {
+        const oldIndex = queries.findIndex((v) => active.id === v);
+        const newIndex = queries.findIndex((v) => over.id === v);
+        return arrayMove(queries, oldIndex, newIndex);
+      });
     }
+
+    setActiveId(null);
   }
 
-  const [activeId, _] = useState<string | null>(null);
+
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   return (
     <div className="flex flex-wrap w-full gap-2 my-2">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}>
+
         <SortableContext
           items={queries}
           strategy={horizontalListSortingStrategy}
         >
           {
             queries.map(
-              (query: string, index: number) =>
+              (query: string) =>
                 <PinnedQuery
                   id={query}
-                  key={index}
+                  key={query}
                   query={query}
                   setSearchQuery={setSearchQuery}
                   unpinQuery={unpinQuery} />
