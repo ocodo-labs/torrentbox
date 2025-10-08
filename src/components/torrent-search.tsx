@@ -2,7 +2,7 @@ import { serverBaseUrl } from "@/config"
 import { IndeterminateProgress } from "@/components/indeterminate-progress"
 import { Input } from "@/components/ui/input"
 import { Circle, CircleX, Pin, SearchIcon } from "lucide-react"
-import React, { useState } from "react"
+import React, { useState, type FC } from "react"
 import { toast } from "sonner"
 import { AsycJobLongPressTooltipButton } from "@/components/long-press-tooltip-button"
 import { LineMdDownloadIcon } from "@/components/line-md-download-icon"
@@ -11,6 +11,132 @@ import { pinnedSearchQueryClasses, thinIconStyle } from "@/lib/styling"
 import { playSound } from "@/lib/play-sound"
 import { useLocalStorage } from 'usehooks-ts'
 import { TooltipCompact } from "@/components/tooltip-compact"
+
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+
+import {
+  arrayMove,
+  horizontalListSortingStrategy,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+} from '@dnd-kit/sortable';
+
+import { CSS } from '@dnd-kit/utilities';
+
+interface PinnedQueryType {
+  id: number
+  query: string
+  setSearchQuery: (newValue: string) => void
+  unpinQuery: (query: string) => void
+}
+
+export const PinnedQuery: FC<PinnedQueryType> = ({
+  id,
+  query,
+  setSearchQuery,
+  unpinQuery
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <div className={pinnedSearchQueryClasses}>
+        <div onDoubleClick={() => setSearchQuery(query)}>
+          {query}
+        </div>
+        <div className="absolute top-[-5px] right-[-6px]">
+          <CircleX
+            size={16}
+            className="bg-background rounded-full p-[1px]"
+            onDoubleClick={() => unpinQuery(query)} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+interface PinnedSearchQueriesType {
+  queries: string[]
+  setQueries: (newValue: string[] | ((queries: string[]) => string[])) => void;
+  setSearchQuery: (newValue: string) => void
+  unpinQuery: (query: string) => void
+}
+
+export const PinnedSearchQueries: FC<PinnedSearchQueriesType> = ({
+  queries,
+  setQueries,
+  setSearchQuery,
+  unpinQuery,
+}) => {
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }))
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (active && over) {
+      if (active.id !== over.id) {
+        setQueries(
+          (queries: string[]) => {
+            const oldIndex = active.id as number;
+            const newIndex = over.id as number;
+
+            return arrayMove<string>(queries, oldIndex, newIndex);
+          });
+      }
+    }
+  }
+
+  return (
+    <div className="flex flex-wrap w-full gap-2 my-2">
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}>
+        <SortableContext
+          items={queries}
+          strategy={horizontalListSortingStrategy}
+        >
+          {
+            queries.map(
+              (query: string, index: number) =>
+                <PinnedQuery
+                  id={index}
+                  key={index}
+                  query={query}
+                  setSearchQuery={setSearchQuery}
+                  unpinQuery={unpinQuery} />
+            )
+          }
+        </SortableContext>
+      </DndContext>
+    </div>
+  )
+}
 
 interface TorrentSearchResult {
   magnet_link: string
@@ -239,24 +365,11 @@ const TorrentSearch: React.FC<TorrentSearchProps> = (props) => {
       </div>
       {
         pinnedSearchQueries.length > 0 &&
-        <div className="flex flex-wrap gap-2 my-4">
-          {
-            pinnedSearchQueries.map(
-              (e: string) =>
-                <div className={pinnedSearchQueryClasses}>
-                  <div onClick={() => setSearchQuery(e)}>
-                    {e}
-                  </div>
-                  <div className="absolute top-[-5px] right-[-6px]">
-                    <CircleX
-                      size={16}
-                      className="bg-background rounded-full p-[1px]"
-                      onClick={() => unpinQuery(e)} />
-                  </div>
-                </div>
-            )
-          }
-        </div>
+        <PinnedSearchQueries
+          setQueries={setPinnedSearchQueries}
+          queries={pinnedSearchQueries}
+          setSearchQuery={setSearchQuery}
+          unpinQuery={unpinQuery} />
       }
 
       {
