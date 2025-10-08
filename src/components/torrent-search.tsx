@@ -95,7 +95,7 @@ export const PinnedQuery: FC<PinnedQueryType> = ({
 
   return (
     <DraggedItem
-      id={id}
+      id={query}
       query={query}
       ref={setNodeRef}
       style={style}
@@ -134,8 +134,8 @@ export const PinnedSearchQueries: FC<PinnedSearchQueriesType> = ({
       if (active.id !== over.id) {
         setQueries(
           (queries: string[]) => {
-            const oldIndex = active.id as number;
-            const newIndex = over.id as number;
+            const oldIndex = queries.findIndex((v:string) => active.id == v);
+            const newIndex = queries.findIndex((v:string) => over.id == v);
 
             return arrayMove<string>(queries, oldIndex, newIndex);
           });
