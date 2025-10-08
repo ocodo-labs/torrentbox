@@ -2,7 +2,7 @@ import { serverBaseUrl } from "@/config"
 import { IndeterminateProgress } from "@/components/indeterminate-progress"
 import { Input } from "@/components/ui/input"
 import { Circle, CircleX, Pin, SearchIcon } from "lucide-react"
-import React, { useState, type FC } from "react"
+import React, { forwardRef, useState, type FC, type HTMLAttributes } from "react"
 import { toast } from "sonner"
 import { AsycJobLongPressTooltipButton } from "@/components/long-press-tooltip-button"
 import { LineMdDownloadIcon } from "@/components/line-md-download-icon"
@@ -20,6 +20,7 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
+  DragOverlay,
 } from '@dnd-kit/core';
 
 import {
@@ -32,8 +33,42 @@ import {
 
 import { CSS } from '@dnd-kit/utilities';
 
+interface ItemProps extends HTMLAttributes<HTMLDivElement> {
+  id: string;
+  query: string;
+  setSearchQuery: (newValue: string) => void
+  unpinQuery: (query: string) => void
+}
+
+export const DraggedItem = forwardRef<HTMLDivElement, ItemProps>(
+  (
+    {
+      id,
+      query,
+      setSearchQuery,
+      unpinQuery,
+      ...props
+    },
+    ref) => {
+    return (
+      <div {...props} ref={ref}>
+        <div className={pinnedSearchQueryClasses}>
+          <div onDoubleClick={() => setSearchQuery(query)}>
+            {query}
+          </div>
+          <div className="absolute top-[-5px] right-[-6px]">
+            <CircleX
+              size={16}
+              className="bg-background rounded-full p-[1px]"
+              onDoubleClick={() => unpinQuery(query)} />
+          </div>
+        </div>
+      </div>
+    );
+  });
+
 interface PinnedQueryType {
-  id: number
+  id: string
   query: string
   setSearchQuery: (newValue: string) => void
   unpinQuery: (query: string) => void
@@ -59,19 +94,16 @@ export const PinnedQuery: FC<PinnedQueryType> = ({
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <div className={pinnedSearchQueryClasses}>
-        <div onDoubleClick={() => setSearchQuery(query)}>
-          {query}
-        </div>
-        <div className="absolute top-[-5px] right-[-6px]">
-          <CircleX
-            size={16}
-            className="bg-background rounded-full p-[1px]"
-            onDoubleClick={() => unpinQuery(query)} />
-        </div>
-      </div>
-    </div>
+    <DraggedItem
+      id={id}
+      query={query}
+      ref={setNodeRef}
+      style={style}
+      setSearchQuery={setSearchQuery}
+      unpinQuery={unpinQuery}
+      {...attributes}
+      {...listeners}>
+    </DraggedItem >
   )
 }
 
@@ -111,6 +143,8 @@ export const PinnedSearchQueries: FC<PinnedSearchQueriesType> = ({
     }
   }
 
+  const [activeId, _] = useState<string | null>(null);
+
   return (
     <div className="flex flex-wrap w-full gap-2 my-2">
       <DndContext
@@ -125,7 +159,7 @@ export const PinnedSearchQueries: FC<PinnedSearchQueriesType> = ({
             queries.map(
               (query: string, index: number) =>
                 <PinnedQuery
-                  id={index}
+                  id={query}
                   key={index}
                   query={query}
                   setSearchQuery={setSearchQuery}
@@ -133,6 +167,17 @@ export const PinnedSearchQueries: FC<PinnedSearchQueriesType> = ({
             )
           }
         </SortableContext>
+        <DragOverlay>
+          {activeId
+            &&
+            <DraggedItem
+              id={activeId}
+              query={activeId}
+              setSearchQuery={setSearchQuery}
+              unpinQuery={unpinQuery}
+            />
+          }
+        </DragOverlay>
       </DndContext>
     </div>
   )
