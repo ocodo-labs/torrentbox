@@ -87,11 +87,13 @@ export const PinnedQuery: FC<PinnedQueryType> = ({
     setNodeRef,
     transform,
     transition,
+    isDragging,
   } = useSortable({ id: id })
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    opacity: isDragging ? 0.25 : 1,
   };
 
   return (
