@@ -1,6 +1,6 @@
 import { LineMdDownloadIcon } from "@/components/line-md-download-icon"
 import { AsycJobLongPressTooltipButton } from "@/components/long-press-tooltip-button"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { TooltipCompact } from "@/components/tooltip-compact"
 import { useTorrentSearch } from "@/contexts/torrent-search-context"
 import type { TorrentSearchResult } from "@/contexts/torrent-search-provider"
 import { thinIconStyle } from "@/lib/styling"
@@ -23,14 +23,9 @@ export function TorrentSearchResultRow(props: TorrentSearchResult) {
         <div className="flex flex-row gap-2 items-center justify-start">
           {
             existing.length > 0 &&
-            <Tooltip>
-              <TooltipTrigger>
-                <Circle className="w-4 h-4" stroke="#AA6600" strokeWidth={3} />
-              </TooltipTrigger>
-              <TooltipContent>
-                Existing Download: {existing}
-              </TooltipContent>
-            </Tooltip>
+            <TooltipCompact tooltipChildren={`Existing Download: ${existing}`}>
+              <Circle className="w-4 h-4" stroke="#AA6600" strokeWidth={3} />
+            </TooltipCompact>
           }
           {
             existing.length == 0 &&
@@ -45,16 +40,11 @@ export function TorrentSearchResultRow(props: TorrentSearchResult) {
         <div className="text-xs text-muted-foreground">
           {size}
         </div>
-        <Tooltip>
-          <TooltipTrigger>
-            <div className="text-xs w-3">
-              {seeds}
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>
-            Seeds
-          </TooltipContent>
-        </Tooltip>
+        <TooltipCompact tooltipChildren={`Seeds`}>
+          <div className="text-xs w-3">
+            {seeds}
+          </div>
+        </TooltipCompact>
         <div className="ml-4 my-[3px]">
           <AsycJobLongPressTooltipButton
             fillColor="bg-primary"

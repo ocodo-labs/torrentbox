@@ -4,11 +4,11 @@ import { CircleX, Pin, SearchIcon } from "lucide-react"
 import type { FC } from "react"
 import { thinIconStyle } from "@/lib/styling"
 import { TooltipCompact } from "@/components/tooltip-compact"
-import { usePinnedQueries } from "@/contexts/pinned-queries-context"
 import type { TorrentSearchResult } from "@/contexts/torrent-search-provider"
-import { useTorrentSearch } from "@/contexts/torrent-search-context"
 import { PinnedSearchQueries } from "@/components/torrent-search/pinned-search-queries"
 import { TorrentSearchResultRow } from "@/components/torrent-search/torrent-search-result-row"
+import { useTorrentSearch } from "@/contexts/torrent-search-context"
+import { usePinnedQueries } from "@/contexts/pinned-queries-context"
 
 export const TorrentSearch: FC = () => {
 
