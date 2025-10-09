@@ -1,18 +1,20 @@
 import { PinnedQuery } from "@/components/torrent-search/pinned-query";
 import { PinnedQueryDragItem } from "@/components/torrent-search/pinned-query-drag-item";
 import { usePinnedQueries } from "@/contexts/pinned-queries-context";
-import { closestCenter, DndContext, DragOverlay, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
-import { arrayMove, horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { closestCenter, DndContext, DragOverlay, PointerSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent } from "@dnd-kit/core";
+import { arrayMove, horizontalListSortingStrategy, SortableContext } from "@dnd-kit/sortable";
 import { useState, type FC } from "react";
 
 export const PinnedSearchQueries: FC = () => {
   const { setPinnedQueries, pinnedQueries } = usePinnedQueries()
   const [activeId, setActiveId] = useState<string | null>(null);
   const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }))
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    })
+  )
 
   function handleDragStart(event: DragStartEvent) {
     setActiveId(event.active.id as string);

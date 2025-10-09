@@ -12,5 +12,6 @@ export const pinnedSearchQueryClasses = `
   text-xs
   rounded-full
   w-fit
+  select-none
   cursor-pointer
 `

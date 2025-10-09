@@ -51,6 +51,7 @@ export const TorrentSearch: FC = () => {
             text-primary-foreground
             transition-colors
             duration-[1s]
+            select-none
             `
           }
           onClick={torrentSearch}>

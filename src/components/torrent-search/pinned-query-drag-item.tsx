@@ -23,14 +23,14 @@ export const PinnedQueryDragItem = forwardRef<HTMLDivElement, ItemProps>((
   return (
     <div {...props} ref={ref}>
       <div className={pinnedSearchQueryClasses}>
-        <div onDoubleClick={() => setSearchQuery(query)}>
+        <div onClick={() => setSearchQuery(query)}>
           {query}
         </div>
         <div className="absolute top-[-5px] right-[-6px]">
           <CircleX
             size={16}
             className="bg-background rounded-full p-[1px]"
-            onDoubleClick={() => unpinQuery(query)} />
+            onClick={() => unpinQuery(query)} />
         </div>
       </div>
     </div>
