@@ -1,7 +1,7 @@
 import { DownloadedSection } from "@/components/downloaded-section"
 import { RenameDialog } from "@/components/rename-dialog"
 import { TorrentBoxHeading } from "@/components/torrent-box-heading"
-import { TorrentSearch } from "@/components/torrent-search"
+import { TorrentSearch } from "@/components/torrent-search/torrent-search"
 import { TorrentsSection } from "@/components/torrent-section"
 import { ConnectionErrorPanel } from "@/components/connection-error-panel"
 import { Torrent } from "@/types/torrent"

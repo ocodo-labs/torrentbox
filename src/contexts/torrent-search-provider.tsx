@@ -1,0 +1,135 @@
+import { serverBaseUrl } from '@/config';
+import { useTransmissionContext } from '@/contexts/transmission-provider';
+import { playSound } from '@/lib/play-sound';
+import { createContext, useState } from 'react';
+import type { ReactNode, Dispatch, SetStateAction } from 'react';
+import { toast } from 'sonner';
+
+export interface TorrentSearchResult {
+  magnet_link: string
+  name: string
+  seeds: string
+  size: string
+  category: string
+  existing: string[]
+}
+
+export interface TorrentSearchContextType {
+  searchQuery: string;
+  setSearchQuery: Dispatch<SetStateAction<string>>;
+  searchResults: TorrentSearchResult[];
+  setSearchResults: Dispatch<SetStateAction<TorrentSearchResult[]>>;
+  searching: boolean;
+  setSearching: Dispatch<SetStateAction<boolean>>;
+  torrentSearch: () => Promise<void>;
+  resetSearch: () => void;
+  postTorrentMagnet: (name: string, magnet_link: string) => Promise<void>;
+}
+
+export const TorrentSearchContext = createContext<TorrentSearchContextType | undefined>(undefined);
+
+export const TorrentSearchProvider = ({ children }: { children: ReactNode }) => {
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchResults, setSearchResults] = useState<TorrentSearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
+
+  const noResultsMessage = `No Torrents Found for ${searchQuery}`
+
+  const { fetchTorrents } = useTransmissionContext()
+
+  async function torrentSearch() {
+    if (searchQuery != "") {
+      setSearchResults([])
+      setSearching(true)
+      const query = encodeURIComponent(searchQuery)
+      const response = await fetch(
+        `${serverBaseUrl}/torrents/search/scrape?query=${query}`
+      )
+      const data = await response.json()
+      if (!response.ok) {
+        setSearching(false)
+        if (data.detail) { toast(data.detail) }
+        return
+      }
+      if (searchQuery.startsWith('magnet:')) {
+        setSearching(false)
+        if (data.info) { toast(data.info) }
+        return
+      }
+      if (data?.results?.filter) {
+        const filtered = data.results.filter((e: TorrentSearchResult) => {
+          const hasSeeds = parseInt(e.seeds, 10) > 0
+          const isNotPorn = !e.category
+            .toLowerCase()
+            .includes("porn")
+          return hasSeeds && isNotPorn
+        })
+        setSearchResults(filtered)
+        if (filtered.length == 0) {
+          toast.warning(noResultsMessage)
+        }
+      } else {
+        toast.warning(noResultsMessage)
+      }
+      setSearching(false)
+    }
+  }
+
+  function resetSearch() {
+    setSearchQuery('')
+    setSearchResults([])
+    setSearching(false)
+  }
+
+  function addedTorrent() {
+    console.log('added torrent to transmission')
+    playSound("/sounds/torrent-download.mp3")
+  }
+
+  async function postTorrentMagnet(name: string, magnet_link: string) {
+    try {
+      const response = await fetch(
+        `${serverBaseUrl}/torrents/magnet/new`, {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          magnet_url: magnet_link
+        })
+      })
+      if (response.status == 200) {
+        await response.json()
+        addedTorrent()
+        toast(`Added: ${name}`)
+        await fetchTorrents()
+        return
+      } else {
+        console.error(`TorrentBox: Failed to add magnet link for ${name}`)
+      }
+    } catch {
+      toast(`Error adding ${name}`)
+    } finally {
+      return
+    }
+  }
+
+  return (
+    <TorrentSearchContext.Provider
+      value={{
+        searchQuery,
+        setSearchQuery,
+        searchResults,
+        setSearchResults,
+        searching,
+        setSearching,
+        torrentSearch,
+        resetSearch,
+        postTorrentMagnet,
+      }}
+    >
+      {children}
+    </TorrentSearchContext.Provider>
+  );
+};
+
