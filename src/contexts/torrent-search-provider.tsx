@@ -1,7 +1,7 @@
 import { serverBaseUrl } from '@/config';
 import { useTransmissionContext } from '@/contexts/transmission-provider';
 import { playSound } from '@/lib/play-sound';
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import type { ReactNode, Dispatch, SetStateAction } from 'react';
 import { toast } from 'sonner';
 
@@ -24,6 +24,9 @@ export interface TorrentSearchContextType {
   torrentSearch: () => Promise<void>;
   resetSearch: () => void;
   postTorrentMagnet: (name: string, magnet_link: string) => Promise<void>;
+  resultsFilter: string;
+  setResultsFilter: (filter: string) => void;
+  filteredSearchResults: TorrentSearchResult[]
 }
 
 export const TorrentSearchContext = createContext<TorrentSearchContextType | undefined>(undefined);
@@ -32,12 +35,33 @@ export const TorrentSearchProvider = ({ children }: { children: ReactNode }) => 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [searchResults, setSearchResults] = useState<TorrentSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
+  const [resultsFilter, setResultsFilter] = useState('');
+  const [filteredSearchResults, setFilteredSearchResults] = useState<TorrentSearchResult[]>([]);
+
+  // This implementation is ok for personal use,
+  // it's not user friendly.
+  // It's also a little janky i.e.
+  //   (a group should work, but when there's more than two
+  //   items in the capture group it doesn't match anything)
+  useEffect(() => {
+    if (resultsFilter != '') {
+      try {
+        const filterRegex = new RegExp(`^(?!.*${resultsFilter}).*$`, 'i')
+        setFilteredSearchResults(
+          searchResults.filter((e) => filterRegex.test(e.name))
+        )
+      } catch {
+
+      }
+    }
+  }, [searchResults, resultsFilter])
 
   const noResultsMessage = `No Torrents Found for ${searchQuery}`
 
   const { fetchTorrents } = useTransmissionContext()
 
   async function torrentSearch() {
+    setResultsFilter('')
     if (searchQuery != "") {
       setSearchResults([])
       setSearching(true)
@@ -77,6 +101,7 @@ export const TorrentSearchProvider = ({ children }: { children: ReactNode }) => 
 
   function resetSearch() {
     setSearchQuery('')
+    setResultsFilter('')
     setSearchResults([])
     setSearching(false)
   }
@@ -126,6 +151,9 @@ export const TorrentSearchProvider = ({ children }: { children: ReactNode }) => 
         torrentSearch,
         resetSearch,
         postTorrentMagnet,
+        resultsFilter,
+        setResultsFilter,
+        filteredSearchResults,
       }}
     >
       {children}

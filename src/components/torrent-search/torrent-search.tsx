@@ -5,10 +5,9 @@ import { CircleX, Pin, SearchIcon } from "lucide-react"
 import { thinIconStyle } from "@/lib/styling"
 import { TooltipCompact } from "@/components/tooltip-compact"
 import { PinnedSearchQueries } from "@/components/torrent-search/pinned-search-queries"
-import type { TorrentSearchResult } from "@/contexts/torrent-search-provider"
-import { TorrentSearchResultRow } from "@/components/torrent-search/torrent-search-result-row"
 import { useTorrentSearch } from "@/contexts/torrent-search-context"
 import { usePinnedQueries } from "@/contexts/pinned-queries-context"
+import { TorrentSearchResults } from "@/components/torrent-search/torrent-search-results"
 
 export const TorrentSearch: FC = () => {
 
@@ -23,11 +22,14 @@ export const TorrentSearch: FC = () => {
     torrentSearch,
     resetSearch,
     searchResults,
-    searching
+    searching,
+    resultsFilter,
+    setResultsFilter,
+    filteredSearchResults,
   } = useTorrentSearch()
 
   return (
-    <section>
+    <div>
       <div className="flex space-x-4">
         <Input
           className="rounded-full border-foreground/20"
@@ -82,30 +84,39 @@ export const TorrentSearch: FC = () => {
       }
 
       {
-        searchResults.length > 0 ? (
-          <div className="mt-4 overflow-x-auto">
-            <h2 className="text-xl font-semibold mb-4">Search Results</h2>
-            <div className="grid grid-cols-1">
-              {
-                searchResults
-                  .map(
-                    (row: TorrentSearchResult) => (
-                      <TorrentSearchResultRow
-                        key={row.magnet_link}
-                        {...row}
-                      />
-                    )
-                  )
-              }
-            </div>
-          </div>
-        ) : searching ? (
-          <div style={{ padding: '1em 0 0 0' }}>
-            <IndeterminateProgress />
-          </div>
-        ) : ''
+        searchResults.length > 0 &&
+        <div className="flex flex-row gap-2">
+          <Input
+            className="rounded-full border-foreground/20"
+            value={resultsFilter}
+            placeholder="Filter out word (or regex capture group of words)"
+            onChange={(e) => setResultsFilter(e.target.value)}
+          />
+          <CircleX
+            className="mt-1 size-8 cursor-pointer"
+            style={thinIconStyle}
+            onClick={() => setResultsFilter('')}
+          />
+        </div>
       }
-    </section>
+
+      {resultsFilter == '' || filteredSearchResults.length == 0 ?
+        searchResults.length > 0
+          ?
+          <TorrentSearchResults
+            searchResults={searchResults}
+          />
+          : searching && (
+            <div style={{ padding: '1em 0 0 0' }}>
+              <IndeterminateProgress />
+            </div>
+          )
+        :
+        <TorrentSearchResults
+          searchResults={filteredSearchResults}
+        />
+      }
+    </div>
   )
 }
 
