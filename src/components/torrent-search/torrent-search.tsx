@@ -1,15 +1,18 @@
 import type { FC } from "react"
 import { Input } from "@/components/ui/input"
 import { IndeterminateProgress } from "@/components/indeterminate-progress"
-import { CircleX, Pin, SearchIcon } from "lucide-react"
+import { CircleX, Filter, Pin, SearchIcon } from "lucide-react"
 import { thinIconStyle } from "@/lib/styling"
 import { TooltipCompact } from "@/components/tooltip-compact"
 import { PinnedSearchQueries } from "@/components/torrent-search/pinned-search-queries"
 import { useTorrentSearch } from "@/contexts/torrent-search-context"
 import { usePinnedQueries } from "@/contexts/pinned-queries-context"
 import { TorrentSearchResults } from "@/components/torrent-search/torrent-search-results"
+import { useToggle } from "usehooks-ts"
 
 export const TorrentSearch: FC = () => {
+
+  const [showResultFilter, toggleResultFilter] = useToggle(false)
 
   const {
     pinnedQueries,
@@ -73,6 +76,14 @@ export const TorrentSearch: FC = () => {
               style={thinIconStyle} />
           </TooltipCompact>
         }
+        {searchResults.length > 0 &&
+          <TooltipCompact tooltipChildren={'Filter Results'}>
+            <Filter
+              onClick={() => toggleResultFilter()}
+              className="mt-1 size-6 cursor-pointer"
+              style={thinIconStyle} />
+          </TooltipCompact>
+        }
         <CircleX
           className="mt-1 size-8 cursor-pointer"
           style={thinIconStyle}
@@ -85,6 +96,7 @@ export const TorrentSearch: FC = () => {
 
       {
         searchResults.length > 0 &&
+        showResultFilter &&
         <div className="flex flex-row gap-2">
           <Input
             className="rounded-full border-foreground/20"
@@ -111,10 +123,8 @@ export const TorrentSearch: FC = () => {
               <IndeterminateProgress />
             </div>
           )
-        :
-        <TorrentSearchResults
-          searchResults={filteredSearchResults}
-        />
+        : <TorrentSearchResults
+          searchResults={filteredSearchResults} />
       }
     </div>
   )
