@@ -93,6 +93,10 @@ class FilenameIn(BaseModel):
     filename: str
 
 
+class Top100Link(BaseModel):
+    href: str
+
+
 redis = Redis(decode_responses=True)
 
 
@@ -712,9 +716,6 @@ def scrape_magnet(html: str) -> Optional[str]:
     magnet_link = soup.select_one('a[href^="magnet:"]')
     return magnet_link.get("href") if magnet_link else None
 
-
-class Top100Link(BaseModel):
-    href: str
 
 @api.get("/torrents/top-100-television")
 def get_top_100_television():
