@@ -1,5 +1,5 @@
 // Top100Context.tsx
-import { fetchTop100Magnet } from '@/lib/fetch-top100-magnet';
+import { fetchListingFactory, fetchListingMagnet } from '@/lib/fetch-listing-functions';
 import React, { createContext, useContext, useState } from 'react';
 
 interface Top100Movie {
@@ -27,22 +27,16 @@ export function Top100MoviesProvider({ children }: { children: React.ReactNode }
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchTop100Movies = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch('/api/torrents/top-100-movies');
-      const data = await response.json();
-      console.log(data)
-      setMovies(data);
-    } catch (err) {
-      setError('Failed to fetch top movies');
-    } finally {
-      setLoading(false);
+  const fetchTop100Movies = fetchListingFactory<Top100Movie[]>(
+    {
+      apiUrl: '/api/torrents/top-100-movies',
+      setData: setMovies,
+      setLoading,
+      setError,
     }
-  };
+  )
 
-  const fetchTop100MovieMagnet = fetchTop100Magnet
+  const fetchTop100MovieMagnet = fetchListingMagnet
 
   const open = () => {
     setIsOpen(true);

@@ -9,6 +9,10 @@
   font-family: var(--font-sans);
 }
 
+.text-xxs { font-size: x-small;}
+
+.text-xxxs { font-size: xx-small;}
+
 .body-background-image {
   background: var(--body-background-image-url) no-repeat;
   background-attachment: fixed;

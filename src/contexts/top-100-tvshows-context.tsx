@@ -1,4 +1,4 @@
-import { fetchTop100Magnet } from '@/lib/fetch-top100-magnet';
+import { fetchListingFactory, fetchListingMagnet } from '@/lib/fetch-listing-functions';
 import React, { createContext, useContext, useState } from 'react';
 
 interface Top100TVShow {
@@ -25,22 +25,14 @@ export function Top100TVShowsProvider({ children }: { children: React.ReactNode 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchTop100TVShows = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch('/api/torrents/top-100-television');
-      const data = await response.json();
-      console.log(data)
-      setTVShows(data);
-    } catch (err) {
-      setError('Failed to fetch top movies');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchTop100TVShows = fetchListingFactory<Top100TVShow[]>({
+    apiUrl: '/api/torrents/top-100-television',
+    setData: setTVShows,
+    setLoading,
+    setError,
+  });
 
-  const fetchTop100TVShowMagnet = fetchTop100Magnet
+  const fetchTop100TVShowMagnet = fetchListingMagnet
 
   const open = () => {
     setIsOpen(true);

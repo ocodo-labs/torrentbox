@@ -16,12 +16,13 @@ export const pinnedSearchQueryClasses = `
   cursor-pointer
 `
 
-export const modalContent = "bg-card rounded-lg p-6 w-full max-w-4xl relative";
-export const modalHeader = "flex justify-start items-center mb-4";
+export const modalContent = "bg-card rounded-lg p-6 w-full h-full md:max-w-4xl relative";
+export const modalHeader = "flex flex-row justify-start items-center mb-4 gap-2";
 export const modalTitle = "text-xl font-bold tracking-tighter";
-export const modalClose = "hover:bg-background rounded-full p-1 cursor-pointer absolute top-0 right-0";
-export const loadingState = "flex flex-col items-center justify-center py-4 w-full gap-4";
-export const errorState = "text-red-500 text-center py-4";
-export const itemsList = "grid gap-2  max-h-[80vh] overflow-y-auto";
-export const itemRow = "flex flex-row items-center justify-start gap-2";
-export const itemInfo = "flex items-center text-sm gap-2";
+export const modalIconButton = 'border border-foregroun/50 hover:bg-background rounded-full p-1 cursor-pointer transition-colors duration-700'
+export const modalClose = `${modalIconButton} absolute top-1 right-1`;
+export const modalLoadingState = "flex flex-col items-center justify-center py-4 w-full gap-4";
+export const modalErrorState = "text-red-500 text-center py-4";
+export const modalItemsList = "grid gap-2  max-h-[80vh] overflow-y-auto";
+export const modalItemRow = "flex flex-row items-center justify-start gap-2";
+export const modalItemInfo = "flex items-center text-[x-small] sm:text-base gap-2";
