@@ -2,23 +2,24 @@ import { ModalOverlay } from '@/components/modal-overlay';
 import { OcodoLoaderIcon } from '@/components/ocodo-loader-icon';
 import { useTop100TVShowsContext } from '@/contexts/top-100-tvshows-context';
 import { useTransmissionContext } from '@/contexts/transmission-provider';
-import { thinIconStyle } from '@/lib/styling';
-import { Magnet, X } from 'lucide-react';
+import { compare } from '@/lib/sort-by-name';
+import { errorState, itemInfo, itemRow, itemsList, loadingState, modalClose, modalContent, modalHeader, modalTitle, thinIconStyle } from '@/lib/styling';
+import { List, Magnet, SortDesc, Tv, X } from 'lucide-react';
+import { useState } from 'react';
 import { toast } from 'sonner';
-
-const modalContent = "bg-card rounded-lg p-6 w-full max-w-4xl relative";
-const modalHeader = "flex justify-start items-center mb-4";
-const modalTitle = "text-xl font-bold tracking-tighter";
-const modalClose = "hover:bg-background rounded-full p-1 cursor-pointer absolute top-0 right-0";
-const loadingState = "flex flex-row items-center justify-center py-4 w-full";
-const errorState = "text-red-500 text-center py-4";
-const showsList = "grid gap-2  max-h-[80vh] overflow-y-auto";
-const showItem = "flex flex-row items-center justify-start gap-2";
-const showInfo = "flex items-center text-sm gap-2";
 
 export function Top100TVShowsModal() {
   const { isOpen, close, tvShows, loading, error, fetchTop100TVShowMagnet: fetchTop100TVShowMagnet } = useTop100TVShowsContext();
   const { addMagnet } = useTransmissionContext()
+  const [isOrdered, setIsOrdered] = useState<boolean>(false)
+
+  const listing = (ordered: Boolean) => {
+    const list = Array.from(tvShows)
+
+    return ordered
+      ? list.sort(compare)
+      : list
+  }
 
   const addTop100Magnet = async (href: string) => {
     const magnet = await fetchTop100TVShowMagnet(href)
@@ -33,14 +34,35 @@ export function Top100TVShowsModal() {
     <ModalOverlay isOpen={isOpen} onClose={close}>
       <div className={modalContent}>
         <X onClick={close} className={modalClose} />
-        <div className={modalHeader}>
-          <div className={modalTitle}>Top 100 TV Shows</div>
-        </div>
+        {
+          loading ||
+          <div className={modalHeader}>
+            <div className={modalTitle}>Top 100 TV Shows</div>
+            <div className='cursor-pointer'>
+            {
+              isOrdered
+                ?
+                <SortDesc
+                  style={thinIconStyle}
+                  className='w-4 h-4'
+                  onClick={() => setIsOrdered(!isOrdered)}
+                />
+                :
+                <List
+                  style={thinIconStyle}
+                  className='w-4 h-4'
+                  onClick={() => setIsOrdered(!isOrdered)}
+                />
+            }
+            </div>
+          </div>
+        }
 
         {
-          loading &&
+          loading && tvShows.length == 0 &&
           <div className={loadingState}>
-            <OcodoLoaderIcon className="w-6 h-6 animate-spin" />
+            <Tv className="w-16 h-16" />
+            <OcodoLoaderIcon className="w-12 h-12 animate-spin" />
           </div>
         }
         {
@@ -48,9 +70,9 @@ export function Top100TVShowsModal() {
           <div className={errorState}>{error}</div>
         }
 
-        <div className={showsList}>
-          {tvShows.length > 0 && tvShows.map((tvshow) => (
-            <div key={tvshow.href} className={showItem}>
+        <div className={itemsList}>
+          {tvShows.length > 0 && listing(isOrdered).map((tvshow) => (
+            <div key={tvshow.href} className={itemRow}>
               <Magnet
                 style={thinIconStyle}
                 className='cursor-pointer'
@@ -60,7 +82,7 @@ export function Top100TVShowsModal() {
                   toast(`Added ${tvshow.name}`)
                 }}
               />
-              <div className={showInfo}>
+              <div className={itemInfo}>
                 {tvshow.name}
               </div>
             </div>
