@@ -42,7 +42,7 @@ interface TransmissionContextType {
   handleRenameTorrent: (torrent: Torrent, filename?: string) => void
   confirmRename: () => void
   cancelRenameTorrent: () => void
-  autoTitleVideos: (torrent: Torrent) => void
+  autoTitleVideos: (torrent: Torrent) => Promise<void>
   batchRenameTorrentFiles: (torrent: Torrent, renames: FileRenameType[]) => void
   renameTorrent: (torrent: Torrent, currentFilename: string, newName: string) => void
   confirmRenameDownloadedFile: () => void
@@ -64,6 +64,10 @@ interface TransmissionContextType {
   setNewName: Dispatch<SetStateAction<string>>
   suggestions: Set<string>
   setSuggestions: Dispatch<SetStateAction<Set<string>>>
+  selectedTorrents: Set<string>
+  setSelectedTorrents: Dispatch<SetStateAction<Set<string>>>
+  executeSelectedTorrentsAction: (action: DestructiveTorrentAction) => Promise<void>
+  addMagnet: (magnetUrl: string) => Promise<void>
 }
 
 export const useTransmissionContext = (): TransmissionContextType => {
@@ -90,6 +94,7 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [newName, setNewName] = useState('')
   const [suggestions, setSuggestions] = useState<Set<string>>(new Set())
   const [showTVShowRenameDialog, setShowTVShowRenameDialog] = useState(false)
+  const [selectedTorrents, setSelectedTorrents] = useState<Set<string>>(new Set())
 
   const getFilenames = (torrent: Torrent) => torrent.files.map(e => e[0])
 
@@ -238,6 +243,13 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       toast(errorMessage)
       return
     }
+  }
+
+  const executeSelectedTorrentsAction = async (
+    action: DestructiveTorrentAction
+  ) => {
+    const torrentsSelected: Torrent[] = torrents.filter((t) => selectedTorrents.has(t.id))
+    torrentsSelected.forEach(async (t) => await executeTorrentAction(action, t))
   }
 
   const executeTorrentAction = async (
@@ -447,6 +459,28 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   }
 
+const addMagnet = async (magnetUrl: string) => {
+    const postUrl=`${serverBaseUrl}/torrents/magnet/new`
+    const magnetRegex = /magnet:\?xt=urn:btih:[a-zA-Z0-9]{32,40}(&.+)?$/;
+    if (magnetRegex.test(magnetUrl)) {
+
+      try {
+        const response = await fetch(postUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ magnet_url: magnetUrl }),
+        })
+        if (!response.ok) {
+          toast(`Error Failed to Add Magnet Link`)
+        }
+      } catch (error) {
+        toast(`Network Error Adding Magnet Link`)
+      }
+    } else {
+      toast("Invalid Magnet URL")
+    }
+  }
+
   const renameTorrent = async (torrent: Torrent, currentFilename: string, newName: string) => {
     const payload = {
       filename: currentFilename,
@@ -527,6 +561,10 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       suggestions,
       setSuggestions,
       autoTitleVideos,
+      selectedTorrents,
+      setSelectedTorrents,
+      executeSelectedTorrentsAction,
+      addMagnet,
     }}>
       {children}
     </TransmissionContext.Provider>

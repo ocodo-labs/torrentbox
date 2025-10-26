@@ -4,11 +4,12 @@ import { TooltipCompact } from "@/components/tooltip-compact"
 import { useTorrentSearch } from "@/contexts/torrent-search-context"
 import type { TorrentSearchResult } from "@/contexts/torrent-search-provider"
 import { thinIconStyle } from "@/lib/styling"
-import { Circle } from "lucide-react"
+import { Circle, ExternalLink } from "lucide-react"
 
 export function TorrentSearchResultRow(props: TorrentSearchResult) {
   const {
     magnet_link,
+    tpb_link,
     name,
     seeds,
     size,
@@ -31,8 +32,13 @@ export function TorrentSearchResultRow(props: TorrentSearchResult) {
             existing.length == 0 &&
             <Circle className="w-4 h-4" />
           }
-          <div>
-            {name}
+          <div className="flex flex-row gap-2 items-center">
+            <div>
+              {name}
+            </div>
+            <a href={tpb_link} target='_blank'>
+              <ExternalLink style={thinIconStyle} className="w-4 h-4" />
+            </a>
           </div>
         </div>
       </div>

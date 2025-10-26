@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 
 export interface TorrentSearchResult {
   magnet_link: string
+  tpb_link: string
   name: string
   seeds: string
   size: string

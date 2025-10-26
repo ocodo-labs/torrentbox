@@ -44,6 +44,7 @@ a piece of genius.
 
 """
 
+
 class QueryIn(BaseModel):
     query: Optional[str] = None
 
@@ -318,12 +319,15 @@ def get_matches_from(
     for dirpath, _, files in os.walk(directory):
         for file_name in files:
             file_path = os.path.join(dirpath, file_name)
-            file_ext = os.path.splitext(file_name)[1][
-                1:
-            ].lower()  # Extracting extension without the dot
+            file_ext = os.path.splitext(file_name)[1][1:].lower()
             if file_ext not in valid_exts:
                 continue
             file_name_words = preprocess_title(file_name)
+
+            # Word counts have to match
+            if len(file_name_words) != len(torrent_name_words):
+                continue
+
             intersection_words = ordered_intersection(
                 file_name_words, torrent_name_words
             )
@@ -356,7 +360,9 @@ def torrent_file_rename(torrent_id, filename, newname):
         transmission = Transmission(host=config.transmission.host)
         newname = Path(newname).name
 
-        logger.info(f'Torrent file rename (id: "{torrent_id}" filename: "{filename}" newname: "{newname}" )')
+        logger.info(
+            f'Torrent file rename (id: "{torrent_id}" filename: "{filename}" newname: "{newname}" )'
+        )
 
         result = transmission.rename_torrent_path(
             torrent_id=torrent_id, location=filename, name=newname
@@ -377,16 +383,16 @@ def set_video_title(filename: str, title: str = None):
     Or use the given title.
     """
     path = Path(filename)
-    logger.info(f'Setting Title for {path}')
+    logger.info(f"Setting Title for {path}")
 
     try:
         if not title:
-            title = path.stem.replace('.',' ').replace('_', ' ')
+            title = path.stem.replace(".", " ").replace("_", " ")
 
     except Exception as e:
         logger.info(f"Error: {e}")
 
-    logger.info(f'Title: {title}')
+    logger.info(f"Title: {title}")
 
     if not path.exists():
         raise FileNotFoundError(f"File not found: {filename}")
@@ -438,19 +444,19 @@ def torrent_video_files(torrent_id):
         torrent = transmission.get_torrent(torrent_id=torrent_id)
 
         files = torrent.get_files()
-        logger.info(f'Files from {torrent_id}')
+        logger.info(f"Files from {torrent_id}")
         logger.info(files)
         video_extensions = list(
             set(config.media.movies.exts + config.media.tvshows.exts)
         )
-        logger.info('Video extensions from config movies and tvshows')
+        logger.info("Video extensions from config movies and tvshows")
         logger.info(video_extensions)
         video_files = [
             Path(config.downloads) / file.name
             for file in files
             if any(file.name.lower().endswith(ext.lower()) for ext in video_extensions)
         ]
-        logger.info(f'Getting video files for {torrent_id}')
+        logger.info(f"Getting video files for {torrent_id}")
         return video_files
     except Exception:
         return []
@@ -488,6 +494,29 @@ def check_existing_media(torrents_data):
     return torrents_data
 
 
+def scrape_torrent_links(html):
+    """Extract names and torrent links from html."""
+    if not html or not html.strip():
+        return []
+
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+        links = soup.select('a[href*="/torrent/"]')
+
+        data = []
+        for link in links:
+            name = link.text.strip() if link.text else ""
+            href = link.get("href", "")
+
+            if name and href:
+                data.append({"name": name, "href": href})
+
+        return data
+
+    except Exception:
+        return []
+
+
 def scrape_tpb_rows(row):
     name = row.select_one('a[href^="https://tpb.party/torrent/"]')
     category = row.select_one('a[href^="https://tpb.party/browse/"]')
@@ -496,9 +525,10 @@ def scrape_tpb_rows(row):
 
     return {
         "name": name.get_text(strip=True),
+        "tpb_link": name.get("href"),
         "category": category.get_text(strip=True).replace("\n", " "),
         "magnet_link": magnet_link.get("href"),
-        # likely to error when tpb changes layout.
+        # Seeds and Size likely to error when/if tpb changes layout.
         "seeds": cells[5].get_text(strip=True),
         "size": cells[4].get_text(strip=True),
     }
@@ -528,18 +558,20 @@ def retitle_videos(torrent_id):
         for video in videos:
             logger.info(f"Setting title on {video}")
             set_video_title(video.__str__())
-        return {
-            "detail": f"Video titles set on {torrent_id}"
-        }
+        return {"detail": f"Video titles set on {torrent_id}"}
 
     except RuntimeError as e:
         raise HTTPException(500, e)
 
     except FileNotFoundError as e:
-        raise HTTPException(404, f"Video file not found (in Torrent: {torrent_id}) error: {e}")
+        raise HTTPException(
+            404, f"Video file not found (in Torrent: {torrent_id}) error: {e}"
+        )
 
     except ValueError as e:
-        raise HTTPException(500, f"Unable to retitle videos in Torrent: {torrent_id} [{e}]")
+        raise HTTPException(
+            500, f"Unable to retitle videos in Torrent: {torrent_id} [{e}]"
+        )
 
 
 @api.get("/health", tags=["api"])
@@ -670,6 +702,79 @@ async def search_torrents(query: Optional[str] = Query(None)):
                 status_code=404, detail=f"{query} - returned no results"
             )
         raise HTTPException(status_code=500, detail="Failed to fetch search results")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# utils/scrapers.py
+def scrape_magnet(html: str) -> Optional[str]:
+    soup = BeautifulSoup(html, "html.parser")
+    magnet_link = soup.select_one('a[href^="magnet:"]')
+    return magnet_link.get("href") if magnet_link else None
+
+
+class Top100Link(BaseModel):
+    href: str
+
+@api.get("/torrents/top-100-television")
+def get_top_100_television():
+    """
+    Fetch top 100 television shows from 1337x.to
+
+    curl -s https://1337x.to/top-100-television | pup 'a[href*=/torrent/]'
+    """
+
+    url = "https://1337x.to/top-100-television"
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            html = response.text
+            torrents_data = scrape_torrent_links(html)
+            if torrents_data:
+                return torrents_data
+            raise HTTPException(
+                status_code=404, detail="No results 1337x.to/top-100-television"
+            )
+        raise HTTPException(
+            status_code=500, detail="Failed to fetch 1337x.to/top-100-television"
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api.post("/torrents/top-100-magnet")
+async def get_magnet_for_top_100_movie(link: Top100Link):
+    url = f"https://1337x.to{link.href}"
+    response = requests.get(url)
+    magnet = scrape_magnet(response.text)
+
+    return {"magnet": magnet} if magnet else {"error": "Magnet not found"}
+
+
+@api.get("/torrents/top-100-movies")
+def get_top_100_movies():
+    """
+    Fetch top 100 movies from 1337x.to
+
+    curl -s https://1337x.to/top-100-movies | pup 'a[href*=/torrent/]'
+    """
+
+    url = "https://1337x.to/top-100-movies"
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            html = response.text
+            torrents_data = scrape_torrent_links(html)
+            if torrents_data:
+                # check here
+                torrents_data = check_existing_media(torrents_data)
+                return torrents_data
+            raise HTTPException(
+                status_code=404, detail="No results 1337x.to/top-100-movies"
+            )
+        raise HTTPException(
+            status_code=500, detail="Failed to fetch 1337x.to/top-100-movies"
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -822,7 +927,10 @@ def get_random_image():
 
 @api.get("/urls")
 def get_all_urls():
-    url_list = [{"path": f'/api{route.path}', "name": route.name, "methods": route.methods} for route in api.routes]
+    url_list = [
+        {"path": f"/api{route.path}", "name": route.name, "methods": route.methods}
+        for route in api.routes
+    ]
     return url_list
 
 

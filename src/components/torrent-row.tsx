@@ -30,17 +30,41 @@ export const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
     canRename,
     autoTitleVideos,
     expandedTorrent,
+    selectedTorrents,
+    setSelectedTorrents,
   } = useTransmissionContext();
 
   const [showRenameView, setShowRenameView] = useState(false)
 
-  const hasTitleableVideo = ['mp4', 'mkv'].map((i) => torrent.files.filter((e) => e[0].endsWith(i))).length > 0
+  const hasTitleableVideo = ['mp4', 'mkv']
+    .map((i) =>
+      torrent
+        .files
+        .filter((e) => e[0]
+          .endsWith(i)))
+    .length > 0
+
   const complete = torrent.percent == 100
+
+  const handleSelectedTorrentsToggle = (id: string) => {
+    if (selectedTorrents.has(id)) {
+      selectedTorrents.delete(id)
+      setSelectedTorrents(new Set(selectedTorrents))
+    } else {
+      selectedTorrents.add(id)
+      setSelectedTorrents(new Set(selectedTorrents))
+    }
+  }
 
   return (
     <div
       key={torrent.id}
-      className="p-4 border border-foreground/20 rounded-lg"
+      onDoubleClick={() => {
+        handleSelectedTorrentsToggle(torrent.id)
+      }}
+      className={`p-4 border border-foreground/20 rounded-lg
+        ${selectedTorrents.has(torrent.id) ? 'border-primary' : ''}
+        `}
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
         <div className="text-lg font-semibold mb-2 sm:mb-0 truncate">
@@ -51,19 +75,21 @@ export const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
           </TooltipCompact>
         </div>
         <div className="flex flex-row items-center gap-2 ">
-          {hasTitleableVideo && complete && <LongPressTooltipButton
-            title="Auto title videos"
-            fillColor="bg-primary"
-            icon={
-              <Type
-                className="h-4 w-4 cursor-pointer"
-                style={thinIconStyle}
-              />
-            }
-            onLongPress={() => autoTitleVideos(torrent)}
-          />}
+          {hasTitleableVideo && complete &&
+            <AsycJobLongPressTooltipButton
+              title="Auto title videos"
+              fillColor="bg-primary"
+              icon={
+                <Type
+                  className="h-4 w-4 cursor-pointer"
+                  style={thinIconStyle}
+                />
+              }
+              onLongPress={() => autoTitleVideos(torrent)}
+            />}
           {canRename(torrent) && isTVShowSeasonTorrent(torrent) && (
             <TooltipButton
+              className={showRenameView ? `bg-primary/80` : ''}
               onClick={() => {
                 setCurrentTorrent(torrent)
                 setShowRenameView(!showRenameView)
@@ -115,6 +141,7 @@ export const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
           />
           {torrent.files.length > 1 ? (
             <TooltipButton
+              className={expandedTorrent === torrent.id ? "bg-primary/80" : ""}
               title={`${expandedTorrent === torrent.id ? "Hide" : "Show"
                 } Torrent Files`}
               icon={
