@@ -147,6 +147,7 @@ class ConfigModel:
 
 
 redis = Redis(decode_responses=True)
+loadable_images = (".png", ".jpg", ".jpeg", ".gif", ".webp")
 
 
 def render_mustache_template(template_path: str, context: dict) -> str:
@@ -1011,7 +1012,7 @@ def torrent_cleanup(payload: TorrentCleanupIn):
         logger.info("Cleanup directories...")
         logger.info(directories)
 
-    info = "Ran torrent files cleanup, check failed_to_delete"
+    info = "Ran torrent files cleanup, check failed list"
 
     return {
         "info": info,
@@ -1059,7 +1060,7 @@ def get_random_image():
         image_files = [
             f
             for f in os.listdir(image_dir)
-            if f.lower().endswith((".png", ".jpg", ".jpeg", ".gif", ".webp"))
+            if f.lower().endswith(loadable_images)
         ]
         if not image_files:
             return {"info": "No jpeg images found in the specified path."}
