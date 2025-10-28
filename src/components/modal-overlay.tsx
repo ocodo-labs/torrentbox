@@ -1,10 +1,12 @@
 import { modalClose, modalContent, thinIconStyle } from "@/lib/styling";
+import { cn } from "@/lib/utils";
 import { CircleX } from "lucide-react";
 
 interface ModalOverlayProps {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
+  className?: string;
 }
 
 const overlay = "fixed inset-0 bg-background/80 backdrop-blur-sm z-50";
@@ -16,13 +18,13 @@ const container = `
   flex items-center justify-center
 `;
 
-export function ModalOverlay({ isOpen, onClose, children }: ModalOverlayProps) {
+export function ModalOverlay({ isOpen, onClose, children, className }: ModalOverlayProps) {
   if (!isOpen) return null;
 
   return (
     <div className={overlay} onClick={onClose}>
       <div className={container} onClick={(e) => e.stopPropagation()}>
-        <div className={modalContent}>
+        <div className={cn(modalContent, className)}>
           <CircleX
             onClick={onClose}
             style={thinIconStyle}

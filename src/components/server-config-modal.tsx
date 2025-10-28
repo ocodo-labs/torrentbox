@@ -9,7 +9,7 @@ export function ServerConfigModal() {
   const { isOpen, close, config, loading, error } = useServerConfig();
 
   return (
-    <ModalOverlay isOpen={isOpen} onClose={close}>
+    <ModalOverlay isOpen={isOpen} onClose={close} className='md:w-[90vw]'>
       <>
         {
           loading || <ModalHeader title='Server Config' />
