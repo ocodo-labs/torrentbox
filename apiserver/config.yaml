@@ -1,8 +1,8 @@
 downloads: /mnt/Mirage/downloads
-
 media:
   audiobooks:
     directory: /mnt/Mirage/audiobooks
+    exts:
       - mp3
       - m4a
   books:
@@ -20,6 +20,7 @@ media:
       - webm
   music:
     directory: /mnt/Mirage/Music
+    exts:
       - mp3
       - m4a
       - ogg
@@ -39,31 +40,88 @@ media:
       - mkv
       - avi
       - webm
-
 naming:
   hosts:
-    - "http://polaris:11434"
-    - "http://pulsar:11434"
-    - "http://jupiter:11434"
+    - http://polaris:11434
+    - http://pulsar:11434
+    - http://jupiter:11434
   models:
-    - "gemma3:latest"
-    - "llama3.1:latest"
-
+    - gemma3:latest
+    - llama3.1:latest
 transmission:
   port: 9091
   host: helios
-
-valid_extensions: [
-    '.txt', '.md', '.rst', '.rtf', '.csv', '.tsv', '.json', '.xml', '.yaml', '.yml', '.ini', '.log',
-    '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.tif', '.webp', '.svg', '.ico', '.heif', '.heic', '.icns',
-    '.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a', '.wma',
-    '.mp4', '.mkv', '.avi', '.mov', '.webm', '.flv', '.wmv', '.3gp',
-    '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.odt', '.ods', '.odp',
-    '.zip', '.tar', '.gz', '.bz2', '.xz', '.7z', '.rar', '.dmg', '.pkg',
-    '.ttf', '.otf', '.woff', '.woff2',
-    '.epub', '.iso', '.swf', '.jsonld', '.srt', '.idx', '.sub',
-]
-
+valid_extensions:
+  - .txt
+  - .md
+  - .rst
+  - .rtf
+  - .csv
+  - .tsv
+  - .json
+  - .xml
+  - .yaml
+  - .yml
+  - .ini
+  - .log
+  - .jpg
+  - .jpeg
+  - .png
+  - .gif
+  - .bmp
+  - .tiff
+  - .tif
+  - .webp
+  - .svg
+  - .ico
+  - .heif
+  - .heic
+  - .icns
+  - .mp3
+  - .wav
+  - .ogg
+  - .flac
+  - .aac
+  - .m4a
+  - .wma
+  - .mp4
+  - .mkv
+  - .avi
+  - .mov
+  - .webm
+  - .flv
+  - .wmv
+  - .3gp
+  - .pdf
+  - .doc
+  - .docx
+  - .xls
+  - .xlsx
+  - .ppt
+  - .pptx
+  - .odt
+  - .ods
+  - .odp
+  - .zip
+  - .tar
+  - .gz
+  - .bz2
+  - .xz
+  - .7z
+  - .rar
+  - .dmg
+  - .pkg
+  - .ttf
+  - .otf
+  - .woff
+  - .woff2
+  - .epub
+  - .iso
+  - .swf
+  - .jsonld
+  - .srt
+  - .idx
+  - .sub
 filters:
   words:
     - YIFY
@@ -89,5 +147,4 @@ filters:
     - Tigole
     - successfulcrab
     - WebRip
-
 images: /mnt/Mirage/ai_art/meta-photo-style-ai
