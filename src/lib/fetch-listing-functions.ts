@@ -1,8 +1,11 @@
+import type { MediaListingItem } from "@/contexts/media-listing-interfaces";
+import { toast } from "sonner";
+
 export const fetchListingMagnet = async (
   href: string
 ): Promise<string | null> => {
   try {
-    const response = await fetch("/api/torrents/top-100-magnet", {
+    const response = await fetch("/api/torrents/1337x-magnet", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ href }),
@@ -11,6 +14,21 @@ export const fetchListingMagnet = async (
     return data.magnet || null;
   } catch (err) {
     return null;
+  }
+};
+
+export const fetchAndAddMediaItemMagnet = async (
+  mediaItem: MediaListingItem,
+  addMagnet: (magnet: string) => Promise<void>
+) => {
+
+  toast(`Waiting for ${mediaItem.name}`);
+  const magnet = await fetchListingMagnet(mediaItem.href);
+  if (magnet) {
+    await addMagnet(magnet);
+    toast(`Added ${mediaItem.name}`);
+  } else {
+    toast(`No magnet link for ${mediaItem.name}`);
   }
 };
 
@@ -33,14 +51,15 @@ export function fetchListingFactory<T>({
 
     try {
       const response = await fetch(apiUrl);
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      if (!response.ok)
+        throw new Error(`HTTP error! Status: ${response.status}`);
 
       const data: T = await response.json();
       console.log(data);
       setData(data);
     } catch (err) {
       console.error(err);
-      setError('Failed to fetch top movies');
+      setError("Failed to fetch top movies");
     } finally {
       setLoading(false);
     }

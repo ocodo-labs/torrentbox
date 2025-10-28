@@ -19,8 +19,12 @@ export const pinnedSearchQueryClasses = `
 export const modalContent = "bg-card rounded-lg p-6 w-full h-full md:max-w-4xl relative";
 export const modalHeader = "flex flex-row justify-start items-center mb-4 gap-2";
 export const modalTitle = "text-xl font-bold tracking-tighter";
-export const modalIconButton = 'border border-foregroun/50 hover:bg-background rounded-full p-1 cursor-pointer transition-colors duration-700'
-export const modalClose = `${modalIconButton} absolute top-1 right-1`;
+export const modalIconButton = 'border border-foreground/50 hover:border-foreground hover:bg-background rounded-full p-1 cursor-pointer transition-colors duration-700'
+export const modalClose = `hover:bg-background rounded-full p-1 cursor-pointer
+                           transition-colors duration-700 bg-card absolute
+                           top-1 right-1
+                           sm:top-[-14] sm:right-[-14]
+                           w-8 h-8`;
 export const modalLoadingState = "flex flex-col items-center justify-center py-4 w-full gap-4";
 export const modalErrorState = "text-red-500 text-center py-4";
 export const modalItemsList = "grid gap-2  max-h-[80vh] overflow-y-auto";

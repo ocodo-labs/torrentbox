@@ -743,7 +743,55 @@ def get_top_100_television():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@api.post("/torrents/top-100-magnet")
+@api.get("/torrents/trending")
+def get_top_24hr():
+    """
+    Fetch top list last 24hrs100 from 1337x.to
+
+    curl -s https://1337x.to/trending | pup 'a[href*=/torrent/]'
+    """
+
+    url = "https://1337x.to/trending"
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            html = response.text
+            torrents_data = scrape_torrent_links(html)
+            if torrents_data:
+                return torrents_data
+            raise HTTPException(status_code=404, detail="No results 1337x.to/trending")
+        raise HTTPException(status_code=500, detail="Failed to fetch 1337x.to/trending")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api.get("/torrents/trending-week")
+def get_top_this_week():
+    """
+    Fetch top list last 24hrs100 from 1337x.to
+
+    curl -s https://1337x.to/trending-week | pup 'a[href*=/torrent/]'
+    """
+
+    url = "https://1337x.to/trending-week"
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            html = response.text
+            torrents_data = scrape_torrent_links(html)
+            if torrents_data:
+                return torrents_data
+            raise HTTPException(
+                status_code=404, detail="No results 1337x.to/trending-week"
+            )
+        raise HTTPException(
+            status_code=500, detail="Failed to fetch 1337x.to/trending-week"
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api.post("/torrents/1337x-magnet")
 async def get_magnet_for_top_100_movie(link: Top100Link):
     url = f"https://1337x.to{link.href}"
     response = requests.get(url)

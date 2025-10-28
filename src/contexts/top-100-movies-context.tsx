@@ -1,46 +1,29 @@
-// Top100Context.tsx
+import type { MediaListingContextType, MediaListingItem } from '@/contexts/media-listing-interfaces';
 import { fetchListingFactory, fetchListingMagnet } from '@/lib/fetch-listing-functions';
 import React, { createContext, useContext, useState } from 'react';
 
-interface Top100Movie {
-  name: string;
-  href: string;
-  existing: string[];
-}
-
-interface Top100MoviesContextType {
-  isOpen: boolean;
-  open: () => void;
-  close: () => void;
-  movies: Top100Movie[];
-  loading: boolean;
-  error: string | null;
-  fetchTop100MovieMagnet: (href: string) => Promise<string | null>;
-  fetchTop100Movies: () => Promise<void>
-}
-
-const Top100MoviesContext = createContext<Top100MoviesContextType | undefined>(undefined);
+const Top100MoviesContext = createContext<MediaListingContextType | undefined>(undefined);
 
 export function Top100MoviesProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [movies, setMovies] = useState<Top100Movie[]>([]);
+  const [listing, setListing] = useState<MediaListingItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchTop100Movies = fetchListingFactory<Top100Movie[]>(
+  const fetchListing = fetchListingFactory<MediaListingItem[]>(
     {
       apiUrl: '/api/torrents/top-100-movies',
-      setData: setMovies,
+      setData: setListing,
       setLoading,
       setError,
     }
   )
 
-  const fetchTop100MovieMagnet = fetchListingMagnet
+  const fetchMagnet = fetchListingMagnet
 
   const open = () => {
     setIsOpen(true);
-    fetchTop100Movies();
+    fetchListing();
   };
 
   const close = () => {
@@ -53,11 +36,11 @@ export function Top100MoviesProvider({ children }: { children: React.ReactNode }
       isOpen,
       open,
       close,
-      movies,
+      listing,
       loading,
       error,
-      fetchTop100Movies,
-      fetchTop100MovieMagnet,
+      fetchListing,
+      fetchMagnet,
     }}>
       {children}
     </Top100MoviesContext.Provider >

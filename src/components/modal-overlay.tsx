@@ -1,4 +1,6 @@
-// components/modal-overlay.tsx
+import { modalClose, modalContent, thinIconStyle } from "@/lib/styling";
+import { CircleX } from "lucide-react";
+
 interface ModalOverlayProps {
   isOpen: boolean;
   onClose: () => void;
@@ -20,7 +22,13 @@ export function ModalOverlay({ isOpen, onClose, children }: ModalOverlayProps) {
   return (
     <div className={overlay} onClick={onClose}>
       <div className={container} onClick={(e) => e.stopPropagation()}>
-        {children}
+        <div className={modalContent}>
+          <CircleX
+            onClick={onClose}
+            style={thinIconStyle}
+            className={modalClose} />
+          {children}
+        </div>
       </div>
     </div>
   );

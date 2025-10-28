@@ -8,7 +8,15 @@ export default defineConfig({
   server: {
     // just localhost, or ip addresses,
     // see vite docs to config allowed host names
-    allowedHosts: ["torrentbox.hub"]
+    allowedHosts: ["torrentbox.hub"],
+    proxy:{
+      "/api": {
+        target: "https://torrentbox.hub/",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+
   },
   build: {
     outDir: './apiserver/dist'

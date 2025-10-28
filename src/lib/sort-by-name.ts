@@ -1,8 +1,6 @@
-interface ObjName {
-  name: string;
-}
+import type { MediaListingItem } from "@/contexts/media-listing-interfaces";
 
-export function compare(a: ObjName, b: ObjName) {
+export function compare(a: MediaListingItem, b: MediaListingItem) {
   if (a.name < b.name) {
     return -1;
   }
@@ -11,3 +9,8 @@ export function compare(a: ObjName, b: ObjName) {
   }
   return 0;
 }
+
+export const listingOrdered = (ordered: Boolean, listing: MediaListingItem[]) => {
+  const list = Array.from(listing);
+  return ordered ? list.sort(compare) : list;
+};

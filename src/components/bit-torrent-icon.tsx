@@ -1,7 +1,7 @@
 'use client';
-import { type SVGProps } from "react"
+import { type FC, type SVGProps } from "react"
 
-export const BittorrentIcon = (props: SVGProps<SVGSVGElement>) => (
+export const BittorrentIcon:FC<SVGProps<SVGSVGElement>> = (props) => (
     <svg
       width={40}
       height={40}

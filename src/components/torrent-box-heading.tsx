@@ -9,11 +9,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { ThemeContext } from '@/contexts/theme-context'
-import { Film, Magnet, Menu, Moon, Sun, Tv } from 'lucide-react'
+import { Film, Magnet, Menu, Moon, Sun, TrendingUp, Tv } from 'lucide-react'
 import { useContext, useState } from 'react'
 import { thinIconStyle } from '@/lib/styling'
 import { useTop100MoviesContext } from '@/contexts/top-100-movies-context'
 import { useTop100TVShowsContext } from '@/contexts/top-100-tvshows-context'
+import { useTrendingTodayContext } from '@/contexts/trending-today-context'
+import { useTrendingWeekContext } from '@/contexts/trending-week-context'
 
 export function TorrentBoxHeading() {
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -21,12 +23,12 @@ export function TorrentBoxHeading() {
   const { toggleTheme, theme } = useContext(ThemeContext)
   const { open: openTop100Movies } = useTop100MoviesContext()
   const { open: openTop100TVShows } = useTop100TVShowsContext()
+  const { open: openTrendingToday } = useTrendingTodayContext()
+  const { open: openTrendingWeek } = useTrendingWeekContext()
 
-  const handleSelect = () => {
-    setMenuOpen(false)        // close the menu first
-    setTimeout(() => {
-      setDialogOpen(true)     // slight delay prevents focus conflict
-    }, 50)
+  const handleAddMagnet = () => {
+    setMenuOpen(false)
+    setDialogOpen(true)
   }
 
   const themeIcons = (theme: string) => {
@@ -47,7 +49,7 @@ export function TorrentBoxHeading() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
-          <DropdownMenuItem onSelect={handleSelect}>
+          <DropdownMenuItem onSelect={handleAddMagnet}>
             <Magnet className='mr-2 w-6 h-6' style={thinIconStyle} /> Add magnet
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={openTop100Movies}>
@@ -55,6 +57,12 @@ export function TorrentBoxHeading() {
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={openTop100TVShows}>
             <Tv className='mr-2 w-6 h-6' style={thinIconStyle} /> Top 100 TV Shows
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={openTrendingToday}>
+            <TrendingUp className='mr-2 w-6 h-6' style={thinIconStyle} /> Trending Today
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={openTrendingWeek}>
+            <TrendingUp className='mr-2 w-6 h-6' style={thinIconStyle} /> Trending This Week
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

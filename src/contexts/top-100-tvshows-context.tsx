@@ -1,42 +1,27 @@
+import type { MediaListingContextType, MediaListingItem } from '@/contexts/media-listing-interfaces';
 import { fetchListingFactory, fetchListingMagnet } from '@/lib/fetch-listing-functions';
 import React, { createContext, useContext, useState } from 'react';
 
-interface Top100TVShow {
-  name: string;
-  href: string;
-}
-
-interface Top100TVShowsContextType {
-  isOpen: boolean;
-  open: () => void;
-  close: () => void;
-  tvShows: Top100TVShow[];
-  loading: boolean;
-  error: string | null;
-  fetchTop100TVShowMagnet: (href: string) => Promise<string | null>;
-  fetchTop100TVShows: () => Promise<void>
-}
-
-const Top100TVShowsContext = createContext<Top100TVShowsContextType | undefined>(undefined);
+const Top100TVShowsContext = createContext<MediaListingContextType | undefined>(undefined);
 
 export function Top100TVShowsProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [tvShows, setTVShows] = useState<Top100TVShow[]>([]);
+  const [listing, setListing] = useState<MediaListingItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchTop100TVShows = fetchListingFactory<Top100TVShow[]>({
+  const fetchListing = fetchListingFactory<MediaListingItem[]>({
     apiUrl: '/api/torrents/top-100-television',
-    setData: setTVShows,
+    setData: setListing,
     setLoading,
     setError,
   });
 
-  const fetchTop100TVShowMagnet = fetchListingMagnet
+  const fetchMagnet = fetchListingMagnet
 
   const open = () => {
     setIsOpen(true);
-    fetchTop100TVShows();
+    fetchListing();
   };
 
   const close = () => {
@@ -49,11 +34,11 @@ export function Top100TVShowsProvider({ children }: { children: React.ReactNode 
       isOpen,
       open,
       close,
-      tvShows,
+      listing,
       loading,
       error,
-      fetchTop100TVShows,
-      fetchTop100TVShowMagnet,
+      fetchListing,
+      fetchMagnet,
     }}>
       {children}
     </Top100TVShowsContext.Provider >
