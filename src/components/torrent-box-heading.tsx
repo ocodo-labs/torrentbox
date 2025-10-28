@@ -9,13 +9,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { ThemeContext } from '@/contexts/theme-context'
-import { Film, Magnet, Menu, Moon, Sun, TrendingUp, Tv } from 'lucide-react'
+import { Film, Magnet, Menu, Moon, Settings, Sun, TrendingUp, Tv } from 'lucide-react'
 import { useContext, useState } from 'react'
 import { thinIconStyle } from '@/lib/styling'
 import { useTop100MoviesContext } from '@/contexts/top-100-movies-context'
 import { useTop100TVShowsContext } from '@/contexts/top-100-tvshows-context'
 import { useTrendingTodayContext } from '@/contexts/trending-today-context'
 import { useTrendingWeekContext } from '@/contexts/trending-week-context'
+import { useServerConfig } from '@/contexts/server-config-provider'
 
 export function TorrentBoxHeading() {
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -25,6 +26,7 @@ export function TorrentBoxHeading() {
   const { open: openTop100TVShows } = useTop100TVShowsContext()
   const { open: openTrendingToday } = useTrendingTodayContext()
   const { open: openTrendingWeek } = useTrendingWeekContext()
+  const { open: openSettings } = useServerConfig()
 
   const handleAddMagnet = () => {
     setMenuOpen(false)
@@ -63,6 +65,9 @@ export function TorrentBoxHeading() {
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={openTrendingWeek}>
             <TrendingUp className='mr-2 w-6 h-6' style={thinIconStyle} /> Trending This Week
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={openSettings}>
+            <Settings className='mr-2 w-6 h-6' style={thinIconStyle} /> Settings
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

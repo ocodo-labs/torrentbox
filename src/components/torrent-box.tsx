@@ -80,7 +80,7 @@ export const TorrentBox: FC = () => {
           <ConnectionErrorPanel fetchTorrents={fetchTorrents} />
         ) : (
           <div className="space-y-8">
-            <TorrentSearch fetchTorrents={fetchTorrents} />
+            <TorrentSearch />
             <TorrentsSection />
             <DownloadedSection />
           </div>

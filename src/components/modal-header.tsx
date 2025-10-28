@@ -3,7 +3,7 @@ import type { ReactNode, FC } from "react"
 
 interface ModalHeaderProps {
   title: string
-  children: ReactNode
+  children?: ReactNode
 }
 
 export const ModalHeader: FC<ModalHeaderProps> = ({ title, children }) => {

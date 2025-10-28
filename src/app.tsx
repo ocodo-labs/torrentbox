@@ -12,35 +12,40 @@ import { TrendingTodayProvider } from "@/contexts/trending-today-context";
 import { TrendingTodayModal } from "@/components/trending-today-modal";
 import { TrendingWeekModal } from "@/components/trending-week-modal";
 import { TrendingWeekProvider } from "@/contexts/trending-week-context";
+import { ServerConfigProvider } from "@/contexts/server-config-provider";
+import { ServerConfigModal } from "@/components/server-config-modal";
 
 export default function App() {
   return (
     <ThemeProvider>
-      <Top100MoviesProvider>
-        <Top100TVShowsProvider>
-          <TrendingTodayProvider>
-            <TrendingWeekProvider>
-              <TransmissionProvider>
-                <PinnedQueriesProvider>
-                  <TorrentSearchProvider>
-                    <>
-                      <TorrentBox />
-                      <Top100MoviesModal />
-                      <Top100TVShowsModal />
-                      <TrendingTodayModal />
-                      <TrendingWeekModal />
-                      <Toaster
-                        position="bottom-center"
-                        theme='dark'
-                        richColors />
-                    </>
-                  </TorrentSearchProvider>
-                </PinnedQueriesProvider>
-              </TransmissionProvider>
-            </TrendingWeekProvider>
-          </TrendingTodayProvider>
-        </Top100TVShowsProvider>
-      </Top100MoviesProvider>
+      <ServerConfigProvider>
+        <Top100MoviesProvider>
+          <Top100TVShowsProvider>
+            <TrendingTodayProvider>
+              <TrendingWeekProvider>
+                <TransmissionProvider>
+                  <PinnedQueriesProvider>
+                    <TorrentSearchProvider>
+                      <>
+                        <TorrentBox />
+                        <Top100MoviesModal />
+                        <Top100TVShowsModal />
+                        <TrendingTodayModal />
+                        <TrendingWeekModal />
+                        <ServerConfigModal />
+                        <Toaster
+                          position="bottom-center"
+                          theme='dark'
+                          richColors />
+                      </>
+                    </TorrentSearchProvider>
+                  </PinnedQueriesProvider>
+                </TransmissionProvider>
+              </TrendingWeekProvider>
+            </TrendingTodayProvider>
+          </Top100TVShowsProvider>
+        </Top100MoviesProvider>
+      </ServerConfigProvider>
     </ThemeProvider>
   );
 }
