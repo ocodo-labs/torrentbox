@@ -4,15 +4,18 @@ import shutil
 from pathlib import Path
 import re
 import json
+import sys
 import logging
 import requests
 import random
 from fastapi import FastAPI, Request, APIRouter, HTTPException, Query
-from pydantic import BaseModel
-from typing import Optional, List
+from pydantic import BaseModel, Field
+from pydantic.dataclasses import dataclass
+from typing import Optional, List, Dict
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from omegaconf import OmegaConf
+from omegaconf.errors import OmegaConfBaseException
 from starlette.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
@@ -20,6 +23,8 @@ from transmission_rpc import Client as Transmission
 from ollama import Client as Ollama
 from starlette.responses import Response
 from redis import Redis
+from ruamel.yaml import YAML
+from io import StringIO
 import pystache
 
 """
@@ -97,6 +102,50 @@ class Top100Link(BaseModel):
     href: str
 
 
+@dataclass
+class ConfigMedia:
+    directory: str
+    exts: List[str]
+
+
+@dataclass
+class ConfigMediaSettings:
+    audiobooks: ConfigMedia
+    books: ConfigMedia
+    movies: ConfigMedia
+    music: ConfigMedia
+    software: ConfigMedia
+    tvshows: ConfigMedia
+
+
+@dataclass
+class ConfigNamingSettings:
+    hosts: List[str]
+    models: List[str]
+
+
+@dataclass
+class ConfigTransmissionSettings:
+    port: int
+    host: str
+
+
+@dataclass
+class ConfigFiltersSettings:
+    words: List[str]
+
+
+@dataclass
+class ConfigModel:
+    downloads: str
+    media: ConfigMediaSettings
+    naming: ConfigNamingSettings
+    transmission: ConfigTransmissionSettings
+    valid_extensions: List[str]
+    filters: ConfigFiltersSettings
+    images: str
+
+
 redis = Redis(decode_responses=True)
 
 
@@ -133,10 +182,37 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-config_path = Path(__file__).parent / "config.yaml"
-config = OmegaConf.load(config_path)
+try:
+    config_path = Path(__file__).parent / "config.yaml"
+    raw_config = OmegaConf.load(config_path)
+    config = OmegaConf.merge(OmegaConf.structured(ConfigModel), raw_config)
+except OmegaConfBaseException as e:
+    print(f"CONFIG INVALID: {e}")
+    sys.exit(1)
 
-print(OmegaConf.to_yaml(config))
+
+def config_to_yaml(config):
+    # OmegaConf to_yaml is subpar use ruamel.yaml + StringIO
+    data = OmegaConf.to_container(config)
+    yaml = YAML()
+    yaml.indent(sequence=4, offset=2)
+    stream = StringIO()
+    yaml.dump(data, stream)  # smfh
+    return stream.getvalue()
+
+
+def save_config(config):
+    data = OmegaConf.to_container(config)
+    yaml = YAML()
+    yaml.indent(sequence=4, offset=2)
+    try:
+        config_path.write_text(yaml.dump(data, config_path))
+        return True
+    except Exception:
+        return False
+
+
+print(config_to_yaml(config))
 load_dotenv()
 
 
@@ -613,6 +689,26 @@ async def api_documentation(request: Request):
   </body>
 </html>"""
     )
+
+
+@api.get("/config")
+def get_config():
+    return OmegaConf.to_container(config)
+
+
+@api.post("/config")
+async def update_config(payload: Request):
+    global config
+    # Testing...
+    try:
+        data = await payload.json()
+        new_conf = OmegaConf.create(data)
+        merged = OmegaConf.merge(config, new_conf)
+        config_path.write_text(config_to_yaml(merged))
+        config = merged
+        return OmegaConf.to_container(merged)
+    except Exception as e:
+        return f"{e}"
 
 
 @api.get("/llm/status")
