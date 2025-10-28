@@ -9,9 +9,9 @@ import logging
 import requests
 import random
 from fastapi import FastAPI, Request, APIRouter, HTTPException, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from pydantic.dataclasses import dataclass
-from typing import Optional, List, Dict
+from typing import Optional, List
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from omegaconf import OmegaConf
@@ -699,7 +699,6 @@ def get_config():
 @api.post("/config")
 async def update_config(payload: Request):
     global config
-    # Testing...
     try:
         data = await payload.json()
         new_conf = OmegaConf.create(data)
