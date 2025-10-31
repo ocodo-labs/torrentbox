@@ -3,7 +3,7 @@ import { useLeadingEdgeDebounce } from '@/lib/debounce';
 import { notifyCompletion } from '@/lib/utils';
 import type { DestructiveDownloadedFileAction, DestructiveTorrentAction } from '@/types/actions';
 import { type SoftDeletedFileType, SoftDeletedFile } from '@/types/soft-deleted-file';
-import { Torrent, TransmissionData, type TorrentFile } from '@/types/torrent';
+import { type Torrent, type TransmissionData, type TorrentFile } from '@/types/torrent';
 import React, { createContext, useCallback, useContext, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react'
 import { toast } from 'sonner';
@@ -136,7 +136,7 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         return
       }
       const data: TransmissionData = await res.json()
-      const newTorrents = data.downloading.map(t => new Torrent(t))
+      const newTorrents: Torrent[] = data.downloading
       setTorrents(newTorrents)
       setDownloadedFiles(data.downloaded)
       newTorrents.forEach(t => notifyCompletion(t))

@@ -1,37 +1,54 @@
 export type TorrentFile = [string, number, number, number, boolean, number];
 
-export class Torrent {
+export interface Torrent {
     id: string;
     name: string;
     percent: number;
     files: TorrentFile[];
     speed: number;
     total: number;
-    constructor({
-        id,
-        name,
-        percent,
-        files,
-        speed,
-        total,
-    }: {
-        id: string;
-        name: string;
-        percent: number;
-        files: TorrentFile[];
-        speed: number;
-        total: number;
-    }) {
-        this.id = id;
-        this.name = name;
-        this.percent = percent;
-        this.files = files;
-        this.speed = speed;
-        this.total = total;
-    }
+    stats: TrackerStatsFields[];
+    ratio: number;
+    downloadRate: number;
+    uploadRate: number;
+    secondsDownloading: number;
+    magnet: string;
 }
 
-export class TransmissionData {
-    downloaded: string[] = []
-    downloading: Torrent[] = []
+export interface TransmissionData {
+    downloaded: string[];
+    downloading: Torrent[];
+}
+
+export interface TrackerStatsFields {
+  fields: TrackerStats;
+}
+
+export interface TrackerStats {
+		announce: string;
+		announceState: number;
+		downloadCount: number;
+		hasAnnounced: boolean;
+		hasScraped: boolean;
+		host: string;
+		id: number;
+		isBackup: boolean;
+		lastAnnouncePeerCount: number;
+		lastAnnounceResult: string;
+		lastAnnounceStartTime: number;
+		lastAnnounceSucceeded: boolean;
+		lastAnnounceTime: number;
+		lastAnnounceTimedOut: boolean;
+		lastScrapeResult: string;
+		lastScrapeStartTime: number;
+		lastScrapeSucceeded: boolean;
+		lastScrapeTime: number;
+		lastScrapeTimedOut: boolean;
+		leecherCount: number;
+		nextAnnounceTime: number;
+		nextScrapeTime: number;
+		scrape: string;
+		scrapeState: number;
+		seederCount: number;
+		tier: number;
 }

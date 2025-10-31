@@ -8,7 +8,7 @@ import { TorrentFileRow } from "@/components/torrent-file-row";
 import { Progress } from "@/components/ui/progress";
 import { useTransmissionContext } from "@/contexts/transmission-provider";
 import { thinIconStyle } from "@/lib/styling";
-import { Torrent } from "@/types/torrent";
+import { type Torrent } from "@/types/torrent";
 import { ChevronDown, ChevronUp, Edit, Trash, Tv2, Type, X } from "lucide-react";
 import { useState, type FC } from "react";
 import { playSound } from "@/lib/play-sound";
@@ -69,7 +69,37 @@ export const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
         <div className="text-lg font-semibold mb-2 sm:mb-0 truncate">
           <TooltipCompact tooltipChildren={
-            torrent.percent > 0 && `${torrent.percent}% ${prettyBytes(torrent.speed)}/s of ${prettyBytes(torrent.total)}`
+
+            torrent.percent > 0 &&
+            <div className="flex flex-row gap-2 select-none">
+              <div>
+                {torrent.percent}% {prettyBytes(torrent.speed)}/s of {prettyBytes(torrent.total)}
+              </div>
+              <div className="text-xxs rounded-sm bg-background/50 p-1 px-2">
+                {torrent.stats
+                  .filter((s) => s.fields.seederCount)
+                  .sort((a, b) => a.fields.seederCount > b.fields.seederCount ? -1 : 1)[0]
+                  .fields.seederCount
+                } seeds
+              </div>
+              <div className="text-xxs rounded-sm bg-background/50 p-1 px-2">
+                {torrent.stats
+                  .filter((s) => s.fields.leecherCount)
+                  .sort((a, b) => a.fields.leecherCount > b.fields.leecherCount ? -1 : 1)[0]
+                  .fields.leecherCount
+
+                } leechers
+              </div>
+              <div className="text-xxs rounded-sm bg-background/50 p-1 px-2">
+                {torrent.stats
+                  .filter((s) => s.fields.downloadCount)
+                  .sort((a, b) => a.fields.downloadCount > b.fields.downloadCount ? -1 : 1)[0]
+                  .fields.downloadCount
+
+                } downloads
+              </div>
+            </div>
+
           }>
             {torrent.name}
           </TooltipCompact>

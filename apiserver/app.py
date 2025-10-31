@@ -969,6 +969,12 @@ def get_torrents_active():
                 "percent": percent,
                 "speed": speed,
                 "total": torrent.size_when_done,
+                "stats": torrent.tracker_stats,
+                "ratio": torrent.ratio,
+                "downloadRate": torrent.rate_upload,
+                "uploadRate": torrent.rate_download,
+                "secondsDownloading": torrent.seconds_downloading,
+                "magnet": torrent.magnet_link,
             }
         )
 
