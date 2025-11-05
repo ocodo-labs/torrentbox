@@ -794,7 +794,6 @@ async def torrent_files_rename_route(payload: TorrentFilesRenameIn):
         "errors": errors,
     }
 
-
 @api.get("/torrents/poster/search")
 async def search_torrent_posters(query: str = Query(...)):
 

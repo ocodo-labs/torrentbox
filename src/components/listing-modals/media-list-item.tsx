@@ -16,7 +16,7 @@ export const MediaListItem: FC<MediaListItemProps> = ({ media, tools = [] }) => 
   const { addMagnet } = useTransmissionContext()
 
   return (
-    <div key={media.href} className={modalItemRow}>
+    <div className={modalItemRow}>
       {Object.keys(media).includes('existing') &&
         <ExistingMediaIndicator media={media} />
       }

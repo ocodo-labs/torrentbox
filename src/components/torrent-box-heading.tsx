@@ -1,50 +1,64 @@
-import { BittorrentIcon } from '@/components/icons/bit-torrent-icon'
-import { Olivetti1954 } from '@/components/icons/olivetti-1954-logo'
-import { TorrentNewMagnetDialog } from '@/components/torrent-new-magnet-dialog'
-import { Button } from '@/components/ui/button'
+import { BittorrentIcon } from "@/components/icons/bit-torrent-icon";
+import { Olivetti1954 } from "@/components/icons/olivetti-1954-logo";
+import { TorrentNewMagnetDialog } from "@/components/torrent-new-magnet-dialog";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { ThemeContext } from '@/contexts/theme-context'
-import { AppWindowIcon, Film, GamepadIcon, Magnet, Menu, Moon, Settings, Sun, TrendingUp, Tv } from 'lucide-react'
-import { useContext, useState } from 'react'
-import { thinIconStyle } from '@/lib/styling'
-import { useTop100MoviesContext } from '@/contexts/top-100-movies-context'
-import { useTop100TVShowsContext } from '@/contexts/top-100-tvshows-context'
-import { useTrendingTodayContext } from '@/contexts/trending-today-context'
-import { useTrendingWeekContext } from '@/contexts/trending-week-context'
-import { useServerConfig } from '@/contexts/server-config-provider'
-import { useTop100GamesContext } from '@/contexts/top-100-games-context'
-import { useTop100AppsContext } from '@/contexts/top-100-apps-context'
+} from "@/components/ui/dropdown-menu";
+import { ThemeContext } from "@/contexts/theme-context";
+import {
+  AppWindowIcon,
+  Film,
+  GamepadIcon,
+  Magnet,
+  Menu,
+  Moon,
+  Settings,
+  Sun,
+  TrendingUp,
+  Tv,
+} from "lucide-react";
+import { useContext, useState } from "react";
+import { thinIconStyle } from "@/lib/styling";
+import { useTop100MoviesContext } from "@/contexts/top-100-movies-context";
+import { useTop100TVShowsContext } from "@/contexts/top-100-tvshows-context";
+import { useTrendingTodayContext } from "@/contexts/trending-today-context";
+import { useTrendingWeekContext } from "@/contexts/trending-week-context";
+import { useServerConfig } from "@/contexts/server-config-provider";
+import { useTop100GamesContext } from "@/contexts/top-100-games-context";
+import { useTop100AppsContext } from "@/contexts/top-100-apps-context";
+import MiniClock from "./icons/clock-icon";
 
 export function TorrentBoxHeading() {
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
-  const { toggleTheme, theme } = useContext(ThemeContext)
-  const { open: openTop100Movies } = useTop100MoviesContext()
-  const { open: openTop100TVShows } = useTop100TVShowsContext()
-  const { open: openTop100Games } = useTop100GamesContext()
-  const { open: openTop100Apps } = useTop100AppsContext()
-  const { open: openTrendingToday } = useTrendingTodayContext()
-  const { open: openTrendingWeek } = useTrendingWeekContext()
-  const { open: openSettings } = useServerConfig()
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { toggleTheme, theme } = useContext(ThemeContext);
+  const { open: openTop100Movies } = useTop100MoviesContext();
+  const { open: openTop100TVShows } = useTop100TVShowsContext();
+  const { open: openTop100Games } = useTop100GamesContext();
+  const { open: openTop100Apps } = useTop100AppsContext();
+  const { open: openTrendingToday } = useTrendingTodayContext();
+  const { open: openTrendingWeek } = useTrendingWeekContext();
+  const { open: openSettings } = useServerConfig();
 
   const handleAddMagnet = () => {
-    setMenuOpen(false)
-    setDialogOpen(true)
-  }
+    setMenuOpen(false);
+    setDialogOpen(true);
+  };
 
   const themeIcons = (theme: string) => {
     return {
       light: <Sun className="h-6 w-6" style={{ strokeWidth: 0.5 }} />,
       dark: <Moon className="h6 w-6" style={{ strokeWidth: 0.5 }} />,
       oli: <Olivetti1954 className="h-6 w-6" />,
-      'oli-dark': <Olivetti1954 className="h-6 w-6" style={{ fill: "#FFFFFF" }} />,
-    }[theme]
-  }
+      "oli-dark": (
+        <Olivetti1954 className="h-6 w-6" style={{ fill: "#FFFFFF" }} />
+      ),
+    }[theme];
+  };
 
   return (
     <header className="flex items-center justify-between p-4 border-b">
@@ -56,49 +70,57 @@ export function TorrentBoxHeading() {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuItem onSelect={handleAddMagnet}>
-            <Magnet className='mr-2 w-6 h-6' style={thinIconStyle} /> Add magnet
+            <Magnet className="mr-2 w-6 h-6" style={thinIconStyle} /> Add magnet
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={openTop100Movies}>
-            <Film className='mr-2 w-6 h-6' style={thinIconStyle} /> Top 100 Movies
+            <Film className="mr-2 w-6 h-6" style={thinIconStyle} /> Top 100
+            Movies
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={openTop100TVShows}>
-            <Tv className='mr-2 w-6 h-6' style={thinIconStyle} /> Top 100 TV Shows
+            <Tv className="mr-2 w-6 h-6" style={thinIconStyle} /> Top 100 TV
+            Shows
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={openTop100Games}>
-            <GamepadIcon className='mr-2 w-6 h-6' style={thinIconStyle} /> Top 100 Games
+            <GamepadIcon className="mr-2 w-6 h-6" style={thinIconStyle} /> Top
+            100 Games
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={openTop100Apps}>
-            <AppWindowIcon className='mr-2 w-6 h-6' style={thinIconStyle} /> Top 100 Apps
+            <AppWindowIcon className="mr-2 w-6 h-6" style={thinIconStyle} /> Top
+            100 Apps
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={openTrendingToday}>
-            <TrendingUp className='mr-2 w-6 h-6' style={thinIconStyle} /> Trending Today
+            <TrendingUp className="mr-2 w-6 h-6" style={thinIconStyle} />{" "}
+            Trending Today
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={openTrendingWeek}>
-            <TrendingUp className='mr-2 w-6 h-6' style={thinIconStyle} /> Trending This Week
+            <TrendingUp className="mr-2 w-6 h-6" style={thinIconStyle} />{" "}
+            Trending This Week
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={openSettings}>
-            <Settings className='mr-2 w-6 h-6' style={thinIconStyle} /> Settings
+            <Settings className="mr-2 w-6 h-6" style={thinIconStyle} /> Settings
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <div className='flex'>
-        <BittorrentIcon className='mr-2' />
-        <h1 className="text-3xl font-black tracking-tighter">TorrentBox</h1>
+      <div className="flex">
+        <BittorrentIcon className="mr-2" />
+        <div className="text-3xl font-black tracking-tighter">TorrentBox</div>
       </div>
-      <Button
-        className='cursor-pointer'
-        variant="ghost"
-        size="icon"
-        onClick={toggleTheme}
-      >
-        {themeIcons(theme)}
-      </Button>
 
-      <TorrentNewMagnetDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-      />
+      <div className="flex flex-row items-center justify-end gap-2">
+        <Button
+          className="cursor-pointer"
+          variant="ghost"
+          size="icon"
+          onClick={toggleTheme}
+        >
+          {themeIcons(theme)}
+        </Button>
+
+        <MiniClock size={24} />
+      </div>
+
+      <TorrentNewMagnetDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </header>
-  )
+  );
 }
