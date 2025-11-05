@@ -1,5 +1,5 @@
 import { IndeterminateProgress } from '@/components/indeterminate-progress'
-import { NeuralNetwork } from '@/components/neural-network-icon'
+import { NeuralNetwork } from '@/components/icons/neural-network-icon'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'

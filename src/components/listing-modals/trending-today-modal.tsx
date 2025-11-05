@@ -2,8 +2,9 @@ import { thinIconStyle } from "@/lib/styling";
 import { useTrendingTodayContext } from "@/contexts/trending-today-context";
 import { TrendingUp } from "lucide-react";
 import type { MediaItemTool } from "@/types/media-listing-interfaces";
-import { mediaItemSearchInGoogle } from "./media-item-tools";
-import { MediaListingModal } from "./media-listing-modal";
+import { MediaListingModal } from "@/components/listing-modals/media-listing-modal";
+import { mediaItemSearchInGoogle } from "@/components/listing-modals/media-item-tools";
+
 
 export function TrendingTodayModal() {
   const props = useTrendingTodayContext();

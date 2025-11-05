@@ -30,7 +30,8 @@ import { useTrendingWeekContext } from "@/contexts/trending-week-context";
 import { useServerConfig } from "@/contexts/server-config-provider";
 import { useTop100GamesContext } from "@/contexts/top-100-games-context";
 import { useTop100AppsContext } from "@/contexts/top-100-apps-context";
-import MiniClock from "./icons/clock-icon";
+import { MiniClock } from "@/components/icons/mini-clock";
+
 
 export function TorrentBoxHeading() {
   const [dialogOpen, setDialogOpen] = useState(false);

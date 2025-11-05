@@ -2,10 +2,11 @@ import { fetchAndAddMediaItemMagnet } from '@/lib/fetch-listing-functions';
 import type { MediaItemTool, MediaListingItem } from '@/types/media-listing-interfaces';
 import { modalItemInfo, modalItemRow, modalToolButton, thinIconStyle } from '@/lib/styling';
 import type { FC } from 'react';
-import { Magnet, XCircle } from 'lucide-react';
+import { Magnet } from 'lucide-react';
 import { ExistingMediaIndicator } from '@/components/icons/existing-media-indicator';
 import { useTransmissionContext } from '@/contexts/transmission-provider';
 import { TooltipCompact } from '@/components/tooltip-compact';
+import { MediaItemImage } from '@/components/listing-modals/media-item-image';
 
 interface MediaListItemProps {
   media: MediaListingItem
@@ -43,26 +44,6 @@ export const MediaListItem: FC<MediaListItemProps> = ({ media, tools = [] }) => 
           </TooltipCompact>
         ))
       }
-    </div>
-  )
-}
-
-export const MediaItemImage: FC<{ media: MediaListingItem }> = ({ media }) => {
-  if (!media.imageUrl) {
-    return null
-  }
-
-  return (
-    <div className='relative'>
-      <XCircle
-        className='absolute w-6 h-6 bg-black opacity-60 rounded-full top-[-10px] right-[-20px] text-white p-1'
-        onClick={() => media.imageUrl = undefined}
-      />
-      <img
-        src={media.imageUrl}
-        alt={media.name}
-        className='object-cover rounded-sm w-[100px]'
-      />
     </div>
   )
 }

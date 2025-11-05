@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export default function MiniClock({ size = 48, stroke = 0.75 }) {
+export function MiniClock({ size = 48, stroke = 0.75 }) {
   const [time, setTime] = useState(new Date());
 
   // update every second
@@ -26,7 +26,7 @@ export default function MiniClock({ size = 48, stroke = 0.75 }) {
       width={size}
       height={size}
       viewBox={`0 0 ${size} ${size}`}
-      style={{ display: "block" }}      
+      style={{ display: "block" }}
     >
       {/* optional circular outline */}
       <circle

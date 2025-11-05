@@ -9,6 +9,7 @@ export const pinnedSearchQueryClasses = `
   border-1
   border-primary
   bg-background
+  hover:bg-primary/30
   text-xs
   rounded-full
   w-fit
