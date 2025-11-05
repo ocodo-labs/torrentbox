@@ -1,18 +1,16 @@
 import { serverBaseUrl } from '@/config';
 import { useTransmissionContext } from '@/contexts/transmission-provider';
 import { playSound } from '@/lib/play-sound';
+import type { MediaListingItem } from '@/types/media-listing-interfaces';
 import { createContext, useEffect, useState } from 'react';
 import type { ReactNode, Dispatch, SetStateAction } from 'react';
 import { toast } from 'sonner';
 
-export interface TorrentSearchResult {
-  magnet_link: string
-  tpb_link: string
-  name: string
-  seeds: string
-  size: string
-  category: string
-  existing: string[]
+export interface TorrentSearchResult extends MediaListingItem {
+  magnet_link: string;
+  seeds: string;
+  size: string;
+  category: string;
 }
 
 export interface TorrentSearchContextType {

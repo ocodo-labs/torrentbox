@@ -9,7 +9,7 @@ import { Circle, ExternalLink } from "lucide-react"
 export function TorrentSearchResultRow(props: TorrentSearchResult) {
   const {
     magnet_link,
-    tpb_link,
+    href: tpb_link,
     name,
     seeds,
     size,
