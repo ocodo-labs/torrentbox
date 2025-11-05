@@ -4,14 +4,17 @@ import { MediaListLoadingView } from "@/components/listing-modals/media-list-loa
 import { ModalHeader } from "@/components/modal/modal-header"
 import { ModalOverlay } from "@/components/modal/modal-overlay"
 import { TrendingListOrdering } from "@/components/trending-list-ordering"
-import type { MediaListingModalProps } from "@/contexts/media-listing-interfaces"
+import type { MediaListingModalProps } from "@/types/media-listing-interfaces"
 import { listingOrdered } from "@/lib/sort-by-name"
-import { modalErrorState, modalItemsList } from "@/lib/styling"
+import { modalErrorState, modalItemsList, modalToolButton } from "@/lib/styling"
 import { type FC, useState } from "react"
+import { TooltipCompact } from "@/components/tooltip-compact"
 
 export const MediaListingModal: FC<MediaListingModalProps> = ({
   title,
   icon,
+  itemTools = [],
+  listingTools = [],
   isOpen,
   close,
   listing,
@@ -30,6 +33,17 @@ export const MediaListingModal: FC<MediaListingModalProps> = ({
               isOrdered={isOrdered}
               setIsOrdered={setIsOrdered}
             />
+            {
+              listingTools.map((tool) => (
+                <TooltipCompact key={tool.title} tooltipChildren={tool.title}>
+                  <div
+                    className={modalToolButton}
+                    onClick={tool.action}>
+                    {tool.icon}
+                  </div>
+                </TooltipCompact>
+              ))
+            }
           </ModalHeader>
         }
         {
@@ -45,7 +59,7 @@ export const MediaListingModal: FC<MediaListingModalProps> = ({
         }
         <div className={modalItemsList}>
           {listing.length > 0 && listingOrdered(isOrdered, listing).map((mediaItem) => (
-            <MediaListItem key={mediaItem.href} media={mediaItem} />
+            <MediaListItem key={mediaItem.href} media={mediaItem} tools={itemTools} />
           ))}
         </div>
       </>

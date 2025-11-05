@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { fetchListingFactory, fetchListingMagnet } from '@/lib/fetch-listing-functions';
-import type { MediaListingItem } from '@/contexts/media-listing-interfaces';
+import type { MediaListingItem } from '@/types/media-listing-interfaces';
 
 interface UseLinkListingOptions {
   apiUrl: string;

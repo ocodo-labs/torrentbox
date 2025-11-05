@@ -1,5 +1,5 @@
 import { TooltipCompact } from "@/components/tooltip-compact"
-import type { MediaListingItem } from "@/contexts/media-listing-interfaces"
+import type { MediaListingItem } from "@/types/media-listing-interfaces"
 import { Circle } from "lucide-react"
 import type { FC } from "react"
 

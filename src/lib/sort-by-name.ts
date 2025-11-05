@@ -1,4 +1,4 @@
-import type { MediaListingItem } from "@/contexts/media-listing-interfaces";
+import type { MediaListingItem } from "@/types/media-listing-interfaces";
 
 export function compare(a: MediaListingItem, b: MediaListingItem) {
   if (a.name < b.name) {

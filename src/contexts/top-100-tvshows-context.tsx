@@ -1,4 +1,4 @@
-import type { MediaListingContextType } from '@/contexts/media-listing-interfaces';
+import type { MediaListingContextType } from '@/types/media-listing-interfaces';
 import { useLinkListing } from '@/hooks/use-link-listing';
 
 import React, { createContext, useContext } from 'react';

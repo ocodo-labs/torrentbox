@@ -1,4 +1,4 @@
-import type { MediaListingItem } from "@/contexts/media-listing-interfaces";
+import type { MediaListingItem } from "@/types/media-listing-interfaces";
 import { toast } from "sonner";
 
 export const fetchListingMagnet = async (
@@ -21,7 +21,6 @@ export const fetchAndAddMediaItemMagnet = async (
   mediaItem: MediaListingItem,
   addMagnet: (magnet: string) => Promise<void>
 ) => {
-
   toast(`Waiting for ${mediaItem.name}`);
   const magnet = await fetchListingMagnet(mediaItem.href);
   if (magnet) {
@@ -65,3 +64,26 @@ export function fetchListingFactory<T>({
     }
   };
 }
+
+export const fetchPosterForMediaItem = async (media: MediaListingItem) => {
+
+  let cleanName = media.name
+    .replace(/^(.*?)([12]\d{3}).*$/, "$1 $2")
+    .trim()
+    .replaceAll(".", " ");
+
+  if (!cleanName) {
+    cleanName = media.name;
+  }
+
+  const response = await fetch(
+    `api/torrents/poster/search?query=${encodeURIComponent(cleanName)}`
+  );
+
+  if (response.ok) {
+    const data = await response.json();
+    if (data.url) {
+      media.imageUrl = data.url;
+    }
+  }
+};

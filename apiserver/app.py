@@ -12,7 +12,7 @@ from fastapi import FastAPI, Request, APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from pydantic.dataclasses import dataclass
 from typing import Optional, List
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from omegaconf import OmegaConf
 from omegaconf.errors import OmegaConfBaseException
@@ -21,7 +21,6 @@ from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 from transmission_rpc import Client as Transmission
 from ollama import Client as Ollama
-from starlette.responses import Response
 from redis import Redis
 from ruamel.yaml import YAML
 from io import StringIO
@@ -575,6 +574,24 @@ def check_existing_media(torrents_data):
     return torrents_data
 
 
+def scrape_poster_top_result(html):
+    """Extract poster link from Rotten Tomatoes search results html."""
+    if not html or not html.strip():
+        return None
+
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+        result = soup.select_one("search-page-media-row img")
+
+        if result and result.get("src"):
+            return result.get("src")
+
+        return None
+
+    except Exception:
+        return None
+
+
 def scrape_torrent_links(html):
     """Extract names and torrent links from html."""
     if not html or not html.strip():
@@ -778,6 +795,22 @@ async def torrent_files_rename_route(payload: TorrentFilesRenameIn):
     }
 
 
+@api.get("/torrents/poster/search")
+async def search_torrent_posters(query: str = Query(...)):
+
+    url = f"https://www.rottentomatoes.com/search?search={query}"
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            html = response.text
+            poster_url = scrape_poster_top_result(html)
+            return JSONResponse({"url": poster_url})
+        raise HTTPException(status_code=404, detail=f"{query} - returned no results")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @api.get("/torrents/search/scrape")
 async def search_torrents(query: Optional[str] = Query(None)):
     if not query:
@@ -830,9 +863,7 @@ def get_1337x_page(page: str):
             if torrents_data:
                 return torrents_data
             raise HTTPException(status_code=404, detail=f"No results 1337x.to/{page}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to fetch 1337x.to/{page}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to fetch 1337x.to/{page}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -986,9 +1017,7 @@ def get_random_image():
     image_dir = config.images or "/images"
     if os.path.exists(image_dir):
         image_files = [
-            f
-            for f in os.listdir(image_dir)
-            if f.lower().endswith(loadable_images)
+            f for f in os.listdir(image_dir) if f.lower().endswith(loadable_images)
         ]
         if not image_files:
             return {"info": "No jpeg images found in the specified path."}
