@@ -1,20 +1,20 @@
-import { fetchPosterForMediaItem } from "@/lib/fetch-listing-functions";
-import { thinIconStyle } from "@/lib/styling";
-import type { MediaItemTool } from "@/types/media-listing-interfaces";
+import { cleanNameForSearch, fetchPosterForMediaItem } from "@/lib/fetch-listing-functions";
+import { modalItemToolIconClasses, thinIconStyle } from "@/lib/styling";
+import type { MediaItemToolType } from "@/types/media-listing-interfaces";
 import { Film, SearchIcon } from "lucide-react";
 
-export const mediaItemFetchPoster: MediaItemTool = {
-  icon: <Film style={thinIconStyle} />,
+export const mediaItemFetchPoster: MediaItemToolType = {
+  icon: <Film style={thinIconStyle} className={modalItemToolIconClasses} />,
   action: fetchPosterForMediaItem,
-  title: "Lookup Poster",
+  title: "Look for {name} Poster image",
 };
 
-export const mediaItemSearchInGoogle: MediaItemTool = {
-  icon: <SearchIcon style={thinIconStyle} />,
+export const mediaItemSearchInGoogle: MediaItemToolType = {
+  icon: <SearchIcon style={thinIconStyle} className={modalItemToolIconClasses} />,
   action: (media) => {
     window.open(
-      `https://google.com/search?q=${encodeURIComponent(media.name)}`
+      `https://google.com/search?q=${encodeURIComponent(cleanNameForSearch(media.name))}`
     );
   },
-  title: "Search in Google",
+  title: `Search for {name} with Google`,
 };

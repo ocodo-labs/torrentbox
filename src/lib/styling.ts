@@ -46,9 +46,18 @@ export const modalErrorState = "text-red-500 text-center py-4";
 export const modalItemsList = "grid gap-2  max-h-[80vh] overflow-y-auto";
 export const modalContentScrollable = "w-full max-h-[80vh] overflow-y-auto";
 export const modalItemRow =
-  "flex flex-row items-center justify-start gap-2 p-2 border-1 border-foreground/10 rounded-lg hover:bg-background cursor-pointer transition-colors duration-300";
+  `flex flex-row items-center justify-start gap-2
+   p-2 border-1 border-foreground/10 rounded-lg
+   cursor-pointer
+   hover:bg-background/10
+   transition-colors duration-300`;
 export const modalItemInfo =
   "flex items-center text-[x-small] sm:text-base gap-2";
+
+export const modalItemToolIconClasses = `
+  rounded-full w-4 h-4 cursor-pointer
+  hover:bg-background transition-colors duration-300
+`;
 
 export const modalToolButton = `hover:bg-background rounded-full p-1 cursor-pointer
                              transition-colors duration-700

@@ -27,13 +27,15 @@ export interface MediaListingModalProps {
   title: string;
   icon: ReactNode;
   listingTools?: MediaListingTool[]
-  itemTools?: MediaItemTool[]
+  itemTools?: MediaItemToolType[]
 }
 
-export interface MediaItemTool {
+export interface MediaItemToolType {
   icon: ReactNode;
   action: (media: MediaListingItem) => void | Promise<void>;
-  title: string;
+  title?: string;
+  item?: MediaItemToolType;
+
 }
 
 export interface MediaListingTool {

@@ -65,16 +65,21 @@ export function fetchListingFactory<T>({
   };
 }
 
-export const fetchPosterForMediaItem = async (media: MediaListingItem) => {
-
-  let cleanName = media.name
+export const cleanNameForSearch = (name: string): string => {
+  let cleanName = name
     .replace(/^(.*?)([12]\d{3}).*$/, "$1 $2")
-    .trim()
-    .replaceAll(".", " ");
+    .trim().replaceAll(".", " ").replaceAll(/[()]/g, "");
 
   if (!cleanName) {
-    cleanName = media.name;
+    cleanName = name;
   }
+
+  return cleanName;
+}
+
+export const fetchPosterForMediaItem = async (media: MediaListingItem) => {
+
+  let cleanName = cleanNameForSearch(media.name);
 
   const response = await fetch(
     `api/torrents/poster/search?query=${encodeURIComponent(cleanName)}`
