@@ -1,5 +1,5 @@
-import { BittorrentIcon } from '@/components/bit-torrent-icon'
-import { Olivetti1954 } from '@/components/olivetti-1954-logo'
+import { BittorrentIcon } from '@/components/icons/bit-torrent-icon'
+import { Olivetti1954 } from '@/components/icons/olivetti-1954-logo'
 import { TorrentNewMagnetDialog } from '@/components/torrent-new-magnet-dialog'
 import { Button } from '@/components/ui/button'
 import {
@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { ThemeContext } from '@/contexts/theme-context'
-import { Film, Magnet, Menu, Moon, Settings, Sun, TrendingUp, Tv } from 'lucide-react'
+import { AppWindowIcon, Film, GamepadIcon, Magnet, Menu, Moon, Settings, Sun, TrendingUp, Tv } from 'lucide-react'
 import { useContext, useState } from 'react'
 import { thinIconStyle } from '@/lib/styling'
 import { useTop100MoviesContext } from '@/contexts/top-100-movies-context'
@@ -17,6 +17,8 @@ import { useTop100TVShowsContext } from '@/contexts/top-100-tvshows-context'
 import { useTrendingTodayContext } from '@/contexts/trending-today-context'
 import { useTrendingWeekContext } from '@/contexts/trending-week-context'
 import { useServerConfig } from '@/contexts/server-config-provider'
+import { useTop100GamesContext } from '@/contexts/top-100-games-context'
+import { useTop100AppsContext } from '@/contexts/top-100-apps-context'
 
 export function TorrentBoxHeading() {
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -24,6 +26,8 @@ export function TorrentBoxHeading() {
   const { toggleTheme, theme } = useContext(ThemeContext)
   const { open: openTop100Movies } = useTop100MoviesContext()
   const { open: openTop100TVShows } = useTop100TVShowsContext()
+  const { open: openTop100Games } = useTop100GamesContext()
+  const { open: openTop100Apps } = useTop100AppsContext()
   const { open: openTrendingToday } = useTrendingTodayContext()
   const { open: openTrendingWeek } = useTrendingWeekContext()
   const { open: openSettings } = useServerConfig()
@@ -59,6 +63,12 @@ export function TorrentBoxHeading() {
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={openTop100TVShows}>
             <Tv className='mr-2 w-6 h-6' style={thinIconStyle} /> Top 100 TV Shows
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={openTop100Games}>
+            <GamepadIcon className='mr-2 w-6 h-6' style={thinIconStyle} /> Top 100 Games
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={openTop100Apps}>
+            <AppWindowIcon className='mr-2 w-6 h-6' style={thinIconStyle} /> Top 100 Apps
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={openTrendingToday}>
             <TrendingUp className='mr-2 w-6 h-6' style={thinIconStyle} /> Trending Today

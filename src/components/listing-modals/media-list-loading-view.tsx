@@ -1,4 +1,4 @@
-import { OcodoLoaderIcon } from "@/components/ocodo-loader-icon"
+import { OcodoLoaderIcon } from "@/components/icons/ocodo-loader-icon"
 import { modalLoadingState } from "@/lib/styling"
 import type { FC, ReactNode } from "react"
 

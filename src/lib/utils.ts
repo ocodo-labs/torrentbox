@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { Torrent } from "@/types/torrent"
+import { type Torrent } from "@/types/torrent"
 import { playSound } from "@/lib/play-sound"
 
 export function cn(...inputs: ClassValue[]) {

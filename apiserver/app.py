@@ -813,15 +813,15 @@ def scrape_magnet(html: str) -> Optional[str]:
     return magnet_link.get("href") if magnet_link else None
 
 
-@api.get("/torrents/top-100-television")
-def get_top_100_television():
+@api.get("/torrents/1337x/{page}")
+def get_1337x_page(page: str):
     """
-    Fetch top 100 television shows from 1337x.to
+    Fetch page from 1337x.to
 
-    curl -s https://1337x.to/top-100-television | pup 'a[href*=/torrent/]'
+    curl -s https://1337x.to/{page} | pup 'a[href*=/torrent/]'
     """
 
-    url = "https://1337x.to/top-100-television"
+    url = f"https://1337x.to/{page}"
     try:
         response = requests.get(url)
         if response.status_code == 200:
@@ -829,59 +829,9 @@ def get_top_100_television():
             torrents_data = scrape_torrent_links(html)
             if torrents_data:
                 return torrents_data
-            raise HTTPException(
-                status_code=404, detail="No results 1337x.to/top-100-television"
-            )
+            raise HTTPException(status_code=404, detail=f"No results 1337x.to/{page}")
         raise HTTPException(
-            status_code=500, detail="Failed to fetch 1337x.to/top-100-television"
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@api.get("/torrents/trending")
-def get_top_24hr():
-    """
-    Fetch top list last 24hrs100 from 1337x.to
-
-    curl -s https://1337x.to/trending | pup 'a[href*=/torrent/]'
-    """
-
-    url = "https://1337x.to/trending"
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            html = response.text
-            torrents_data = scrape_torrent_links(html)
-            if torrents_data:
-                return torrents_data
-            raise HTTPException(status_code=404, detail="No results 1337x.to/trending")
-        raise HTTPException(status_code=500, detail="Failed to fetch 1337x.to/trending")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@api.get("/torrents/trending-week")
-def get_top_this_week():
-    """
-    Fetch top list last 24hrs100 from 1337x.to
-
-    curl -s https://1337x.to/trending-week | pup 'a[href*=/torrent/]'
-    """
-
-    url = "https://1337x.to/trending-week"
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            html = response.text
-            torrents_data = scrape_torrent_links(html)
-            if torrents_data:
-                return torrents_data
-            raise HTTPException(
-                status_code=404, detail="No results 1337x.to/trending-week"
-            )
-        raise HTTPException(
-            status_code=500, detail="Failed to fetch 1337x.to/trending-week"
+            status_code=500, detail=f"Failed to fetch 1337x.to/{page}"
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -894,34 +844,6 @@ async def get_magnet_for_top_100_movie(link: Top100Link):
     magnet = scrape_magnet(response.text)
 
     return {"magnet": magnet} if magnet else {"error": "Magnet not found"}
-
-
-@api.get("/torrents/top-100-movies")
-def get_top_100_movies():
-    """
-    Fetch top 100 movies from 1337x.to
-
-    curl -s https://1337x.to/top-100-movies | pup 'a[href*=/torrent/]'
-    """
-
-    url = "https://1337x.to/top-100-movies"
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            html = response.text
-            torrents_data = scrape_torrent_links(html)
-            if torrents_data:
-                # check here
-                torrents_data = check_existing_media(torrents_data)
-                return torrents_data
-            raise HTTPException(
-                status_code=404, detail="No results 1337x.to/top-100-movies"
-            )
-        raise HTTPException(
-            status_code=500, detail="Failed to fetch 1337x.to/top-100-movies"
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 @api.get("/torrents/active")

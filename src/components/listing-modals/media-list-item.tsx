@@ -3,7 +3,7 @@ import type { MediaListingItem } from '@/contexts/media-listing-interfaces';
 import { modalItemInfo, modalItemRow, thinIconStyle } from '@/lib/styling';
 import type { FC } from 'react';
 import { Magnet } from 'lucide-react';
-import { ExistingMediaIndicator } from '@/components/existing-media-indicator';
+import { ExistingMediaIndicator } from '@/components/icons/existing-media-indicator';
 import { useTransmissionContext } from '@/contexts/transmission-provider';
 
 interface MediaListItemProps {
@@ -11,7 +11,6 @@ interface MediaListItemProps {
 }
 
 export const MediaListItem: FC<MediaListItemProps> = ({ media }) => {
-
   const { addMagnet } = useTransmissionContext()
 
   return (

@@ -16,6 +16,17 @@ export const pinnedSearchQueryClasses = `
   cursor-pointer
 `
 
+export const modalOverlay = "fixed inset-0 bg-background/80 backdrop-blur-sm z-50";
+
+export const modalContainer = `
+  fixed inset-0
+  md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2
+  md:inset-auto
+  w-[100vw] h-[100vh] sm:w-[80vw] sm:h-auto
+  flex items-center justify-center
+  shadow-lg
+`;
+
 export const modalContent = "bg-card rounded-lg p-6 w-full h-full relative";
 export const modalHeader = "flex flex-row justify-start items-center mb-4 gap-2";
 export const modalTitle = "text-xl font-bold tracking-tighter";
@@ -29,5 +40,5 @@ export const modalLoadingState = "flex flex-col items-center justify-center py-4
 export const modalErrorState = "text-red-500 text-center py-4";
 export const modalItemsList = "grid gap-2  max-h-[80vh] overflow-y-auto";
 export const modalContentScrollable = "w-full max-h-[80vh] overflow-y-auto";
-export const modalItemRow = "flex flex-row items-center justify-start gap-2";
+export const modalItemRow = "flex flex-row items-center justify-start gap-2 p-2 border-1 border-foreground/10 rounded-lg hover:bg-background cursor-pointer transition-colors duration-300";
 export const modalItemInfo = "flex items-center text-[x-small] sm:text-base gap-2";

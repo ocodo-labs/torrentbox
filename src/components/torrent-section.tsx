@@ -3,7 +3,7 @@ import { TorrentRow } from "@/components/torrent-row"
 import { useTransmissionContext } from "@/contexts/transmission-provider"
 import { playSound } from "@/lib/play-sound"
 import { thinIconStyle } from "@/lib/styling"
-import { Torrent } from "@/types/torrent"
+import { type Torrent } from "@/types/torrent"
 import { CircleX, ListChecks, Trash, X } from "lucide-react"
 
 const TorrentsSection = () => {

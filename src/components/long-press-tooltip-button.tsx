@@ -1,6 +1,6 @@
 import { TooltipCompact } from "@/components/tooltip-compact"
 import { LongPressButton } from "@/components/long-press-button"
-import { OcodoLoaderIcon } from "@/components/ocodo-loader-icon"
+import { OcodoLoaderIcon } from "@/components/icons/ocodo-loader-icon"
 import { useState, type FC, type ReactNode } from "react"
 
 interface LongPressTooltipButtonProps {

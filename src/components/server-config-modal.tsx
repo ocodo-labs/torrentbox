@@ -1,8 +1,8 @@
-import { ModalOverlay } from '@/components/modal-overlay';
+import { ModalOverlay } from '@/components/modal/modal-overlay';
 import { modalErrorState, modalItemsList } from '@/lib/styling';
-import { ModalHeader } from '@/components/modal-header';
+import { ModalHeader } from '@/components/modal/modal-header';
 import { useServerConfig } from '@/contexts/server-config-provider';
-import { OcodoLoaderIcon } from '@/components/ocodo-loader-icon';
+import { OcodoLoaderIcon } from '@/components/icons/ocodo-loader-icon';
 import { stringify } from 'yaml';
 
 export function ServerConfigModal() {

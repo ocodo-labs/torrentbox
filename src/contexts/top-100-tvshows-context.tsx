@@ -1,47 +1,16 @@
-import type { MediaListingContextType, MediaListingItem } from '@/contexts/media-listing-interfaces';
-import { fetchListingFactory, fetchListingMagnet } from '@/lib/fetch-listing-functions';
-import React, { createContext, useContext, useState } from 'react';
+import type { MediaListingContextType } from '@/contexts/media-listing-interfaces';
+import { useLinkListing } from '@/hooks/use-link-listing';
+
+import React, { createContext, useContext } from 'react';
 
 const Top100TVShowsContext = createContext<MediaListingContextType | undefined>(undefined);
 
 export function Top100TVShowsProvider({ children }: { children: React.ReactNode }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [listing, setListing] = useState<MediaListingItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchListing = fetchListingFactory<MediaListingItem[]>({
-    apiUrl: '/api/torrents/top-100-television',
-    setData: setListing,
-    setLoading,
-    setError,
-  });
-
-  const fetchMagnet = fetchListingMagnet
-
-  const open = () => {
-    setIsOpen(true);
-    fetchListing();
-  };
-
-  const close = () => {
-    setIsOpen(false);
-    setError(null);
-  };
-
+  const value = useLinkListing({ apiUrl: 'api/torrents/1337x/top-100-television' });
   return (
-    <Top100TVShowsContext.Provider value={{
-      isOpen,
-      open,
-      close,
-      listing,
-      loading,
-      error,
-      fetchListing,
-      fetchMagnet,
-    }}>
+    <Top100TVShowsContext.Provider value={value}>
       {children}
-    </Top100TVShowsContext.Provider >
+    </Top100TVShowsContext.Provider>
   );
 }
 

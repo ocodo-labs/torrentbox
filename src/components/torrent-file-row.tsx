@@ -3,7 +3,7 @@ import { LongPressTooltipButton } from "@/components/long-press-tooltip-button"
 import { Progress } from "@/components/ui/progress"
 import { useTransmissionContext } from "@/contexts/transmission-provider"
 import { thinIconStyle } from "@/lib/styling"
-import { Torrent } from "@/types/torrent"
+import { type Torrent } from "@/types/torrent"
 import { Edit, Trash } from "lucide-react"
 import type { FC } from "react"
 

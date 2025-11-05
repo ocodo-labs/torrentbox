@@ -9,7 +9,7 @@ import {
   type DestructiveDownloadedFileAction,
   type DestructiveTorrentAction,
 } from "@/types/actions";
-import { Torrent } from "@/types/torrent";
+import type { Torrent } from "@/types/torrent";
 import {
   Binary,
   BookIcon,

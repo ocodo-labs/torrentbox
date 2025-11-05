@@ -1,16 +1,16 @@
-import { ModalOverlay } from '@/components/modal-overlay';
+import { ModalOverlay } from '@/components/modal/modal-overlay';
 import { TrendingListOrdering } from '@/components/trending-list-ordering';
 import { listingOrdered } from '@/lib/sort-by-name';
 import { modalErrorState, modalItemsList } from '@/lib/styling';
 import { useState } from 'react';
-import { MediaListItem } from '@/components/media-list-item';
-import { MediaListLoadingView } from '@/components/media-list-loading-view';
-import { ModalHeader } from '@/components/modal-header';
-import { useTrendingWeekContext } from '@/contexts/trending-week-context';
+import { ModalHeader } from '@/components/modal/modal-header';
+import { useTrendingTodayContext } from '@/contexts/trending-today-context';
 import { TrendingUp } from 'lucide-react';
+import { MediaListItem } from '@/components/listing-modals/media-list-item';
+import { MediaListLoadingView } from '@/components/listing-modals/media-list-loading-view';
 
-export function TrendingWeekModal() {
-  const { isOpen, close, listing, loading, error } = useTrendingWeekContext();
+export function TrendingTodayModal() {
+  const { isOpen, close, listing, loading, error } = useTrendingTodayContext();
   const [isOrdered, setIsOrdered] = useState<boolean>(false)
 
   return (
@@ -18,7 +18,7 @@ export function TrendingWeekModal() {
       <>
         {
           (loading && listing.length == 0) ||
-          <ModalHeader title='Trending 7 Days'>
+          <ModalHeader title='Trending Today'>
             <TrendingListOrdering
               isOrdered={isOrdered}
               setIsOrdered={setIsOrdered}
@@ -28,7 +28,7 @@ export function TrendingWeekModal() {
         {
           loading && listing.length == 0 &&
           <MediaListLoadingView
-            title='Trending 7 Days'
+            title='Trending Today'
             icon={<TrendingUp className='w-12 h-12' />} />
         }
         {
