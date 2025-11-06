@@ -42,7 +42,7 @@ export const MediaListItem: FC<MediaListItemProps> = ({ media, tools = [] }) => 
         )
       }
       <div className={modalItemInfo}>
-        {media.name}
+        {media.name.replaceAll('.', ' ')}
       </div>
     </div>
   )

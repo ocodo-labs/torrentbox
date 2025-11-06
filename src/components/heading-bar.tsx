@@ -122,7 +122,7 @@ export function HeadingBar() {
 
       <div className="flex">
         <BittorrentIcon className="mr-2" />
-        <div className="text-3xl font-black tracking-tighter">TorrentBox</div>
+        <div className="text-3xl font-black tracking-tighter select-none">TorrentBox</div>
       </div>
 
       <div className="flex flex-row items-center justify-end gap-2">
