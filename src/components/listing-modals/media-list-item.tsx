@@ -1,4 +1,4 @@
-import { cleanNameForSearch, fetchAndAddMediaItemMagnet } from '@/lib/fetch-listing-functions';
+import { fetchAndAddMediaItemMagnet } from '@/lib/fetch-listing-functions';
 import { applyNameFilters, type MediaItemToolType, type MediaListingItem } from '@/types/media-listing-interfaces';
 import { modalItemInfo, modalItemRow, modalItemToolIconClasses, modalToolButton, thinIconStyle } from '@/lib/styling';
 import type { FC } from 'react';
@@ -27,7 +27,7 @@ export const MediaListItem: FC<MediaListItemProps> = ({ media, tools = [] }) => 
       }
       <TooltipCompact tooltipChildren={
         <div className='select-none'>
-          Add {cleanNameForSearch(media.name)} to Transmission
+          Add {media.name} to Transmission
         </div>
       }>
         <Magnet
