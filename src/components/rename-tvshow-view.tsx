@@ -105,7 +105,7 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
               }
               onLongPress={async () => {
                 batchRenameTorrentFiles(torrent, batchRenamePayload)
-                return playSound("/sounds/torrent-remove.mp3")
+                return playSound("/sounds/torrent-success.mp3")
               }}
             />
           )

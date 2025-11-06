@@ -293,7 +293,7 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         }
 
         toast(`${torrent.name} ${action} completed`);
-        playSound("/sounds/torrent-remove.mp3");
+        playSound("/sounds/torrent-success.mp3");
       } catch {
         toast(`${torrent.name} cleanup failed.`)
       } finally {

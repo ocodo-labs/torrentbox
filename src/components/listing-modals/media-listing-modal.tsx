@@ -28,7 +28,7 @@ export const MediaListingModal: FC<MediaListingModalProps> = ({
       <>
         {
           (loading && listing.length == 0) ||
-          <ModalHeader title={title}>
+          <ModalHeader icon={icon} title={title}>
             <TrendingListOrdering
               isOrdered={isOrdered}
               setIsOrdered={setIsOrdered}
