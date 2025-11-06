@@ -63,6 +63,7 @@ export const MediaItemToolWrapper: FC<{ tool: MediaItemToolType; media: MediaLis
 
   if (tool.title?.includes('{name}')) {
     title = applyNameFilters(media.name, tool.nameFilters)
+    title = tool.title.replace('{name}', title)
   }
 
   return (

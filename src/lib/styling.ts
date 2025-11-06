@@ -24,7 +24,9 @@ export const modalContainer = `
   fixed inset-0
   md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2
   md:inset-auto
-  w-[100vw] h-[100vh] sm:w-[80vw] sm:h-auto
+  border-transparent
+  md:border-2 md:border-foreground/30 md:rounded-lg
+  w-[100vw] h-[100vh] md:w-[80vw] md:h-auto
   flex items-center justify-center
   shadow-lg
 `;
