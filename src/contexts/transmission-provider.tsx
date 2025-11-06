@@ -293,7 +293,13 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         }
 
         toast(`${torrent.name} ${action} completed`);
-        playSound("/sounds/torrent-success.mp3");
+        if (action === 'remove') {
+          playSound("sounds/torrent-success.mp3");
+        }
+
+        if (action === 'delete') {
+          playSound("sounds/torrent-trash.mp3");
+        }
       } catch {
         toast(`${torrent.name} cleanup failed.`)
       } finally {
@@ -326,6 +332,15 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       }
 
       toast(`${downloadedFile} ${action} completed`);
+
+      if (action.includes('delete')) {
+        playSound("sounds/torrent-trash.mp3");
+      }
+
+      if (action.includes('move')) {
+        playSound("sounds/file-moved.mp3");
+      }
+
     } catch (error) {
       console.log(`Error performing ${action} on ${downloadedFile}:`, error);
       toast(`Failed to perform ${action} on ${downloadedFile}`);
@@ -410,7 +425,7 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     if (!isSoftDeleted(hash, index)) {
       setTorrentSoftDeletedFiles([...torrentSoftDeletedFiles, new SoftDeletedFile(hash, index)])
     }
-    playSound("/sounds/torrent-file-delete.mp3")
+    playSound("sounds/torrent-trash.mp3")
   }
 
   const getTorrentSoftDeletedFiles = (torrent: Torrent): string[] => {
@@ -459,11 +474,10 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   }
 
-const addMagnet = async (magnetUrl: string) => {
-    const postUrl=`${serverBaseUrl}/torrents/magnet/new`
+  const addMagnet = async (magnetUrl: string) => {
+    const postUrl = `${serverBaseUrl}/torrents/magnet/new`
     const magnetRegex = /magnet:\?xt=urn:btih:[a-zA-Z0-9]{32,40}(&.+)?$/;
     if (magnetRegex.test(magnetUrl)) {
-
       try {
         const response = await fetch(postUrl, {
           method: "POST",
@@ -472,7 +486,9 @@ const addMagnet = async (magnetUrl: string) => {
         })
         if (!response.ok) {
           toast(`Error Failed to Add Magnet Link`)
+          return
         }
+        playSound("sounds/torrent-add.mp3")
       } catch (error) {
         toast(`Network Error Adding Magnet Link`)
       }

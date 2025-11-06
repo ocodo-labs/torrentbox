@@ -43,13 +43,16 @@ export const modalClose = `hover:bg-background rounded-full p-1 cursor-pointer
 export const modalLoadingState =
   "flex flex-col items-center justify-center py-4 w-full gap-4";
 export const modalErrorState = "text-red-500 text-center py-4";
-export const modalItemsList = "grid gap-2  max-h-[80vh] overflow-y-auto";
+export const modalItemsList = "grid gap-2 p-2 rounded-lg bg-background inset-shadow-sm max-h-[80vh] overflow-y-auto";
 export const modalContentScrollable = "w-full max-h-[80vh] overflow-y-auto";
 export const modalItemRow =
   `flex flex-row items-center justify-start gap-2
    p-2 border-1 border-foreground/10 rounded-lg
    cursor-pointer
-   hover:bg-background/10
+   bg-card
+   shadow-sm
+   hover:shadow-lg
+   hover:bg-card/10
    transition-colors duration-300`;
 export const modalItemInfo =
   "flex items-center text-[x-small] sm:text-base gap-2";

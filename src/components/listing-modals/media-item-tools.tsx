@@ -2,7 +2,7 @@ import { cleanNameForSearch, fetchPosterForMediaItem } from "@/lib/fetch-listing
 import { modalItemToolIconClasses, thinIconStyle } from "@/lib/styling";
 import type { MediaItemNameFilter, MediaItemToolType } from "@/types/media-listing-interfaces";
 
-import { Film, SearchIcon } from "lucide-react";
+import { ImageIcon, SearchIcon } from "lucide-react";
 
 export const videoNameFilter: MediaItemNameFilter = {
   pattern: /^(.*)(mp4|ac3| BONE|uhd|bdremux|dv\/hdr10|bluray|-elite|sub|srt|ita|chi|dts-hd|ma|mkv|avi|1080p|720p|2160p|480p|520p|IMAX|4k|hdrip|brrip|web[- ]?dl|amzn|-rmteam|hdr10|web[- ]?rip|dvdrip|bluray|xvid|h\.?264|h\.?265|hevc).*$/i,
@@ -41,7 +41,7 @@ export const squeezeSpaces: MediaItemNameFilter = {
 }
 
 export const mediaItemFetchPoster: MediaItemToolType = {
-  icon: <Film style={thinIconStyle} className={modalItemToolIconClasses} />,
+  icon: <ImageIcon style={thinIconStyle} className={modalItemToolIconClasses} />,
   action: fetchPosterForMediaItem,
   title: "Look for {name} Poster image",
   nameFilters: [videoNameFilter, tvSeasonNameFilter, tvShowNameFilter, miscToSpace, squeezeSpaces, flushMisc],

@@ -107,7 +107,7 @@ export const TorrentSearchProvider = ({ children }: { children: ReactNode }) => 
 
   function addedTorrent() {
     console.log('added torrent to transmission')
-    playSound("/sounds/torrent-download.mp3")
+    playSound("sounds/torrent-add.mp3")
   }
 
   async function postTorrentMagnet(name: string, magnet_link: string) {

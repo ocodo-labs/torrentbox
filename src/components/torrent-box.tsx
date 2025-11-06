@@ -1,6 +1,6 @@
 import { DownloadedSection } from "@/components/downloaded-section"
 import { RenameDialog } from "@/components/rename-dialog"
-import { TorrentBoxHeading } from "@/components/torrent-box-heading"
+import { HeadingBar } from "@/components/heading-bar"
 import { TorrentSearch } from "@/components/torrent-search/torrent-search"
 import { TorrentsSection } from "@/components/torrent-section"
 import { ConnectionErrorPanel } from "@/components/connection-error-panel"
@@ -74,7 +74,7 @@ export const TorrentBox: FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-background/90 text-foreground">
-      <TorrentBoxHeading />
+      <HeadingBar />
       <main className="flex-grow p-4 overflow-auto">
         {connectionError ? (
           <ConnectionErrorPanel fetchTorrents={fetchTorrents} />

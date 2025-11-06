@@ -9,7 +9,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export function notifyCompletion(
   torrent: Torrent,
-  sound: string = '/sounds/torrent-finished.mp3'
+  sound: string = 'sounds/torrent-finished.mp3'
 ) {
   const key = `torrent_completed_${torrent.id}`;
   const isNotified = localStorage.getItem(key);

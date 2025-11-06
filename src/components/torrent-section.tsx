@@ -41,7 +41,7 @@ const TorrentsSection = () => {
                   <Trash className="h-4 w-4 cursor-pointer" style={thinIconStyle} />
                 }
                 onLongPress={async () => {
-                  playSound("/sounds/torrent-delete.mp3")
+                  playSound("sounds/torrent-trash.mp3")
                   const selected = torrents.filter((t) => selectedTorrents.has(t.id))
                   await executeSelectedTorrentsAction("delete")
                   selected.forEach(clearSoftDeleted)

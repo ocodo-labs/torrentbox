@@ -164,7 +164,7 @@ export const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
               <Trash className="h-4 w-4 cursor-pointer" style={thinIconStyle} />
             }
             onLongPress={async () => {
-              playSound("/sounds/torrent-delete.mp3")
+              playSound("sounds/torrent-trash.mp3")
               clearSoftDeleted(torrent)
               return handleAction(torrent, "delete")
             }}

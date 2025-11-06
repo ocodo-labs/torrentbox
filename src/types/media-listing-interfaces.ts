@@ -17,6 +17,8 @@ export interface MediaListingContextType {
   error: string | null;
   fetchMagnet: (href: string) => Promise<string | null>;
   fetchListing: () => Promise<void>;
+  icon: ReactNode;
+  title: string;
 }
 
 export interface MediaListingModalProps {
