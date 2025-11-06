@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 export interface MediaListingItem {
   name: string;
   href: string;
-  existing?: string[]
-  imageUrl?: string,
+  existing?: string[];
+  imageUrl?: string;
 }
 
 export interface MediaListingContextType {
@@ -15,7 +15,7 @@ export interface MediaListingContextType {
   loading: boolean;
   error: string | null;
   fetchMagnet: (href: string) => Promise<string | null>;
-  fetchListing: () => Promise<void>
+  fetchListing: () => Promise<void>;
 }
 
 export interface MediaListingModalProps {
@@ -26,8 +26,14 @@ export interface MediaListingModalProps {
   error: string | null;
   title: string;
   icon: ReactNode;
-  listingTools?: MediaListingTool[]
-  itemTools?: MediaItemToolType[]
+  listingTools?: MediaListingTool[];
+  itemTools?: MediaItemToolType[];
+}
+
+export interface MediaItemNameFilter {
+  pattern: RegExp;
+  replacement?: string;
+  groups?: string[];
 }
 
 export interface MediaItemToolType {
@@ -35,7 +41,7 @@ export interface MediaItemToolType {
   action: (media: MediaListingItem) => void | Promise<void>;
   title?: string;
   item?: MediaItemToolType;
-
+  nameFilters?: MediaItemNameFilter[];
 }
 
 export interface MediaListingTool {
@@ -43,3 +49,22 @@ export interface MediaListingTool {
   action: () => void;
   title: string;
 }
+
+export const applyNameFilters = (
+  name: string,
+  filters?: MediaItemNameFilter[]
+): string => {
+  let modifiedName = name;
+
+  const matchingFilters = filters?.filter((filter) =>
+    modifiedName.match(filter.pattern)
+  );
+
+  matchingFilters?.forEach((filter) => {
+    if (filter && filter.replacement) {
+      modifiedName = modifiedName.replace(filter.pattern, filter.replacement);
+    }
+  });
+
+  return modifiedName;
+};

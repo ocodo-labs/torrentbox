@@ -1,5 +1,5 @@
 import { cleanNameForSearch, fetchAndAddMediaItemMagnet } from '@/lib/fetch-listing-functions';
-import type { MediaItemToolType, MediaListingItem } from '@/types/media-listing-interfaces';
+import { applyNameFilters, type MediaItemToolType, type MediaListingItem } from '@/types/media-listing-interfaces';
 import { modalItemInfo, modalItemRow, modalItemToolIconClasses, modalToolButton, thinIconStyle } from '@/lib/styling';
 import type { FC } from 'react';
 import { Magnet } from 'lucide-react';
@@ -40,8 +40,18 @@ export const MediaListItem: FC<MediaListItemProps> = ({ media, tools = [] }) => 
         tools.map((tool) => {
           let title = tool.title
 
+          // Use nameFilters to match media type and customize title
+          // If we don't get a match we do not show the tool for this media item.
+          const isMatched = tool.nameFilters?.some((filter) => {
+            return filter.pattern.test(media.name)
+          })
+
+          if (tool.nameFilters && !isMatched) {
+            return null
+          }
+
           if (tool.title?.includes('{name}')) {
-            title = tool.title?.replace('{name}', cleanNameForSearch(media.name)) || ''
+              title = applyNameFilters(media.name, tool.nameFilters)
           }
 
           return (
