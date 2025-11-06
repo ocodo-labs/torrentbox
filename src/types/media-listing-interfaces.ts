@@ -1,10 +1,11 @@
-import type { ReactNode } from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 
 export interface MediaListingItem {
   name: string;
   href: string;
   existing?: string[];
   imageUrl?: string;
+  setImageUrl?: Dispatch<SetStateAction<string | undefined>>;
 }
 
 export interface MediaListingContextType {

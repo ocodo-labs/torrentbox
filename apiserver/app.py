@@ -623,7 +623,7 @@ def scrape_tpb_rows(row):
 
     return {
         "name": name.get_text(strip=True),
-        "tpb_link": name.get("href"),
+        "href": name.get("href"),
         "category": category.get_text(strip=True).replace("\n", " "),
         "magnet_link": magnet_link.get("href"),
         # Seeds and Size likely to error when/if tpb changes layout.

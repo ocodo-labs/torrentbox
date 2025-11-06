@@ -37,39 +37,43 @@ export const MediaListItem: FC<MediaListItemProps> = ({ media, tools = [] }) => 
         />
       </TooltipCompact>
       {
-        tools.map((tool) => {
-          let title = tool.title
-
-          // Use nameFilters to match media type and customize title
-          // If we don't get a match we do not show the tool for this media item.
-          const isMatched = tool.nameFilters?.some((filter) => {
-            return filter.pattern.test(media.name)
-          })
-
-          if (tool.nameFilters && !isMatched) {
-            return null
-          }
-
-          if (tool.title?.includes('{name}')) {
-              title = applyNameFilters(media.name, tool.nameFilters)
-          }
-
-          return (
-            <TooltipCompact tooltipChildren={
-              <div className='select-none'>{title}</div>
-            } key={tool.title} >
-              <div
-                className={modalToolButton}
-                onClick={() => tool.action(media)}>
-                {tool.icon}
-              </div>
-            </TooltipCompact>
-          )
-        })
+        tools.map((tool) =>
+          <MediaItemToolWrapper key={tool.title} tool={tool} media={media} />
+        )
       }
       <div className={modalItemInfo}>
         {media.name}
       </div>
     </div>
+  )
+}
+
+export const MediaItemToolWrapper: FC<{ tool: MediaItemToolType; media: MediaListingItem }> = ({ tool, media }) => {
+  let title = tool.title
+
+  // Use nameFilters to match media type and customize title
+  // If we don't get a match we do not show the tool for this media item.
+  const isMatched = tool.nameFilters?.some((filter) => {
+    return filter.pattern.test(media.name)
+  })
+
+  if (tool.nameFilters && !isMatched) {
+    return null
+  }
+
+  if (tool.title?.includes('{name}')) {
+    title = applyNameFilters(media.name, tool.nameFilters)
+  }
+
+  return (
+    <TooltipCompact tooltipChildren={
+      <div className='select-none'>{title}</div>
+    } key={tool.title} >
+      <div
+        className={modalToolButton}
+        onClick={() => tool.action(media)}>
+        {tool.icon}
+      </div>
+    </TooltipCompact>
   )
 }

@@ -1,21 +1,33 @@
 import { LineMdDownloadIcon } from "@/components/line-md-download-icon"
+import { MediaItemImage } from "@/components/listing-modals/media-item-image"
+import { mediaItemFetchPoster, mediaItemSearchInGoogle } from "@/components/listing-modals/media-item-tools"
+import { MediaItemToolWrapper } from "@/components/listing-modals/media-list-item"
 import { AsycJobLongPressTooltipButton } from "@/components/long-press-tooltip-button"
 import { TooltipCompact } from "@/components/tooltip-compact"
 import { useTorrentSearch } from "@/contexts/torrent-search-context"
 import type { TorrentSearchResult } from "@/contexts/torrent-search-provider"
 import { thinIconStyle } from "@/lib/styling"
+import type { MediaItemToolType } from "@/types/media-listing-interfaces"
 import { Circle, ExternalLink } from "lucide-react"
+import { useState } from "react"
 
 export function TorrentSearchResultRow(props: TorrentSearchResult) {
   const {
     magnet_link,
-    href: tpb_link,
+    href,
     name,
     seeds,
     size,
     existing,
   } = props
 
+  const itemTools: MediaItemToolType[] = [
+    mediaItemFetchPoster,
+    mediaItemSearchInGoogle,
+  ]
+
+  const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
+  const media = { name, href, imageUrl, setImageUrl, existing };
   const { postTorrentMagnet } = useTorrentSearch()
 
   return (
@@ -23,20 +35,28 @@ export function TorrentSearchResultRow(props: TorrentSearchResult) {
       <div className="text-sm w-30 truncate mr-2 md:w-fit md:text-base">
         <div className="flex flex-row gap-2 items-center justify-start">
           {
-            existing.length > 0 &&
+            existing?.length != undefined && existing.length > 0 &&
             <TooltipCompact tooltipChildren={`Existing Download: ${existing}`}>
               <Circle className="w-4 h-4" stroke="#AA6600" strokeWidth={3} />
             </TooltipCompact>
           }
           {
-            existing.length == 0 &&
+            existing?.length == 0 &&
             <Circle className="w-4 h-4" />
           }
+          {
+            media.imageUrl &&
+            <MediaItemImage media={media} />
+          }
           <div className="flex flex-row gap-2 items-center">
+            {
+              itemTools.map((tool) =>
+                <MediaItemToolWrapper key={tool.title} tool={tool} media={media} />)
+            }
             <div>
               {name}
             </div>
-            <a href={tpb_link} target='_blank'>
+            <a href={href} target='_blank'>
               <ExternalLink style={thinIconStyle} className="w-4 h-4" />
             </a>
           </div>

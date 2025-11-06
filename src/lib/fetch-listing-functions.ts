@@ -88,7 +88,12 @@ export const fetchPosterForMediaItem = async (media: MediaListingItem) => {
   if (response.ok) {
     const data = await response.json();
     if (data.url) {
-      media.imageUrl = data.url;
+      if (media.setImageUrl) {
+        media.setImageUrl(data.url);
+      } else {
+        // if there's no setter, assume the var is writable.
+        media.imageUrl = data.url;
+      }
     }
   }
 };
