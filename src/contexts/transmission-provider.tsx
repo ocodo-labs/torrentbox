@@ -338,7 +338,7 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       }
 
       if (action.includes('move')) {
-        playSound("sounds/file-moved.mp3");
+        playSound("sounds/file-move.mp3");
       }
 
     } catch (error) {
