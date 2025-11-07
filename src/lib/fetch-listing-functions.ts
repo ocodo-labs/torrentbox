@@ -1,4 +1,4 @@
-import type { MediaListingItem } from "@/types/media-listing-interfaces";
+import { type MediaItemNameFilter, type MediaListingItem } from "@/types/media-listing-interfaces";
 import { toast } from "sonner";
 
 export const fetchListingMagnet = async (
@@ -65,21 +65,49 @@ export function fetchListingFactory<T>({
   };
 }
 
+export const applyNameFilters = (
+  name: string,
+  filters?: MediaItemNameFilter[]
+): string => {
+  let modifiedName = name;
+
+  const matchingFilters = filters?.filter((filter) =>
+    modifiedName.match(filter.pattern)
+  );
+
+  matchingFilters?.forEach((filter) => {
+    if (filter && filter.replacement) {
+      modifiedName = modifiedName.replace(filter.pattern, filter.replacement);
+    }
+  });
+
+  return modifiedName;
+};
+
+export const cleanNameForPoster = (name: string): string => {
+  if (name.length == 4 || name.length == 6) {
+    return name
+  }
+
+  return name.replace(/\d{4}/, '')
+}
+
 export const cleanNameForSearch = (name: string): string => {
   let cleanName = name
-    .replace(/^(.*?)([12]\d{3}).*$/, "$1 $2")
-    .trim().replaceAll(".", " ").replaceAll(/[()]/g, "");
+    .replace(/^(.*?)(2\d{3}|19\d{2}).*$/, "$1 $2")
+    .trim()
+    .replaceAll(".", " ")
+    .replaceAll(/[()]/g, "");
 
   if (!cleanName) {
     cleanName = name;
   }
 
   return cleanName;
-}
+};
 
 export const fetchPosterForMediaItem = async (media: MediaListingItem) => {
-
-  let cleanName = cleanNameForSearch(media.name);
+  let cleanName = cleanNameForPoster(cleanNameForSearch(media.name));
 
   const response = await fetch(
     `api/torrents/poster/search?query=${encodeURIComponent(cleanName)}`
@@ -88,6 +116,10 @@ export const fetchPosterForMediaItem = async (media: MediaListingItem) => {
   if (response.ok) {
     const data = await response.json();
     if (data.url) {
+      if ((data.url as string).includes('fit-in')) {
+        data.url = data.url.replace(/fit-in\/(.*?)\//,`fit-in/${Math.floor((9/16) * 320)}x320/`)
+      }
+
       if (media.setImageUrl) {
         media.setImageUrl(data.url);
       } else {

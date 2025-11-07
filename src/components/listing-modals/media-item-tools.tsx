@@ -5,7 +5,7 @@ import type { MediaItemNameFilter, MediaItemToolType } from "@/types/media-listi
 import { ImageIcon, SearchIcon } from "lucide-react";
 
 export const videoNameFilter: MediaItemNameFilter = {
-  pattern: /^(.*)(mp4|ac3| BONE|uhd|bdremux|dv\/hdr10|bluray|-elite|sub|srt|ita|chi|dts-hd|ma|mkv|avi|1080p|720p|2160p|480p|520p|IMAX|4k|hdrip|brrip|web[- ]?dl|amzn|-rmteam|hdr10|web[- ]?rip|dvdrip|bluray|xvid|h\.?264|h\.?265|hevc).*$/i,
+  pattern: /^(.*?)(mp4|ac3|[-._ ]BONE|uhd|bdremux|dv\/hdr10|bluray|-elite|dts-hd|mkv|avi|1080p|720p|2160p|480p|520p|IMAX|4k|hdrip|brrip|web[- ]?dl|amzn|-rmteam|hdr10|web[- ]?rip|dvdrip|bluray|xvid|h\.?264|h\.?265|hevc)+.*$/i,
   replacement: '$1',
   groups: ['name', 'format']
 }

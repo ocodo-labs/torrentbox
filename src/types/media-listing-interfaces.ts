@@ -52,22 +52,3 @@ export interface MediaListingTool {
   action: () => void;
   title: string;
 }
-
-export const applyNameFilters = (
-  name: string,
-  filters?: MediaItemNameFilter[]
-): string => {
-  let modifiedName = name;
-
-  const matchingFilters = filters?.filter((filter) =>
-    modifiedName.match(filter.pattern)
-  );
-
-  matchingFilters?.forEach((filter) => {
-    if (filter && filter.replacement) {
-      modifiedName = modifiedName.replace(filter.pattern, filter.replacement);
-    }
-  });
-
-  return modifiedName;
-};

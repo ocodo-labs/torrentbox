@@ -25,7 +25,7 @@ export const MediaItemImage: FC<MediaItemImageProps> = ({ media }) => {
         }}
         src={media.imageUrl}
         alt={media.name}
-        className='object-cover rounded-sm w-[100px]'
+        className='object-cover rounded-sm w-[180px]'
       />
     </div>
   )
