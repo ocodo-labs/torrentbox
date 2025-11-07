@@ -31,8 +31,8 @@ export function TorrentSearchResultRow(props: TorrentSearchResult) {
   const { postTorrentMagnet } = useTorrentSearch()
 
   return (
-    <div className="flex flex-col md:flex-row justify-between items-center py-2 border-b-2 border-secondary-foreground/10">
-      <div className="flex flex-row gap-2 items-center">
+    <div className="flex flex-col md:flex-row justify-between py-2 border-b-2 border-secondary-foreground/10">
+      <div className="flex flex-row gap-2 items-center justify-start">
         {
           media.imageUrl &&
           <MediaItemImage media={media} />
@@ -54,7 +54,7 @@ export function TorrentSearchResultRow(props: TorrentSearchResult) {
           <ExternalLink style={thinIconStyle} className="w-4 h-4" />
         </a>
       </div>
-      <div className="flex flex-row gap-3 items-center justify-end">
+      <div className="flex flex-row gap-3 items-center justify-between">
         <div className="text-xs text-muted-foreground">
           {size}
         </div>
