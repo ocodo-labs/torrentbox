@@ -4,6 +4,9 @@ import { ModalHeader } from '@/components/modal/modal-header';
 import { useServerConfig } from '@/contexts/server-config-provider';
 import { OcodoLoaderIcon } from '@/components/icons/ocodo-loader-icon';
 import { stringify } from 'yaml';
+import { Prism } from 'react-syntax-highlighter';
+import { coldarkDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { cn } from '@/lib/utils';
 
 export function ServerConfigModal() {
   const { isOpen, close, config, loading, error } = useServerConfig();
@@ -21,10 +24,10 @@ export function ServerConfigModal() {
         {
           error && <div className={modalErrorState}>{error}</div>
         }
-        <div className={modalItemsList} >
-          <pre>
+        <div className={cn(modalItemsList, 'bg-[#111b27]')} >
+          <Prism language='yaml' style={coldarkDark}>
             {stringify(config)}
-          </pre>
+          </Prism>
         </div>
       </>
     </ModalOverlay>

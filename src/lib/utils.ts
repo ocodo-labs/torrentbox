@@ -7,6 +7,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
 export function notifyCompletion(
   torrent: Torrent,
   sound: string = 'sounds/torrent-finished.mp3'

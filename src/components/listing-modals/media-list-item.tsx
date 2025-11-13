@@ -20,10 +20,8 @@ export const MediaListItem: FC<MediaListItemProps> = ({ media, tools = [] }) => 
 
   return (
     <div className={modalItemRow}>
-      {
-        media.imageUrl &&
-        <MediaItemImage media={media} />
-      }
+      <MediaItemImage media={media} key={media.imageUrl} />
+
       {Object.keys(media).includes('existing') &&
         <ExistingMediaIndicator media={media} />
       }

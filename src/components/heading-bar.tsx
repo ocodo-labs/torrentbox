@@ -46,9 +46,14 @@ export function HeadingBar() {
 
   const menuItems = [
     {
-      onSelect: handleAddMagnet,
-      icon: <Magnet className="mr-2 w-6 h-6" style={thinIconStyle} />,
-      label: "Add magnet"
+      onSelect: openTrendingToday,
+      icon: topTrendingTodayIcon,
+      label: topTrendingTodayTitle
+    },
+    {
+      onSelect: openTrendingWeek,
+      icon: topTrendingWeekIcon,
+      label: topTrendingWeekTitle
     },
     {
       onSelect: openTop100Movies,
@@ -71,19 +76,14 @@ export function HeadingBar() {
       label: top100AppsTitle
     },
     {
-      onSelect: openTrendingToday,
-      icon: topTrendingTodayIcon,
-      label: topTrendingTodayTitle
-    },
-    {
-      onSelect: openTrendingWeek,
-      icon: topTrendingWeekIcon,
-      label: topTrendingWeekTitle
-    },
-    {
       onSelect: openSettings,
       icon: <Settings2Icon className="mr-2 w-6 h-6" style={thinIconStyle} />,
       label: 'Settings'
+    },
+    {
+      onSelect: handleAddMagnet,
+      icon: <Magnet className="mr-2 w-6 h-6" style={thinIconStyle} />,
+      label: "Add magnet"
     },
   ];
 
