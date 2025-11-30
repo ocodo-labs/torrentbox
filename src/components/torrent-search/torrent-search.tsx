@@ -33,7 +33,7 @@ export const TorrentSearch: FC = () => {
 
   return (
     <div>
-      <div className="flex space-x-4">
+      <div className="flex flex-row gap-4 items-center">
         <Input
           className="rounded-full border-foreground/20"
           value={searchQuery}
@@ -56,6 +56,7 @@ export const TorrentSearch: FC = () => {
             text-primary-foreground
             transition-colors
             duration-[1s]
+            min-h-10
             select-none
             `
           }
@@ -85,7 +86,7 @@ export const TorrentSearch: FC = () => {
           </TooltipCompact>
         }
         <CircleX
-          className="mt-1 size-8 cursor-pointer"
+          className="w-6 h-6 min-h-6 min-w-6 cursor-pointer"
           style={thinIconStyle}
           onClick={resetSearch} />
       </div>
