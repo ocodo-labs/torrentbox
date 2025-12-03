@@ -85,10 +85,13 @@ export const TorrentSearch: FC = () => {
               style={thinIconStyle} />
           </TooltipCompact>
         }
-        <CircleX
-          className="w-6 h-6 min-h-6 min-w-6 cursor-pointer"
-          style={thinIconStyle}
-          onClick={resetSearch} />
+        {searchQuery != '' &&
+          <CircleX
+            className="w-8 h-8 p-1 min-h-6 min-w-6 cursor-pointer"
+            style={thinIconStyle}
+            onClick={resetSearch}
+          />
+        }
       </div>
       {
         pinnedQueries.length > 0 &&
