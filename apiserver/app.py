@@ -455,30 +455,60 @@ def torrent_file_rename(torrent_id, filename, newname):
         )
 
 
+def get_video_title(filename: str):
+    """Return the current title of a video (MKV or MP4)."""
+    if filename.endswith(".mkv"):
+        result = subprocess.run(
+            ["mkvpropedit", "--query", filename],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            logger.info(f"Failed to get MKV title: {result.stderr}")
+            return None
+        for line in result.stdout.splitlines():
+            if line.startswith("Title:"):
+                return line.split(":", 1)[1].strip()
+        return None
+
+    elif filename.endswith(".mp4"):
+        result = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries",
+             "format_tags=title", "-of", "default=noprint_wrappers=1:nokey=1", filename],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            logger.info(f"Failed to get MP4 title: {result.stderr}")
+            return None
+        return result.stdout.strip() or None
+
+    else:
+        raise ValueError(f"Unsupported file type: {filename}")
+
+
 def set_video_title(filename: str, title: str = None):
     """
-    Retitle video (Covers mp4 or mkv) using the filename stem
-    (filename minus extension)
-
-    Or use the given title.
+    Retitle video (mp4 or mkv) using the filename stem
+    (filename minus extension), or use the given title.
     """
     path = Path(filename)
     logger.info(f"Setting Title for {path}")
 
-    try:
-        if not title:
-            title = path.stem.replace(".", " ").replace("_", " ")
-
-    except Exception as e:
-        logger.info(f"Error: {e}")
-
-    logger.info(f"Title: {title}")
-
     if not path.exists():
         raise FileNotFoundError(f"File not found: {filename}")
 
+    if not title:
+        title = path.stem.replace(".", " ").replace("_", " ")
+
+    current_title = get_video_title(filename)
+    logger.info(f"Current title: {current_title}")
+
+    if current_title == title:
+        logger.info("Title already set correctly, skipping update.")
+        return title
+
     if filename.endswith(".mkv"):
-        # Uses mkvpropedit to set the title
         result = subprocess.run(
             ["mkvpropedit", filename, "--edit", "info", "--set", f"title={title}"],
             capture_output=True,
@@ -490,7 +520,6 @@ def set_video_title(filename: str, title: str = None):
             raise RuntimeError(message)
 
     elif filename.endswith(".mp4"):
-        # Uses ffmpeg to set the title (creates a new file)
         temp_file = filename.replace(".mp4", "_titled.mp4")
         result = subprocess.run(
             [
@@ -509,11 +538,7 @@ def set_video_title(filename: str, title: str = None):
         if result.returncode != 0:
             raise RuntimeError(f"Failed to set MP4 title: {result.stderr}")
 
-        # Replace original file with the titled one
         Path(temp_file).replace(filename)
-
-    else:
-        raise ValueError(f"Unsupported file type: {filename}")
 
     return title
 
