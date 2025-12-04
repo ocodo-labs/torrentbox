@@ -19,7 +19,8 @@ export default defineConfig({
 
   },
   build: {
-    outDir: './apiserver/dist'
+    outDir: './apiserver/dist',
+    chunkSizeWarningLimit: 5000,
   },
   resolve: {
     alias: {
