@@ -12,6 +12,7 @@ media:
       - pdf
       - zip
   movies:
+    wrap: true
     directory: /mnt/Mira/movies
     exts:
       - mp4

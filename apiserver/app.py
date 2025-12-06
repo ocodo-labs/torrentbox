@@ -104,6 +104,7 @@ class Top100Link(BaseModel):
 @dataclass
 class ConfigMedia:
     directory: str
+    wrap: Optional[bool]
     exts: List[str]
 
 
@@ -421,16 +422,32 @@ def torrent_download_path(filename):
     return os.path.join(config.downloads, filename)
 
 
-def download_torrent_files_move_to(filename, destination):
-    path = torrent_download_path(filename)
-    if os.path.exists(path):
-        try:
-            shutil.move(path, destination)
-            return {"info": f"Moved {filename} to {destination}"}
-        except Exception as e:
-            raise HTTPException(500, e)
-    else:
+def download_torrent_files_move_to(filename, destination, loc):
+    path = Path(torrent_download_path(filename))
+    dest = Path(destination)
+
+    if not path.exists():
         raise HTTPException(404, f"{filename} not found")
+
+    try:
+        # Directory: move as-is
+        if path.is_dir():
+            shutil.move(str(path), str(dest))
+            return {"info": f"Moved folder {filename} to {destination}"}
+
+        # File: wrap only if explicitly configured
+        if config.media[loc].wrap:
+            target_folder = dest / path.stem
+            target_folder.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(path), str(target_folder))
+            return {"info": f"Wrapped + moved {filename} to {target_folder}"}
+
+        # Default: move file directly
+        shutil.move(str(path), str(dest))
+        return {"info": f"Moved {filename} to {destination}"}
+
+    except Exception as e:
+        raise HTTPException(500, str(e))
 
 
 def torrent_file_rename(torrent_id, filename, newname):
@@ -1025,7 +1042,7 @@ def files_move_to_destination(destination: str, filename: str = Query(...)):
     media = config.media[destination]
     if media and media.directory:
         directory = media.directory
-        return download_torrent_files_move_to(filename, directory)
+        return download_torrent_files_move_to(filename, directory, loc=destination)
 
     raise HTTPException(404, f"Cannot find destination: {destination}")
 
