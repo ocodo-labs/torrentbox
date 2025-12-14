@@ -490,8 +490,16 @@ def get_video_title(filename: str):
 
     elif filename.endswith(".mp4"):
         result = subprocess.run(
-            ["ffprobe", "-v", "error", "-show_entries",
-             "format_tags=title", "-of", "default=noprint_wrappers=1:nokey=1", filename],
+            [
+                "ffprobe",
+                "-v",
+                "error",
+                "-show_entries",
+                "format_tags=title",
+                "-of",
+                "default=noprint_wrappers=1:nokey=1",
+                filename,
+            ],
             capture_output=True,
             text=True,
         )
@@ -796,6 +804,11 @@ def post_llm_suggest_names(b: SuggestNamesIn):
     return payload
 
 
+@api.get("/external_links")
+def get_external_links():
+    return JSONResponse([{"name": "TODO Converting to external links", "href": "https://example.com"}])
+
+
 @api.post("/torrents/magnet/new")
 async def torrent_add(payload: MagnetActionIn):
     magnet_url = payload.magnet_url
@@ -835,6 +848,7 @@ async def torrent_files_rename_route(payload: TorrentFilesRenameIn):
         "responses": responses,
         "errors": errors,
     }
+
 
 @api.get("/torrents/poster/search")
 async def search_torrent_posters(query: str = Query(...)):
@@ -885,37 +899,6 @@ def scrape_magnet(html: str) -> Optional[str]:
     soup = BeautifulSoup(html, "html.parser")
     magnet_link = soup.select_one('a[href^="magnet:"]')
     return magnet_link.get("href") if magnet_link else None
-
-
-@api.get("/torrents/1337x/{page}")
-def get_1337x_page(page: str):
-    """
-    Fetch page from 1337x.to
-
-    curl -s https://1337x.to/{page} | pup 'a[href*=/torrent/]'
-    """
-
-    url = f"https://1337x.to/{page}"
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            html = response.text
-            torrents_data = scrape_torrent_links(html)
-            if torrents_data:
-                return torrents_data
-            raise HTTPException(status_code=404, detail=f"No results 1337x.to/{page}")
-        raise HTTPException(status_code=500, detail=f"Failed to fetch 1337x.to/{page}")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@api.post("/torrents/1337x-magnet")
-async def get_magnet_for_top_100_movie(link: Top100Link):
-    url = f"https://1337x.to{link.href}"
-    response = requests.get(url)
-    magnet = scrape_magnet(response.text)
-
-    return {"magnet": magnet} if magnet else {"error": "Magnet not found"}
 
 
 @api.get("/torrents/active")

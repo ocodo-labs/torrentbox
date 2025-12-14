@@ -3,12 +3,12 @@ import { fetchListingFactory, fetchListingMagnet } from '@/lib/fetch-listing-fun
 import type { MediaListingItem } from '@/types/media-listing-interfaces';
 
 interface UseLinkListingOptions {
-  apiUrl: string;
+  linksUrl: string;
   title: string;
   icon: ReactNode;
 }
 
-export function useLinkListing({ apiUrl, title, icon }: UseLinkListingOptions) {
+export function useLinkListing({ linksUrl, title, icon }: UseLinkListingOptions) {
   const [isOpen, setIsOpen] = useState(false);
   const [listing, setListing] = useState<MediaListingItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -16,12 +16,12 @@ export function useLinkListing({ apiUrl, title, icon }: UseLinkListingOptions) {
 
   const fetchListing = useCallback(
     fetchListingFactory<MediaListingItem[]>({
-      apiUrl,
+      linksUrl,
       setData: setListing,
       setLoading,
       setError,
     }),
-    [apiUrl]
+    [linksUrl]
   );
 
   const fetchMagnet = fetchListingMagnet;

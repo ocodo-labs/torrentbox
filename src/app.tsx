@@ -2,7 +2,7 @@ import { ThemeProvider } from "@/contexts/theme-provider";
 import { TorrentBox } from "@/components/torrent-box";
 import { Toaster } from "sonner";
 import { Modals } from "@/app/modals";
-import { ListingProviders } from "@/app/listing-providers";
+import { ListingProviders } from "@/app/link-providers";
 import { LogicProviders } from "@/app/logic-providers";
 
 

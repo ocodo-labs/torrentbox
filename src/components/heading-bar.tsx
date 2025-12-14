@@ -18,25 +18,15 @@ import {
 } from "lucide-react";
 import { useContext, useState } from "react";
 import { thinIconStyle } from "@/lib/styling";
-import { useTop100MoviesContext } from "@/contexts/top-100-movies-context";
-import { useTop100TVShowsContext } from "@/contexts/top-100-tvshows-context";
-import { useTrendingTodayContext } from "@/contexts/trending-today-context";
-import { useTrendingWeekContext } from "@/contexts/trending-week-context";
+import { useExternalLinks } from "@/contexts/external-link-provider";
 import { useServerConfig } from "@/contexts/server-config-provider";
-import { useTop100GamesContext } from "@/contexts/top-100-games-context";
-import { useTop100AppsContext } from "@/contexts/top-100-apps-context";
 import { MiniClock } from "@/components/icons/mini-clock";
 
 export function HeadingBar() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { toggleTheme, theme } = useContext(ThemeContext);
-  const { open: openTop100Movies, title: top100MoviesTitle, icon: top100MoviesIcon } = useTop100MoviesContext();
-  const { open: openTop100TVShows, title: top100TVShowsTitle, icon: top100TVShowsIcon } = useTop100TVShowsContext();
-  const { open: openTop100Games, title: top100GamesTitle, icon: top100GamesIcon } = useTop100GamesContext();
-  const { open: openTop100Apps, title: top100AppsTitle, icon: top100AppsIcon } = useTop100AppsContext();
-  const { open: openTrendingToday, title: topTrendingTodayTitle, icon: topTrendingTodayIcon } = useTrendingTodayContext();
-  const { open: openTrendingWeek, title: topTrendingWeekTitle, icon: topTrendingWeekIcon } = useTrendingWeekContext();
+  const { open: openLinkList, title: openLinkListTitle, icon: openLinkListIcon } = useExternalLinks();
   const { open: openSettings } = useServerConfig();
 
   const handleAddMagnet = () => {
@@ -46,34 +36,9 @@ export function HeadingBar() {
 
   const menuItems = [
     {
-      onSelect: openTrendingToday,
-      icon: topTrendingTodayIcon,
-      label: topTrendingTodayTitle
-    },
-    {
-      onSelect: openTrendingWeek,
-      icon: topTrendingWeekIcon,
-      label: topTrendingWeekTitle
-    },
-    {
-      onSelect: openTop100Movies,
-      icon: top100MoviesIcon,
-      label: top100MoviesTitle
-    },
-    {
-      onSelect: openTop100TVShows,
-      icon: top100TVShowsIcon,
-      label: top100TVShowsTitle
-    },
-    {
-      onSelect: openTop100Games,
-      icon: top100GamesIcon,
-      label: top100GamesTitle
-    },
-    {
-      onSelect: openTop100Apps,
-      icon: top100AppsIcon,
-      label: top100AppsTitle
+      onSelect: openLinkList,
+      icon: openLinkListIcon,
+      label: openLinkListTitle
     },
     {
       onSelect: openSettings,

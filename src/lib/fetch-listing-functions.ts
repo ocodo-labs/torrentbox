@@ -31,34 +31,35 @@ export const fetchAndAddMediaItemMagnet = async (
   }
 };
 
-type FetchTop100GeneratorParams<T> = {
-  apiUrl: string;
+type FetchListingParams<T> = {
+  linksUrl: string;
   setData: (data: T) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
 };
 
 export function fetchListingFactory<T>({
-  apiUrl,
+  linksUrl,
   setData,
   setLoading,
   setError,
-}: FetchTop100GeneratorParams<T>) {
-  return async function fetchTop100Movies(): Promise<void> {
+}: FetchListingParams<T>) {
+  return async function fetchLinkListings(): Promise<void> {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(apiUrl);
+      const response = await fetch(linksUrl);
       if (!response.ok)
         throw new Error(`HTTP error! Status: ${response.status}`);
 
       const data: T = await response.json();
+      console.log(`Fetching list from ${linksUrl}`);
       console.log(data);
       setData(data);
     } catch (err) {
       console.error(err);
-      setError("Failed to fetch top movies");
+      setError("Failed to get link listing from server");
     } finally {
       setLoading(false);
     }

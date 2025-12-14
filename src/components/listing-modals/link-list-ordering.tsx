@@ -4,12 +4,12 @@ import { SortDesc, Star } from "lucide-react"
 import type { FC } from "react"
 import { toast } from "sonner"
 
-interface TrendingListOrderingProps {
+interface LinkListOrderingProps {
   isOrdered: boolean
   setIsOrdered: (newValue: boolean) => void
 }
 
-export const TrendingListOrdering: FC<TrendingListOrderingProps> = ({ isOrdered, setIsOrdered }) => {
+export const LinkListOrdering: FC<LinkListOrderingProps> = ({ isOrdered, setIsOrdered }) => {
 
   const sortedByName = 'Sorted by Name'
   const sortedByPopularity = 'Sorted by Popularity'
