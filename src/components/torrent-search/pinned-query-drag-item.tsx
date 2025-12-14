@@ -21,16 +21,17 @@ export const PinnedQueryDragItem = forwardRef<HTMLDivElement, ItemProps>((
   const { setSearchQuery } = useTorrentSearch()
 
   return (
-    <div {...props} ref={ref}>
+    <div {...props} ref={ref} onClick={() => setSearchQuery(query)}>
       <div className={pinnedSearchQueryClasses}>
-        <div onClick={() => setSearchQuery(query)}>
           {query}
-        </div>
         <div className="absolute top-[-5px] right-[-6px]">
           <CircleX
             size={16}
             className="bg-background rounded-full p-[1px]"
-            onClick={() => unpinQuery(query)} />
+            onClick={(e) => {
+              e.stopPropagation()
+              unpinQuery(query)
+            }} />
         </div>
       </div>
     </div>
