@@ -7,11 +7,17 @@ interface LinkListItemProps {
 }
 
 export const LinkListItem: FC<LinkListItemProps> = ({ link }) => {
+  const handleClick = () => {
+    window.open(link.href, '_blank');
+  };
+
   return (
-    <div className={modalItemRow}>
-      <a className={modalItemInfo} href={link.href} target='_blank'>
-        {link.name}
-      </a>
+    <div
+      className={modalItemRow}
+      onClick={handleClick}
+      style={{ cursor: 'pointer' }} // shows pointer on hover
+    >
+      <span className={modalItemInfo}>{link.name}</span>
     </div>
   )
 }
