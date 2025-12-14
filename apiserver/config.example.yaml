@@ -52,6 +52,11 @@ naming:
 transmission:
   port: 9091
   host: helios
+external_links:
+  - name: External Link
+    href: https://example.com
+  - name: Another Example
+    href: https://example.com
 valid_extensions:
   - .txt
   - .md

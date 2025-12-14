@@ -136,8 +136,15 @@ class ConfigFiltersSettings:
 
 
 @dataclass
+class ExternalLink:
+    name: str
+    href: str
+
+
+@dataclass
 class ConfigModel:
     downloads: str
+    external_links: List[ExternalLink]
     media: ConfigMediaSettings
     naming: ConfigNamingSettings
     transmission: ConfigTransmissionSettings
@@ -806,7 +813,7 @@ def post_llm_suggest_names(b: SuggestNamesIn):
 
 @api.get("/external_links")
 def get_external_links():
-    return JSONResponse([{"name": "TODO Converting to external links", "href": "https://example.com"}])
+    return JSONResponse(OmegaConf.to_container(config.external_links, resolve=True))
 
 
 @api.post("/torrents/magnet/new")
