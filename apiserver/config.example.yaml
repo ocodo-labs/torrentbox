@@ -1,26 +1,26 @@
-downloads: /mnt/Mirage/downloads
+downloads: /mnt/Storage/downloads
 media:
   audiobooks:
-    directory: /mnt/Mirage/audiobooks
+    directory: /mnt/Storage/audiobooks
     exts:
       - mp3
       - m4a
   books:
-    directory: /mnt/Mirage/books
+    directory: /mnt/Storage/books
     exts:
       - epub
       - pdf
       - zip
   movies:
     wrap: true
-    directory: /mnt/Mira/movies
+    directory: /mnt/Storage/movies
     exts:
       - mp4
       - mkv
       - avi
       - webm
   music:
-    directory: /mnt/Mirage/Music
+    directory: /mnt/Storage/moviesusic
     exts:
       - mp3
       - m4a
@@ -28,14 +28,14 @@ media:
       - flac
       - wav
   software:
-    directory: /mnt/Mirage/windows software
+    directory: /mnt/Storage/software
     exts:
       - zip
       - msi
       - exe
       - 7z
   tvshows:
-    directory: /mnt/Mirage/tv-shows
+    directory: /mnt/Storage/tv-shows
     exts:
       - mp4
       - mkv
@@ -43,15 +43,14 @@ media:
       - webm
 naming:
   hosts:
-    - http://polaris:11434
-    - http://pulsar:11434
-    - http://jupiter:11434
+    - http://nvidia-host:11434
+    - http://4090-host:11434
   models:
     - gemma3:latest
     - llama3.1:latest
 transmission:
   port: 9091
-  host: helios
+  host: transmission.local
 external_links:
   - name: External Link
     href: https://example.com
@@ -64,6 +63,7 @@ valid_extensions:
   - .rtf
   - .csv
   - .tsv
+  - .nfo
   - .json
   - .xml
   - .yaml
@@ -153,4 +153,4 @@ filters:
     - Tigole
     - successfulcrab
     - WebRip
-images: /mnt/Mirage/ai_art/meta-photo-style-ai
+images: /mnt/Storage/background-images
