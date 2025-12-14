@@ -190,18 +190,21 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-try:
-    config_path = Path(__file__).parent / "config.yaml"
-    raw_config = OmegaConf.load(config_path)
-    config = OmegaConf.merge(OmegaConf.structured(ConfigModel), raw_config)
-except OmegaConfBaseException as e:
-    print(f"CONFIG INVALID: {e}")
-    sys.exit(1)
+config_path = Path(__file__).parent / "config.yaml"
+
+def get_config():
+    """Return the latest config merged with structured defaults."""
+    try:
+        raw_config = OmegaConf.load(config_path)
+        return OmegaConf.merge(OmegaConf.structured(ConfigModel), raw_config)
+    except OmegaConfBaseException as e:
+        print(f"CONFIG INVALID: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
-def config_to_yaml(config):
+def config_to_yaml(config_segment=get_config()):
     # OmegaConf to_yaml is subpar use ruamel.yaml + StringIO
-    data = OmegaConf.to_container(config)
+    data = OmegaConf.to_container(config_segment)
     yaml = YAML()
     yaml.indent(sequence=4, offset=2)
     stream = StringIO()
@@ -209,7 +212,7 @@ def config_to_yaml(config):
     return stream.getvalue()
 
 
-def save_config(config):
+def save_config(config=get_config()):
     data = OmegaConf.to_container(config)
     yaml = YAML()
     yaml.indent(sequence=4, offset=2)
@@ -220,7 +223,7 @@ def save_config(config):
         return False
 
 
-print(config_to_yaml(config))
+print(config_to_yaml(get_config()))
 load_dotenv()
 
 
@@ -236,6 +239,7 @@ def clean_llm_json_response(content: str) -> str:
 
 
 def get_ollama_host():
+    config = get_config()
     ollama_host = redis.get("ollama_host")
     logger.info(ollama_host)
     try:
@@ -287,6 +291,7 @@ def get_ollama_model(name, host=get_ollama_host()):
 
 
 def use_valid_extension_or_remove(extension):
+    config = get_config()
     if extension in config.valid_extensions:
         return extension
     else:
@@ -311,8 +316,12 @@ def fix_suggestion_extensions(filename, suggestions):
 
 
 def filename_suggestions(
-    filename, model=config.naming.models[0], models=config.naming.models, max_tries=10
+    filename,
+    model=get_config().naming.models[0],
+    max_tries=10,
 ):
+    config = get_config()
+
     prompt = render_mustache_template(
         os.path.join("templates", "prompt.mustache"), {"filename": filename}
     )
@@ -382,6 +391,7 @@ def filename_suggestions(
 
 
 def filter_words(word_list):
+    config = get_config()
     filter_words = [word.lower() for word in config.filters.words]
     return [word for word in word_list if word.lower() not in filter_words]
 
@@ -426,6 +436,7 @@ def get_matches_from(
 
 
 def torrent_download_path(filename):
+    config = get_config()
     return os.path.join(config.downloads, filename)
 
 
@@ -435,6 +446,8 @@ def download_torrent_files_move_to(filename, destination, loc):
 
     if not path.exists():
         raise HTTPException(404, f"{filename} not found")
+
+    config = get_config()
 
     try:
         # Directory: move as-is
@@ -458,6 +471,7 @@ def download_torrent_files_move_to(filename, destination, loc):
 
 
 def torrent_file_rename(torrent_id, filename, newname):
+    config = get_config()
     result = None
 
     try:
@@ -577,6 +591,7 @@ def set_video_title(filename: str, title: str = None):
 
 def torrent_video_files(torrent_id):
     try:
+        config = get_config()
         transmission = Transmission(host=config.transmission.host)
         torrent = transmission.get_torrent(torrent_id=torrent_id)
 
@@ -600,6 +615,7 @@ def torrent_video_files(torrent_id):
 
 
 def downloaded_file_rename(filename, newname, overwrite=False):
+    config = get_config()
     filename_path = os.path.join(config.downloads, filename)
     newname_path = os.path.join(config.downloads, newname)
     if os.path.exists(filename_path):
@@ -613,6 +629,7 @@ def downloaded_file_rename(filename, newname, overwrite=False):
 
 
 def remove_torrent(torrent_id, delete=False):
+    config = get_config()
     transmission = Transmission(host=config.transmission.host)
     torrent = transmission.get_torrent(torrent_id)
     transmission.remove_torrent([torrent_id], delete_data=delete)
@@ -620,6 +637,7 @@ def remove_torrent(torrent_id, delete=False):
 
 
 def check_existing_media(torrents_data):
+    config = get_config()
     for torrent in torrents_data:
         torrent_name = torrent["name"]
         torrent["existing"] = []
@@ -767,19 +785,18 @@ async def api_documentation(request: Request):
 
 
 @api.get("/config")
-def get_config():
-    return OmegaConf.to_container(config)
+def get_config_route():
+    return OmegaConf.to_container(get_config())
 
 
 @api.post("/config")
 async def update_config(payload: Request):
-    global config
+    config = get_config()
     try:
         data = await payload.json()
         new_conf = OmegaConf.create(data)
         merged = OmegaConf.merge(config, new_conf)
         config_path.write_text(config_to_yaml(merged))
-        config = merged
         return OmegaConf.to_container(merged)
     except Exception as e:
         return f"{e}"
@@ -813,11 +830,13 @@ def post_llm_suggest_names(b: SuggestNamesIn):
 
 @api.get("/external_links")
 def get_external_links():
+    config = get_config()
     return JSONResponse(OmegaConf.to_container(config.external_links, resolve=True))
 
 
 @api.post("/torrents/magnet/new")
 async def torrent_add(payload: MagnetActionIn):
+    config = get_config()
     magnet_url = payload.magnet_url
     transmission = Transmission(host=config.transmission.host)
     result = transmission.add_torrent(magnet_url)
@@ -878,6 +897,8 @@ async def search_torrents(query: Optional[str] = Query(None)):
     if not query:
         raise HTTPException(status_code=404, detail="search query not specified")
 
+    config = get_config()
+
     if query.startswith("magnet:"):
         transmission = Transmission(host=config.transmission.host)
         result = transmission.add_torrent(query)
@@ -921,6 +942,7 @@ def get_torrents_active():
     files = []
     downloading = []
     exclude_from_downloaded = set()
+    config = get_config()
 
     for dirpath, dirnames, filenames in os.walk(config.downloads):
         folders.extend(dirnames)
@@ -982,6 +1004,7 @@ def torrent_remove(torrent_id: str):
 def torrent_cleanup(payload: TorrentCleanupIn):
     failed = []
     files = payload.files
+    config = get_config()
 
     for file in files:
         try:
@@ -1016,6 +1039,7 @@ def files_delete(filename):
     if not os.path.exists(path):
         raise HTTPException(404, f"{filename} not found in downloads")
     try:
+        config = get_config()
         if os.path.isdir(path) and path != config.downloads:
             context = "directory"
             shutil.rmtree(path)
@@ -1029,6 +1053,7 @@ def files_delete(filename):
 
 @api.get("/torrents/files/move/{destination}")
 def files_move_to_destination(destination: str, filename: str = Query(...)):
+    config = get_config()
     media = config.media[destination]
     if media and media.directory:
         directory = media.directory
@@ -1045,6 +1070,7 @@ def torrent_delete(torrent_id: str):
 
 @api.get("/random-image")
 def get_random_image():
+    config = get_config()
     image_dir = config.images or "/images"
     if os.path.exists(image_dir):
         image_files = [
