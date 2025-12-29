@@ -8,9 +8,11 @@ import { type Torrent } from "@/types/torrent"
 import { type FC, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { useTransmissionContext } from "@/contexts/transmission-provider"
+import { useActivity } from "@/contexts/activity-detector"
 
 export const TorrentBox: FC = () => {
   const [mounted, setMounted] = useState(false)
+  const { active } = useActivity();
 
   const {
     connectionError,
@@ -30,9 +32,10 @@ export const TorrentBox: FC = () => {
   } = useTransmissionContext()
 
   useEffect(() => {
-    setMounted(true)
-    fetchTorrents()
-  }, [fetchTorrents])
+    if (!active) return;
+    setMounted(true);
+    fetchTorrents();
+  }, [active, fetchTorrents]);
 
   const escapeName = (name: string): string => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 

@@ -11,6 +11,7 @@ import videoFileExtensions from 'video-extensions';
 import subtitleFileExtensions from '@/lib/subtitle-file-extensions';
 import { playSound } from '@/lib/play-sound';
 import { useLocalStorage } from 'usehooks-ts';
+import { useActivity } from './activity-detector';
 
 export interface FileRenameType {
   filename: string
@@ -37,7 +38,7 @@ interface TransmissionContextType {
   softDeleteTorrentSubFile: (torrent: Torrent, filename: string) => void
   getTorrentSoftDeletedFiles: (torrent: Torrent) => void
   clearSoftDeleted: (torrent: Torrent) => void
-  handleAction: (item: Torrent | string, action: DestructiveDownloadedFileAction | DestructiveTorrentAction, options?: Record<string,string>) => Promise<void>
+  handleAction: (item: Torrent | string, action: DestructiveDownloadedFileAction | DestructiveTorrentAction, options?: Record<string, string>) => Promise<void>
   handleRenameDownloaded: (item: string) => void
   handleRenameTorrent: (torrent: Torrent, filename?: string) => void
   confirmRename: () => void
@@ -81,6 +82,7 @@ export const useTransmissionContext = (): TransmissionContextType => {
 const TransmissionContext = createContext<TransmissionContextType | undefined>(undefined);
 
 export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { active } = useActivity();
   const [torrents, setTorrents] = useState<Torrent[]>([])
   const [downloadedFiles, setDownloadedFiles] = useState<string[]>([])
   const [torrentSoftDeletedFiles, setTorrentSoftDeletedFiles] = useLocalStorage<SoftDeletedFile[]>('soft-deleted-files', [])
