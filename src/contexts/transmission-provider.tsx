@@ -37,7 +37,7 @@ interface TransmissionContextType {
   softDeleteTorrentSubFile: (torrent: Torrent, filename: string) => void
   getTorrentSoftDeletedFiles: (torrent: Torrent) => void
   clearSoftDeleted: (torrent: Torrent) => void
-  handleAction: (item: Torrent | string, action: DestructiveDownloadedFileAction | DestructiveTorrentAction) => Promise<void>
+  handleAction: (item: Torrent | string, action: DestructiveDownloadedFileAction | DestructiveTorrentAction, options?: Record<string,string>) => Promise<void>
   handleRenameDownloaded: (item: string) => void
   handleRenameTorrent: (torrent: Torrent, filename?: string) => void
   confirmRename: () => void

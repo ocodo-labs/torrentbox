@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# DEV Mode for Vite & FastAPI pair
+# DEV Mode FastAPI
 FASTAPI_PORT=${1:-8880}
 
 cd apiserver
@@ -8,15 +8,14 @@ cd apiserver
 .venv/bin/fastapi dev --port $FASTAPI_PORT --host 0.0.0.0 &
 FASTAPI_PID=$!
 
+# Static build mode for vite
 cd ..
 eval $($HOME/.local/share/fnm/fnm env --shell bash)
-vite build --watch &
-VITE_PID=$!
+vite build
 
 function cleanup {
     kill "$FASTAPI_PID"
-    kill "$VITE_PID"
-    wait "$FASTAPI_PID" "$VITE_PID"
+    wait "$FASTAPI_PID"
     exit 0
 }
 

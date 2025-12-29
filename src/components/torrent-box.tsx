@@ -1,4 +1,4 @@
-import { DownloadedSection } from "@/components/downloaded-section"
+import { DownloadedSection } from "@/components/downloaded/downloaded-section"
 import { RenameDialog } from "@/components/rename-dialog"
 import { HeadingBar } from "@/components/heading-bar"
 import { TorrentSearch } from "@/components/torrent-search/torrent-search"
