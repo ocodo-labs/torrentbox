@@ -66,7 +66,7 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
   return (
     <>
       <TooltipCompact tooltipChildren="Move to TV Show">
-        <div className="rounded-full cursor-pointer p-2 hover:bg-foreground/10">
+        <div className="rounded-full cursor-pointer p-2 hover:bg-foreground/20">
           <Tv
             className="h-4 w-4"
             style={thinIconStyle}
