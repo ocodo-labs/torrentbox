@@ -442,12 +442,14 @@ def download_torrent_files_move_to(filename, destination, loc):
             shutil.move(str(path), str(dest))
             return {"info": f"Moved folder {filename} to {destination}"}
 
-        # File: wrap only if explicitly configured
-        if config.media[loc].wrap:
-            target_folder = dest / path.stem
-            target_folder.mkdir(parents=True, exist_ok=True)
-            shutil.move(str(path), str(target_folder))
-            return {"info": f"Wrapped + moved {filename} to {target_folder}"}
+        if loc == "movies":
+            # File: wrap movie video files in a folder
+            # only if explicitly configured
+            if config.media[loc].get("wrap"):
+                target_folder = dest / path.stem
+                target_folder.mkdir(parents=True, exist_ok=True)
+                shutil.move(str(path), str(target_folder))
+                return {"info": f"Wrapped + moved {filename} to {target_folder}"}
 
         # Default: move file directly
         shutil.move(str(path), str(dest))
@@ -1065,6 +1067,16 @@ def get_all_urls():
         for route in api.routes
     ]
     return url_list
+
+
+@api.get("/storage/list/{section}")
+def get_storage_list(section: str):
+    config_section = config.media[section]
+    if config_section and config_section.directory:
+        directory = Path(config_section.directory)
+        return [entry for entry in directory.iterdir() if entry.is_dir]
+
+    raise HTTPException(404, "Storage section Not found: {section}")
 
 
 app.include_router(api, prefix="/api", tags=["api"])

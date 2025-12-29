@@ -315,14 +315,15 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const executeDownloadedFileAction = async (
     action: DestructiveDownloadedFileAction,
-    downloadedFile: string
+    downloadedFile: string,
+    options?: Record<string, string>
   ) => {
 
     const encodedDownloadedFileName = encodeURIComponent(downloadedFile)
     try {
       const response = await fetch(
         `${serverBaseUrl}/torrents/${action}?filename=${encodedDownloadedFileName}`,
-        { headers: json_header }
+        { headers: json_header, ...options }
       );
 
       if (!response.ok) {
@@ -354,10 +355,11 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const handleAction = async (
     item: Torrent | string,
-    action: DestructiveTorrentAction | DestructiveDownloadedFileAction
+    action: DestructiveTorrentAction | DestructiveDownloadedFileAction,
+    options?: Record<string, string>
   ) => {
     if (typeof item === 'string') {
-      await executeDownloadedFileAction(action as DestructiveDownloadedFileAction, item)
+      await executeDownloadedFileAction(action as DestructiveDownloadedFileAction, item, options)
       fetchTorrents()
       return
     }

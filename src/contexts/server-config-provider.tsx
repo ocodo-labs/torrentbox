@@ -50,7 +50,6 @@ export const ServerConfigProvider: FC<{ children: ReactNode }> = ({ children }) 
     } else {
       setError('Failed to get server config')
     }
-
   }
 
   const saveConfig = async () => {

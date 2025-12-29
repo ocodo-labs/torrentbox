@@ -1,5 +1,7 @@
 downloads: /mnt/Storage/downloads
 media:
+  # mandatory media entires:
+  # movies, tvshows
   audiobooks:
     directory: /mnt/Storage/audiobooks
     exts:
@@ -12,6 +14,8 @@ media:
       - pdf
       - zip
   movies:
+    # wrap a video file into a folder
+    # (folder named as the video filename without extention)
     wrap: true
     directory: /mnt/Storage/movies
     exts:

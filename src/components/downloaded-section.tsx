@@ -64,6 +64,10 @@ export const DownloadedFileRow: FC<DownloadedFileRowProps> = ({
 }) => {
   const [showMore, setShowMore] = useState<boolean>(false);
 
+  // TODO: Make context from this state
+  // StorageProvider / StorageContext / useStorage()
+  //
+
   return (
     <div className="p-4 border border-foreground/10 dark:border-foreground/5 rounded-lg">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
@@ -80,6 +84,7 @@ export const DownloadedFileRow: FC<DownloadedFileRowProps> = ({
               }
               onClick={() => handleRename(file)}
             />
+            <Tv />
             <AsycJobLongPressTooltipButton
               title="Move to TV Shows"
               fillColor="bg-primary"
