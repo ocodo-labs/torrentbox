@@ -9,7 +9,7 @@ interface ActivityContextType {
 
 const ActivityContext = createContext<ActivityContextType>({
   active: true,
-  inactivityTimeout: 60000, // default 60s
+  inactivityTimeout: 60000,
   setInactivityTimeout: () => {},
 });
 
@@ -37,7 +37,7 @@ export const ActivityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       events.forEach((e) => window.removeEventListener(e, resetTimer));
       clearTimeout(timeout);
     };
-  }, [inactivityTimeout]); // <-- reset effect if timeout changes
+  }, [inactivityTimeout]);
 
   return (
     <ActivityContext.Provider value={{ active, inactivityTimeout, setInactivityTimeout }}>
