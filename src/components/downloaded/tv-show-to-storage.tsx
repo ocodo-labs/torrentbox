@@ -50,7 +50,7 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
       const newShowPath = `add::${newShowName.trim()}`;
       setCurrentShow({ name: newShowName, path: newShowPath });
       setShowAddAsNewShow(false);
-      toast.success('New show added!');
+      toast.success(`Adding as ${newShowName}`);
     } else {
       toast.error(validationError || 'Please provide a valid show name.');
     }
