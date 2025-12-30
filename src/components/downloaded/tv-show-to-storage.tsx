@@ -89,7 +89,7 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
 	<div
 	  className={cn(
 	    "rounded-full bg-primary cursor-pointer text-xs p-1 px-3 transition-colors",
-	    "focus-within:bg-primary/30 focus-within:border-primary focus-within:border"
+	    "focus-within:bg-primary/30 focus-within:border-primary focus-within:border-2"
 	  )}
 	>
 	  <input
