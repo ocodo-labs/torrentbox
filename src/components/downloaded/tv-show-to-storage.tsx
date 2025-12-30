@@ -58,7 +58,7 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
 
   return (
     <>
-      <TooltipCompact tooltipChildren="Move to TV Show">
+      <TooltipCompact tooltipChildren={showTVShows ? "Cancel move to TV Show" : "Move to TV Show"}>
         <div className="rounded-full cursor-pointer p-2 hover:bg-foreground/20">
           {
             !showTVShows
