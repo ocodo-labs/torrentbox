@@ -6,7 +6,7 @@ import { useTransmissionContext } from "@/contexts/transmission-provider"
 import { thinIconStyle } from "@/lib/styling"
 import { validateNewShowName } from "@/lib/tv-show-validation"
 import { cn } from "@/lib/utils"
-import { Tv } from "lucide-react"
+import { CircleX, Tv } from "lucide-react"
 import type { FC } from "react"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -60,20 +60,27 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
     <>
       <TooltipCompact tooltipChildren="Move to TV Show">
         <div className="rounded-full cursor-pointer p-2 hover:bg-foreground/20">
-          <Tv
-            className="h-4 w-4"
-            style={thinIconStyle}
-            onClick={() => {
-              if (!showTVShows) {
-                fetchTVShowList();
-                setShowTVShows(true);
-              } else {
-                setShowTVShows(false);
-                setShowAddAsNewShow(false);
-                setCurrentShow({} as StorageNamePath);
-              }
-            }}
-          />
+          {
+            !showTVShows
+              ?
+              <Tv
+                className="h-4 w-4"
+                style={thinIconStyle}
+                onClick={() => {
+                  fetchTVShowList();
+                  setShowTVShows(true);
+                }} />
+              :
+              <CircleX
+                className="h-4 w-4"
+                style={thinIconStyle}
+                onClick={() => {
+                  setShowTVShows(false);
+                  setShowAddAsNewShow(false);
+                  setCurrentShow({} as StorageNamePath);
+                }}
+              />
+          }
         </div>
       </TooltipCompact>
 
@@ -86,24 +93,24 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
       )}
 
       {showAddAsNewShow && !currentShow.path && (
-  <div
-    className={cn(
-      "rounded-full bg-primary cursor-pointer text-xs p-1 px-3 transition-colors",
-      "focus-within:bg-primary/30 focus-within:border-primary focus-within:border-2"
-    )}
-  >
-    <input
-      className="bg-transparent focus:outline-none focus:ring-0"
-      value={newShowName}
-      onChange={handleNewShowNameChange}
-      placeholder="Enter new show name..."
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          handleSubmitNewShow();
-        }
-      }}
-    />
-  </div>
+        <div
+          className={cn(
+            "rounded-full bg-primary cursor-pointer text-xs p-1 px-3 transition-colors",
+            "focus-within:bg-primary/30 focus-within:border-primary focus-within:border-2"
+          )}
+        >
+          <input
+            className="bg-transparent focus:outline-none focus:ring-0"
+            value={newShowName}
+            onChange={handleNewShowNameChange}
+            placeholder="Enter new show name..."
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSubmitNewShow();
+              }
+            }}
+          />
+        </div>
       )}
 
       {validationError && !isValidShowName && (
