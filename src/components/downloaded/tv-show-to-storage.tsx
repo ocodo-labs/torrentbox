@@ -86,19 +86,24 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
       )}
 
       {showAddAsNewShow && !currentShow.path && (
-	<div
-	  className={cn(
-	    "rounded-full bg-primary cursor-pointer text-xs p-1 px-3 transition-colors",
-	    "focus-within:bg-primary/30 focus-within:border-primary focus-within:border-2"
-	  )}
-	>
-	  <input
-	    className="bg-transparent focus:outline-none focus:ring-0"
-	    value={newShowName}
-	    onChange={handleNewShowNameChange}
-	    placeholder="Enter new show name..."
-	  />
-	</div>
+  <div
+    className={cn(
+      "rounded-full bg-primary cursor-pointer text-xs p-1 px-3 transition-colors",
+      "focus-within:bg-primary/30 focus-within:border-primary focus-within:border-2"
+    )}
+  >
+    <input
+      className="bg-transparent focus:outline-none focus:ring-0"
+      value={newShowName}
+      onChange={handleNewShowNameChange}
+      placeholder="Enter new show name..."
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          handleSubmitNewShow();
+        }
+      }}
+    />
+  </div>
       )}
 
       {validationError && !isValidShowName && (
@@ -119,7 +124,7 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
           className={cn(`rounded-full bg-primary cursor-pointer text-xs p-1 px-3`)}
           onClick={handleSubmitNewShow}
         >
-          Submit New Show
+          Add Show...
         </div>
       )}
     </>
