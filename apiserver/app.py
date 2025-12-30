@@ -437,10 +437,16 @@ def download_torrent_files_move_to(filename, destination, loc):
         raise HTTPException(404, f"{filename} not found")
 
     try:
-        # Directory: move as-is
-        if path.is_dir():
-            shutil.move(str(path), str(dest))
-            return {"info": f"Moved folder {filename} to {destination}"}
+        # TODO 
+        # if  loc == "tvshows":
+        #
+        # New series use defaults 
+        # Existing series use series rules
+        # 1 season - flat not sub folders
+        # > 1 - make folders for
+        # - seasons and move S01 episodes into S01 folder
+        # - make new season folder when there is an episode to for it.
+        
 
         if loc == "movies":
             # File: wrap movie video files in a folder
@@ -450,6 +456,11 @@ def download_torrent_files_move_to(filename, destination, loc):
                 target_folder.mkdir(parents=True, exist_ok=True)
                 shutil.move(str(path), str(target_folder))
                 return {"info": f"Wrapped + moved {filename} to {target_folder}"}
+            
+        # Directory: move as-is
+        if path.is_dir():
+            shutil.move(str(path), str(dest))
+            return {"info": f"Moved folder {filename} to {destination}"}
 
         # Default: move file directly
         shutil.move(str(path), str(dest))
