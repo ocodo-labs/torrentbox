@@ -22,9 +22,9 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
   const [validationError, setValidationError] = useState<string | undefined>(undefined);
 
   const handleMoveToCurrentShowClick = () => {
-    const seriesPath = currentShow.path;
+    const seriesName = currentShow.name;
     setCurrentShow({} as StorageNamePath);
-    return handleAction(file, "files/move/tvshows", { 'X-TVSeries': seriesPath });
+    return handleAction(file, "files/move/tvshows", { 'X-TVSeries': seriesName });
   };
 
   const handleNewShowNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
