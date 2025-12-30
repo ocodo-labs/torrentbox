@@ -82,7 +82,6 @@ export const useTransmissionContext = (): TransmissionContextType => {
 const TransmissionContext = createContext<TransmissionContextType | undefined>(undefined);
 
 export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { active } = useActivity();
   const [torrents, setTorrents] = useState<Torrent[]>([])
   const [downloadedFiles, setDownloadedFiles] = useState<string[]>([])
   const [torrentSoftDeletedFiles, setTorrentSoftDeletedFiles] = useLocalStorage<SoftDeletedFile[]>('soft-deleted-files', [])

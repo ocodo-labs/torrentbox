@@ -24,7 +24,7 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
   const handleMoveToCurrentShowClick = () => {
     const seriesPath = currentShow.path;
     setCurrentShow({} as StorageNamePath);
-    return handleAction(file, "files/move/tvshows", { 'tvseries': seriesPath });
+    return handleAction(file, "files/move/tvshows", { 'X-TVSeries': seriesPath });
   };
 
   const handleNewShowNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
