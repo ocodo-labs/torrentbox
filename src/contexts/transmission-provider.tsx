@@ -323,8 +323,12 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const encodedDownloadedFileName = encodeURIComponent(downloadedFile)
 
     try {
-      const opts = { headers: json_header, ...options }
-      console.log(opts)
+      const opts = {
+        headers: {
+          ...json_header,
+          ...options
+        }
+      };
       const response = await fetch(
         `${serverBaseUrl}/torrents/${action}?filename=${encodedDownloadedFileName}`,
         opts
