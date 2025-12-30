@@ -21,14 +21,12 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
   const [isValidShowName, setIsValidShowName] = useState<boolean>(true);
   const [validationError, setValidationError] = useState<string | undefined>(undefined);
 
-  // Handles moving the file to the selected show
   const handleMoveToCurrentShowClick = () => {
     const seriesPath = currentShow.path;
-    setCurrentShow({} as StorageNamePath);  // Reset current show after action
+    setCurrentShow({} as StorageNamePath);
     return handleAction(file, "files/move/tvshows", { 'tvseries': seriesPath });
   };
 
-  // Handles the change in the input field for new show name
   const handleNewShowNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setNewShowName(value);
@@ -38,25 +36,20 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
     setValidationError(error);
   };
 
-  // Handles when the user picks an existing show
   const handleShowSelection = (show: StorageNamePath) => {
     if (show.path === '') {
-      // If it's an empty path, it means we're adding a new show, so show the input field
       setShowAddAsNewShow(true);
     } else {
-      // Otherwise, we are selecting an existing show
       setCurrentShow(show);
       setShowAddAsNewShow(false);
     }
   };
 
-  // Handles the submission of a new show name
   const handleSubmitNewShow = () => {
-    // Handle new show submission with magic string (add:: prefix)
     if (isValidShowName && newShowName.trim() !== '') {
-      const newShowPath = `add::${newShowName.trim()}`;  // Magic string for new paths
-      setCurrentShow({ name: newShowName, path: newShowPath });  // Update current show with the new path
-      setShowAddAsNewShow(false);  // Hide the input field after submission
+      const newShowPath = `add::${newShowName.trim()}`;
+      setCurrentShow({ name: newShowName, path: newShowPath });
+      setShowAddAsNewShow(false);
       toast.success('New show added!');
     } else {
       toast.error(validationError || 'Please provide a valid show name.');
@@ -84,7 +77,6 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
         </div>
       </TooltipCompact>
 
-      {/* Show existing TV shows or add new show */}
       {showTVShows && !showAddAsNewShow && !currentShow.name && (
         <StoragePathSelect
           selectLabel="Move to TV show..."
@@ -93,24 +85,26 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
         />
       )}
 
-      {/* If we are adding a new show, show the input for the new name */}
       {showAddAsNewShow && !currentShow.path && (
-        <div className={cn(`rounded-full bg-primary cursor-pointer text-xs p-1 px-3`)}>
-          <input
-            className="focus:outline-none focus:ring-0"
-            value={newShowName}
-            onChange={handleNewShowNameChange}
-            placeholder="Enter new show name..."
-          />
-        </div>
+	<div
+	  className={cn(
+	    "rounded-full bg-primary cursor-pointer text-xs p-1 px-3 transition-colors",
+	    "focus-within:bg-primary/30 focus-within:border-primary focus-within:border-1"
+	  )}
+	>
+	  <input
+	    className="bg-transparent focus:outline-none focus:ring-0"
+	    value={newShowName}
+	    onChange={handleNewShowNameChange}
+	    placeholder="Enter new show name..."
+	  />
+	</div>
       )}
 
-      {/* Validation error message */}
       {validationError && !isValidShowName && (
         <p className="text-red-500 text-xs">{validationError}</p>
       )}
 
-      {/* Show the "Move to TV Show" button only if an existing show is selected */}
       {currentShow.name && !showAddAsNewShow && (
         <div
           className={cn(`rounded-full bg-primary cursor-pointer text-xs p-1 px-3`)}
@@ -120,7 +114,6 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
         </div>
       )}
 
-      {/* If the user has selected a new show, we won't show the "Move to TV Show" button */}
       {!currentShow.name && showAddAsNewShow && (
         <div
           className={cn(`rounded-full bg-primary cursor-pointer text-xs p-1 px-3`)}
