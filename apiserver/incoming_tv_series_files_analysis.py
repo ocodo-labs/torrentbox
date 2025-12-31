@@ -5,7 +5,7 @@ from pydantic.dataclasses import dataclass
 # We would expect a file location (tbd: folder or file)
 # From this we would determine if the file or folder contains tv series episodes using global de factor episode naming pattern
 
-# Predetermined 
+# Predetermined
 # we will be given:
 # - an a series folder, it will be called series.
 # - we will know that the global de facto case insensitive episode naming pattern will be used, to determine episiode files, as those matching the pattern.
