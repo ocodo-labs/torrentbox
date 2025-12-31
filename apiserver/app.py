@@ -429,7 +429,7 @@ def torrent_download_path(filename):
     return os.path.join(config.downloads, filename)
 
 
-def download_torrent_files_move_to(filename, destination, loc):
+def download_torrent_files_move_to(filename, destination, media):
     path = Path(torrent_download_path(filename))
     dest = Path(destination)
 
@@ -438,25 +438,27 @@ def download_torrent_files_move_to(filename, destination, loc):
 
     try:
         # TODO 
-        # if  loc == "tvshows":
-        #
-        # New series use defaults 
-        # Existing series use series rules
-        # 1 season - flat not sub folders
-        # > 1 - make folders for
-        # - seasons and move S01 episodes into S01 folder
-        # - make new season folder when there is an episode to for it.
-        
+        # if  media == "tvshows":
+        # 1. New series use defaults 
+        # 2. Existing series use series rules
+        #    - Scan episode file layout
+        #      From that we can determine season folders are used, named, etc.
+        #         - we expect episodes to be stored per folder:
+        #    - 1 season - flat not sub folders
+        #    - greater than 1 season - make folders for
+        #      - seasons and move S01 episodes into S01 folder
+        #      - make new season folder only when there is a new season episode to place in that folder.
+        # see: tv_series_storage_analysis.py
 
-        if loc == "movies":
+        if media == "movies":
             # File: wrap movie video files in a folder
             # only if explicitly configured
-            if config.media[loc].get("wrap"):
+            if config.media[media].get("wrap"):
                 target_folder = dest / path.stem
                 target_folder.mkdir(parents=True, exist_ok=True)
                 shutil.move(str(path), str(target_folder))
                 return {"info": f"Wrapped + moved {filename} to {target_folder}"}
-            
+
         # Directory: move as-is
         if path.is_dir():
             shutil.move(str(path), str(dest))
@@ -1045,7 +1047,7 @@ def files_move_to_destination(destination: str, filename: str = Query(...)):
     media = config.media[destination]
     if media and media.directory:
         directory = media.directory
-        return download_torrent_files_move_to(filename, directory, loc=destination)
+        return download_torrent_files_move_to(filename, directory, media=destination)
 
     raise HTTPException(404, f"Cannot find destination: {destination}")
 
