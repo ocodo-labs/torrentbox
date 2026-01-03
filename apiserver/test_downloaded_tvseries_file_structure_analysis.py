@@ -1,4 +1,3 @@
-import pytest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from downloaded_tvseries_file_structure_analysis import DownloadedTVSeriesStructureAnalysis
