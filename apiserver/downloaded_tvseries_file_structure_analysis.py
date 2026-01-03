@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List
 
 
-class TVSeriesStructureAnalysis:
+class DownloadedTVSeriesStructureAnalysis:
     def __init__(self, filename: str, video_exts: List[str]):
         self.filename = filename  # The filename or folder path
         self.video_exts = (
