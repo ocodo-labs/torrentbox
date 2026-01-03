@@ -1,12 +1,68 @@
 import re
 from pathlib import Path
 from typing import List
+import shutil
 
 
 class DownloadedTVSeriesStructureAnalysis:
     def __init__(self, filename: str, video_exts: List[str]):
         self.filename = filename
-        self.video_exts = (video_exts)
+        self.video_exts = video_exts
+
+    def move_to(self, dest: Path, overwrite: bool = False) -> bool:
+        """
+        Move the analyzed file or folder to a new destination.
+
+        Parameters
+        ----------
+        dest : Path
+            Destination directory where the file/folder should be moved.
+        overwrite : bool, optional
+            If True, overwrite an existing file/folder at the destination.
+            Defaults to False.
+
+        Returns
+        -------
+        bool
+            True if the move succeeded, False otherwise.
+        """
+        # Ensure `dest` is a Path instance and exists
+        if not dest.exists():
+            raise FileNotFoundError(f"Dest {dest} does not exist")
+
+        # Convert the stored filename (which may be a string) to a Path
+        src = Path(self.filename)
+
+        if not src.exists():
+            raise FileNotFoundError(f"Source {src} does not exist")
+
+        # If the source is a directory, move its contents; otherwise move the file itself
+        if src.is_dir():
+            # Move each video file inside the directory to the destination
+            moved = False
+            for item in src.iterdir():
+                if item.is_file() and item.suffix.lstrip(".").lower() in self.video_exts:
+                    target = dest / item.name
+                    if target.exists():
+                        if overwrite:
+                            target.unlink()
+                        else:
+                            raise FileExistsError(f"Target {target} already exists")
+                    shutil.move(str(item), str(target))
+                    moved = True
+            if not moved:
+                raise FileNotFoundError(f"No video files found in {src}")
+        else:
+            # Source is a single file
+            target = dest / src.name
+            if target.exists():
+                if overwrite:
+                    target.unlink()
+                else:
+                    raise FileExistsError(f"Target {target} already exists")
+            shutil.move(str(src), str(target))
+
+        return True
 
     @property
     def is_episode_file(self) -> bool:
@@ -98,8 +154,8 @@ class StorageTVSeriesStructureAnalysis:
     def __init__(self, series: str, media_root: str, video_exts: List[str]):
         self.series = series
         self.media_root = Path(media_root)
-        self.series_path =  Path(media_root, self.series)
-        self.video_exts = (video_exts)
+        self.series_path = Path(media_root, self.series)
+        self.video_exts = video_exts
 
     @property
     def is_series(self):

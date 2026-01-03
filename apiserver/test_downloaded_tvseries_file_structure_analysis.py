@@ -71,3 +71,23 @@ def test_is_series_folder():
 
         ts = DownloadedTVSeriesStructureAnalysis(str(temp_dir), video_exts=["mkv", "mp4", "avi"])
         assert ts.is_series_folder == True
+
+
+def test_move_file_in_folder_to_dest():
+    """
+    Test that the `move_to` method correctly relocates a file or folder.
+    """
+    with TemporaryDirectory() as src_dir, TemporaryDirectory() as dst_dir:
+        # Create a sample episode file in the source directory
+        src_file = Path(src_dir, "S01E01.mkv")
+        src_file.touch()
+
+        # Instantiate the analyzer and perform the move
+        ts = DownloadedTVSeriesStructureAnalysis(str(src_dir), video_exts=["mkv", "mp4", "avi"])
+        ts.move_to(Path(dst_dir))
+
+        # Verify the file has been moved
+        moved_file = Path(dst_dir) / "S01E01.mkv"
+        assert moved_file.exists(), "File was not moved to the destination."
+        assert not src_file.exists(), "Source file still exists after move."
+

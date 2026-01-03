@@ -1,0 +1,16 @@
+- Destination directory does not exist -> create it with mkdir(parents=True, exist_ok=True) before moving.
+- Source is a single episode file -> move the file directly into the destination.
+- Source is an episode folder (single file inside) -> move the folder as is into the destination.
+- Source is a season folder (contains multiple episode files) -> move the entire season folder into the destination, preserving its name.
+- Source is a series folder (contains multiple season folders) -> move the series folder into the destination, preserving all nested season folders.
+- Destination already contains a folder with the same name as the source -> if overwrite=True, delete the existing folder first; otherwise raise FileExistsError.
+- Destination already contains an episode file with the same name -> if overwrite=True, replace it; otherwise raise FileExistsError.
+- Source contains non-video files (e.g., .txt, .jpg) -> ignore them; only move files whose suffix matches video_exts.
+- Source contains hidden files (e.g., .DS_Store) -> ignore them.
+- Source contains symlinks to video files -> move the symlink itself (or dereference it, depending on desired behavior).
+- Source or destination paths contain spaces or special characters -> handle them correctly by using Path objects.
+- overwrite=False and a conflict exists -> raise FileExistsError.
+- overwrite=True and a conflict exists -> delete the existing file/folder before moving.
+- Destination is a flat list (no season sub-folders) -> move all episode files directly into it, flattening any nested season structure.
+- Destination is a season-structured list -> move episode files into the appropriate season sub-folder inside the destination.
+- Source is a single episode file and destination is a season folder -> place the file into the correct season sub-folder.
