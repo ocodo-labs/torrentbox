@@ -1,6 +1,8 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from downloaded_tvseries_file_structure_analysis import DownloadedTVSeriesStructureAnalysis
+
+from downloaded_tvseries_file_structure_analysis import DownloadedTVSeriesStructureAnalysis, StorageTVSeriesStructureAnalysis
+
 
 def test_is_episode_file():
     valid_files = [
@@ -91,5 +93,61 @@ def test_move_file_in_folder_to_dest():
         assert moved_file.exists(), "File was not moved to the destination."
         assert not src_file.exists(), "Source file still exists after move."
 
-# def test_move_season_folder_to_series_with_existing_season_folders(self):
-#    # TODO
+def test_move_single_episode_file_flat_destination():
+    """
+    Move a single episode file into an empty (flat) destination series folder.
+    The file should end up directly in the destination root.
+    """
+    pass  # TODO: create src file, empty dst, call move_to, assert location
+
+
+def test_move_single_episode_file_nested_destination():
+    """
+    Move a single episode file into a destination that already has a season sub‑folder.
+    The file must be placed inside the matching season sub‑folder.
+    """
+    pass  # TODO: set up destination with Season01 folder, move S01E03, assert inside Season01
+
+
+def test_move_episode_folder():
+    """
+    Source is a folder that contains exactly one video file.
+    The video should be moved according to the destination layout (flat or nested).
+    """
+    pass  # TODO: create folder with S02E01.mkv, move into flat and nested destinations
+
+
+def test_move_season_folder_into_flat_destination():
+    """
+    A season folder (multiple episodes) is moved into a destination that is flat.
+    The season folder should be renamed to the canonical pattern and placed
+    as a sub‑folder inside the destination.
+    """
+    pass  # TODO: create src Season02 folder, empty dst, move, assert Season 02 exists with files
+
+
+def test_move_season_folder_into_nested_destination():
+    """
+    A season folder is moved into a destination that already uses a nested layout.
+    The folder should be renamed to the canonical pattern and merged without
+    overwriting existing episodes.
+    """
+    pass  # TODO: set up dst with Season01, move Season02 folder, check both exist
+
+
+def test_merge_series_folder_with_duplicates():
+    """
+    Source is a series folder containing episodes from multiple seasons.
+    Destination already contains some of those episodes.
+    Duplicate episodes must be skipped and their source paths recorded in
+    ``DownloadedTVSeriesStructureAnalysis.skipped``.
+    """
+    pass  # TODO: create src with S01E01, S02E01; dst already has S01E01; move; assert skip list contains src path
+
+
+def test_move_ambiguous_destination_raises():
+    """
+    Destination layout is ambiguous (mixed root and sub‑folder videos with ≥2 seasons).
+    ``move_to`` should raise ``RuntimeError``.
+    """
+    pass  # TODO: build ambiguous dst, attempt move, expect exception

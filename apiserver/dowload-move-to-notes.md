@@ -24,7 +24,6 @@
 - **Destination already contains an episode file with the same name**
   *The incoming file is skipped (no replacement). The source path of the skipped file is recorded in the `Download` class’s `skipped` list for later cleanup.*
 - **Source contains non-video files** (e.g., `.txt`, `.jpg`) -> ignore them; only move files whose suffix matches `video_exts`.
-- **Source contains hidden files** (e.g., `.DS_Store`) -> ignore them.
 - **Source or destination paths contain spaces or special characters** -> handle them correctly by using `Path` objects.
 - **Destination layout handling**
   - Use `is_multi_nested(destination)` to detect a season-structured series folder.
