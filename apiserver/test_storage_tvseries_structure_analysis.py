@@ -81,3 +81,17 @@ def test_s00_folders():
         assert seasons[0].name == "S01"
         assert seasons[1].name == "S02"
         assert seasons[2].name == "S03"
+
+
+# as per todos.md - add tests for empty series folder,
+def test_empty_series():
+    with TemporaryDirectory() as temp_dir:
+        media_root = Path(temp_dir)
+        series_name = "EmptySeries"
+        series_path = media_root / series_name
+        series_path.mkdir()
+
+        ts = StorageTVSeriesStructureAnalysis(series_name, str(media_root), video_exts=["mkv"])
+        assert ts.is_series is True
+        assert len(ts.series_episodes) == 0
+        assert len(ts.season_folders) == 0
