@@ -1,4 +1,3 @@
-````markdown
 # Move-to Rules & Special-Case Handling
 
 These notes define the authoritative behavior for `move_to`.
