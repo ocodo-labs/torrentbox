@@ -248,10 +248,7 @@ True if:
 
 ## Cleanup Tracking
 
-- `Download` includes:
-  ```python
-  skipped: list[str]
-````
+- `Download` includes: `skipped: list[str]`
 
 - Each skipped entry stores the full source path of the skipped file.
 - Cleanup and deletion logic is explicitly out of scope for `move_to`.
