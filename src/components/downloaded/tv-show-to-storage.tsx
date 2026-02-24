@@ -1,14 +1,15 @@
+import React, { useState } from "react"
+import type { FC } from "react"
+import type { StorageNamePath } from "@/contexts/storage-provider"
+import { cn } from "@/lib/utils"
 import { StoragePathSelect } from "@/components/downloaded/storage-path-select"
+import { TVShowAddAsNewShow } from "@/components/downloaded/tv-show-add-as-new-show"
 import { TooltipCompact } from "@/components/tooltip-compact"
 import { useStorage } from "@/contexts/storage-context"
-import type { StorageNamePath } from "@/contexts/storage-provider"
 import { useTransmissionContext } from "@/contexts/transmission-provider"
 import { thinIconStyle } from "@/lib/styling"
 import { validateNewShowName } from "@/lib/tv-show-validation"
-import { cn } from "@/lib/utils"
 import { CircleX, Tv } from "lucide-react"
-import type { FC } from "react"
-import { useState } from "react"
 import { toast } from "sonner"
 
 export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
@@ -64,21 +65,22 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
             !showTVShows
               ?
               <Tv
-                className="h-4 w-4"
-                style={thinIconStyle}
                 onClick={() => {
                   fetchTVShowList();
                   setShowTVShows(true);
-                }} />
-              :
-              <CircleX
+                }}
                 className="h-4 w-4"
                 style={thinIconStyle}
+              />
+              :
+              <CircleX
                 onClick={() => {
                   setShowTVShows(false);
                   setShowAddAsNewShow(false);
                   setCurrentShow({} as StorageNamePath);
                 }}
+                className="h-4 w-4"
+                style={thinIconStyle}
               />
           }
         </div>
@@ -93,24 +95,11 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
       )}
 
       {showAddAsNewShow && !currentShow.path && (
-        <div
-          className={cn(
-            "rounded-full bg-primary cursor-pointer text-xs p-1 px-3 transition-colors",
-            "focus-within:bg-primary/30 focus-within:border-primary focus-within:border-2"
-          )}
-        >
-          <input
-            className="bg-transparent focus:outline-none focus:ring-0"
-            value={newShowName}
-            onChange={handleNewShowNameChange}
-            placeholder="Enter new show name..."
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleSubmitNewShow();
-              }
-            }}
-          />
-        </div>
+        <TVShowAddAsNewShow
+          newShowName={newShowName}
+          handleNewShowNameChange={handleNewShowNameChange}
+          handleSubmitNewShow={handleSubmitNewShow}
+        />
       )}
 
       {validationError && !isValidShowName && (
@@ -119,21 +108,54 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
 
       {currentShow.name && !showAddAsNewShow && (
         <div
-          className={cn(`rounded-full bg-primary cursor-pointer text-xs p-1 px-3`)}
-          onClick={() => currentShow.path ? handleMoveToCurrentShowClick() : handleSubmitNewShow()}
+          className={cn(
+            `
+              rounded-full
+              bg-primary
+              cursor-pointer
+              text-xs
+              p-1
+              px-3
+            `
+          )}
+          onClick={
+            () =>
+              currentShow.path
+                ?
+                handleMoveToCurrentShowClick()
+                :
+                handleSubmitNewShow()
+          }
         >
-          {currentShow.path ? `Move to ${currentShow.name}` : currentShow.name}
+          {
+            currentShow.path
+              ?
+              `Move to ${currentShow.name}`
+              :
+              currentShow.name
+          }
         </div>
       )}
 
-      {!currentShow.name && showAddAsNewShow && (
-        <div
-          className={cn(`rounded-full bg-primary cursor-pointer text-xs p-1 px-3`)}
-          onClick={handleSubmitNewShow}
-        >
-          Add Show...
-        </div>
-      )}
+      {
+        !currentShow.name && showAddAsNewShow && (
+          <div
+            className={cn(
+              `
+                rounded-full
+                bg-primary
+                cursor-pointer
+                text-xs
+                p-1
+                px-3
+              `
+            )}
+            onClick={handleSubmitNewShow}
+          >
+            Add Show...
+          </div>
+        )
+      }
     </>
   );
 };

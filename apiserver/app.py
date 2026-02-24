@@ -163,8 +163,8 @@ def render_mustache_template(template_path: str, context: dict) -> str:
     return rendered_template
 
 
-def invalidate_cache(namespace: str):
-    for key in redis.keys(f"{namespace}*"):
+async def invalidate_cache(namespace: str):
+    for key in await redis.keys(f"{namespace}*"):
         redis.delete(key)
 
 
@@ -236,7 +236,7 @@ def clean_llm_json_response(content: str) -> str:
 
 
 def get_ollama_host():
-    ollama_host = redis.get("ollama_host")
+    ollama_host = str(redis.get("ollama_host"))
     logger.info(ollama_host)
     try:
         if ollama_host:
@@ -392,7 +392,7 @@ def preprocess_title(title: str) -> set:
     title = re.sub(r"[._+-]", " ", title)
     words = [word for word in title.split() if word.isalnum()]
     words = filter_words(words)
-    return list(set(words))
+    return set(words)
 
 
 def ordered_intersection(list1, list2):
@@ -437,9 +437,9 @@ def download_torrent_files_move_to(filename, destination, media):
         raise HTTPException(404, f"{filename} not found")
 
     try:
-        # TODO 
+        # TODO
         # if  media == "tvshows":
-        # 1. New series use defaults 
+        # 1. New series use defaults
         # 2. Existing series use series rules
         #    - Scan episode file layout
         #      From that we can determine season folders are used, named, etc.
@@ -534,7 +534,7 @@ def get_video_title(filename: str):
         raise ValueError(f"Unsupported file type: {filename}")
 
 
-def set_video_title(filename: str, title: str = None):
+def set_video_title(filename: str, title: str = ''):
     """
     Retitle video (mp4 or mkv) using the filename stem
     (filename minus extension), or use the given title.
@@ -920,7 +920,7 @@ async def search_torrents(query: Optional[str] = Query(None)):
 def scrape_magnet(html: str) -> Optional[str]:
     soup = BeautifulSoup(html, "html.parser")
     magnet_link = soup.select_one('a[href^="magnet:"]')
-    return magnet_link.get("href") if magnet_link else None
+    return str(magnet_link.get("href")) if magnet_link else None
 
 
 @api.get("/torrents/active")
@@ -997,22 +997,23 @@ def torrent_remove(torrent_id: str):
 def torrent_cleanup(payload: TorrentCleanupIn):
     failed = []
     files = payload.files
+    filepath = ''
 
     for file in files:
         try:
-            filepath = os.path.join(config.downloads, file)
-            if os.path.exists(filepath):
-                if os.path.isdir(filepath):
+            filepath = Path(config.downloads, file)
+            if filepath.exists():
+                if filepath.is_dir():
                     shutil.rmtree(filepath)
                 else:
                     os.remove(filepath)
             else:
-                failed.append(filepath)
+                failed.append(str(filepath))
         except Exception:
-            failed.append(filepath)
+            failed.append(str(filepath))
 
     if files:
-        root = Path(files[0]).parents[-2] if files else None
+        root = Path(files[0]).parents[-2]
         directories = [directories for dirpaths, directories, files in os.walk(root)]
         logger.info("Cleanup directories...")
         logger.info(directories)
@@ -1028,6 +1029,7 @@ def torrent_cleanup(payload: TorrentCleanupIn):
 @api.get("/torrents/files/delete")
 def files_delete(filename):
     path = torrent_download_path(filename)
+    context = 'unknown'
     if not os.path.exists(path):
         raise HTTPException(404, f"{filename} not found in downloads")
     try:
@@ -1071,15 +1073,6 @@ def get_random_image():
         image_path = os.path.join(image_dir, random_image)
         return FileResponse(image_path)
     return {"info": f"{image_dir} doesn't exist"}
-
-
-@api.get("/urls")
-def get_all_urls():
-    url_list = [
-        {"path": f"/api{route.path}", "name": route.name, "methods": route.methods}
-        for route in api.routes
-    ]
-    return url_list
 
 
 @api.get("/storage/list/{section}")

@@ -11,7 +11,6 @@ import videoFileExtensions from 'video-extensions';
 import subtitleFileExtensions from '@/lib/subtitle-file-extensions';
 import { playSound } from '@/lib/play-sound';
 import { useLocalStorage } from 'usehooks-ts';
-import { useActivity } from './activity-detector';
 
 export interface FileRenameType {
   filename: string
