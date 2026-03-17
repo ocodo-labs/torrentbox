@@ -24,8 +24,12 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
 
   const handleMoveToCurrentShowClick = () => {
     const seriesName = currentShow.name;
+    const pathName = currentShow.path;
     setCurrentShow({} as StorageNamePath);
-    return handleAction(file, "files/move/tvshows", { 'X-TVSeries': seriesName });
+    return handleAction(file, "files/move/tvshows", {
+      'X-TVSeries': seriesName,
+      'X-TVSeriesPath': pathName
+    });
   };
 
   const handleNewShowNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,7 +71,7 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
       const newShowPath = newShowName.trim();
       setCurrentShow({ name: newShowName, path: newShowPath });
       setShowAddAsNewShow(false);
-      await addNewShow(newShowName, newShowPath)
+      //await addNewShow(newShowName, newShowPath)
       toast.success(`Adding new show: ${newShowName}`)
     } else {
       toast.error(validationError || 'Please provide a valid show name.');

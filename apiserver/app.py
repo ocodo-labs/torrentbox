@@ -429,12 +429,27 @@ def torrent_download_path(filename):
     return os.path.join(config.downloads, filename)
 
 
-def download_torrent_files_move_to(filename, destination, media):
+def download_torrent_files_move_to(filename, destination, media, headers=None):
     path = Path(torrent_download_path(filename))
-    dest = Path(destination)
 
     if not path.exists():
         raise HTTPException(404, f"{filename} not found")
+
+    dest = Path(destination)
+
+    if headers:
+        tv_series_name = headers.get("X-TVSeries")
+        tv_series_path = headers.get("X-TVSeriesPath")
+
+        if tv_series_name:
+            tv_series_path = headers.get("X-TVSeriesPath")
+            if tv_series_path:
+                logger.info(f'TODO: TV Series move {tv_series_name} - {filename} to {destination} - in {tv_series_path}')
+            else:
+                error_msg = f'TV Series without mandatory series path - {tv_series_name}'
+                logger.error(error_msg)
+                raise HTTPException(500, error_msg)
+
 
     try:
         # TODO
@@ -1045,11 +1060,11 @@ def files_delete(filename):
 
 
 @api.get("/torrents/files/move/{destination}")
-def files_move_to_destination(destination: str, filename: str = Query(...)):
+def files_move_to_destination(request: Request, destination: str, filename: str = Query(...)):
     media = config.media[destination]
     if media and media.directory:
         directory = media.directory
-        return download_torrent_files_move_to(filename, directory, media=destination)
+        return download_torrent_files_move_to(filename, directory, media=destination, headers=request.headers)
 
     raise HTTPException(404, f"Cannot find destination: {destination}")
 
