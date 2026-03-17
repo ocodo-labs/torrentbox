@@ -54,7 +54,8 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
 
     await handleAction(file, "files/move/tvshows", {
       'X-TVSeries': showName,
-      'X-TVSeriesPath': path
+      'X-TVSeriesPath': path,
+      'X-TVSeriesNew': 'true',
     });
 
     toast(

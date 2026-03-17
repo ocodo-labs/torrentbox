@@ -440,15 +440,30 @@ def download_torrent_files_move_to(filename, destination, media, headers=None):
     if headers:
         tv_series_name = headers.get("X-TVSeries")
         tv_series_path = headers.get("X-TVSeriesPath")
+        tv_series_new = headers.get("X-TVSeriesNew")
 
         if tv_series_name:
             tv_series_path = headers.get("X-TVSeriesPath")
             if tv_series_path:
-                logger.info(f'TODO: TV Series move {tv_series_name} - {filename} to {destination} - in {tv_series_path}')
+                if tv_series_new and tv_series_new == 'true':
+                    logger.info(f'TODO: TV Series video(s) move to tv series: {tv_series_name} - {filename} to {destination} - in {tv_series_path}')
+                    try:
+                        Path(dest, tv_series_path).mkdir()
+                    except OSError:
+                        raise HTTPException(500, f"Cannot create path: {str(Path(dest, tv_series_path))}")
+                else:
+                    logger.info(f'TODO: TV Series video(s) move to tv series: {tv_series_name} - {filename} to {destination} - in {tv_series_path}')
+                    # check exists or raise 404
+                    if not Path(dest, tv_series_path).exists():
+                        raise HTTPException(404, f"No existing TV Series path: '{tv_series_path}'")
+
+                shutil.move(str(path), Path(dest, tv_series_path))
+                return {"info": f"Moved {filename} to {tv_series_path} in {destination}"}
             else:
                 error_msg = f'TV Series without mandatory series path - {tv_series_name}'
                 logger.error(error_msg)
                 raise HTTPException(500, error_msg)
+
 
 
     try:
