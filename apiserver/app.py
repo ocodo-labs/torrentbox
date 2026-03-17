@@ -442,6 +442,19 @@ def download_torrent_files_move_to(filename, destination, media, headers=None):
         tv_series_path = headers.get("X-TVSeriesPath")
         tv_series_new = headers.get("X-TVSeriesNew")
 
+        # TODO
+        # if  media == "tvshows":
+        # 1. New series use defaults
+        # 2. Existing series use series rules
+        #    - Scan episode file layout
+        #      From that we can determine season folders are used, named, etc.
+        #         - we expect episodes to be stored per folder:
+        #    - 1 season - flat not sub folders
+        #    - greater than 1 season - make folders for
+        #      - seasons and move S01 episodes into S01 folder
+        #      - make new season folder only when there is a new season episode to place in that folder.
+        # see: tv_series_storage_analysis.py
+
         if tv_series_name:
             tv_series_path = headers.get("X-TVSeriesPath")
             if tv_series_path:
@@ -467,18 +480,6 @@ def download_torrent_files_move_to(filename, destination, media, headers=None):
 
 
     try:
-        # TODO
-        # if  media == "tvshows":
-        # 1. New series use defaults
-        # 2. Existing series use series rules
-        #    - Scan episode file layout
-        #      From that we can determine season folders are used, named, etc.
-        #         - we expect episodes to be stored per folder:
-        #    - 1 season - flat not sub folders
-        #    - greater than 1 season - make folders for
-        #      - seasons and move S01 episodes into S01 folder
-        #      - make new season folder only when there is a new season episode to place in that folder.
-        # see: tv_series_storage_analysis.py
 
         if media == "movies":
             # File: wrap movie video files in a folder
