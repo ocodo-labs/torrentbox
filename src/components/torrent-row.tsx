@@ -77,16 +77,16 @@ export const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
               </div>
               <div className="text-xxs rounded-sm bg-background/50 p-1 px-2">
                 {torrent.stats
-                  .filter((s) => s.fields.seederCount)
+                  .filter((s) => Boolean(s.fields.seederCount))
                   .sort((a, b) => a.fields.seederCount > b.fields.seederCount ? -1 : 1)[0]
-                  .fields.seederCount
+                  ?.fields?.seederCount
                 } seeds
               </div>
               <div className="text-xxs rounded-sm bg-background/50 p-1 px-2">
                 {torrent.stats
-                  .filter((s) => s.fields.leecherCount)
+                  .filter((s) => Boolean(s.fields.leecherCount))
                   .sort((a, b) => a.fields.leecherCount > b.fields.leecherCount ? -1 : 1)[0]
-                  .fields.leecherCount
+                  ?.fields?.leecherCount
 
                 } leechers
               </div>
@@ -94,7 +94,7 @@ export const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
                 {torrent.stats
                   .filter((s) => s.fields.downloadCount)
                   .sort((a, b) => a.fields.downloadCount > b.fields.downloadCount ? -1 : 1)[0]
-                  .fields.downloadCount
+                  ?.fields?.downloadCount
 
                 } downloads
               </div>

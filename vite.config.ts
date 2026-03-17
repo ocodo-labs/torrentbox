@@ -20,7 +20,8 @@ export default defineConfig({
   },
   build: {
     outDir: './apiserver/dist',
-    chunkSizeWarningLimit: 5000,
+    chunkSizeWarningLimit: 9000,
+    sourcemap: 'inline',
   },
   resolve: {
     alias: {
