@@ -51,10 +51,16 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
   };
 
   const addNewShow = async (showName: string, path: string) => {
+
+    await handleAction(file, "files/move/tvshows", {
+      'X-TVSeries': showName,
+      'X-TVSeriesPath': path
+    });
+
     toast(
       <div>
         <div>
-          file: {file} will be moved to tv shows
+          file: {file} moved to tv shows
         </div>
         <div>
           as: {showName}
@@ -71,8 +77,7 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
       const newShowPath = newShowName.trim();
       setCurrentShow({ name: newShowName, path: newShowPath });
       setShowAddAsNewShow(false);
-      //await addNewShow(newShowName, newShowPath)
-      toast.success(`Adding new show: ${newShowName}`)
+      await addNewShow(newShowName, newShowPath)
     } else {
       toast.error(validationError || 'Please provide a valid show name.');
     }
