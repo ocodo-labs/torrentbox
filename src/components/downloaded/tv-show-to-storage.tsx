@@ -46,12 +46,29 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
     }
   };
 
-  const handleSubmitNewShow = () => {
+  const addNewShow = async (showName: string, path: string) => {
+    toast(
+      <div>
+        <div>
+          file: {file} will be moved to tv shows
+        </div>
+        <div>
+          as: {showName}
+        </div>
+        <div>
+          nested in: {path}
+        </div>
+      </div>
+    )
+  }
+
+  const handleSubmitNewShow = async () => {
     if (isValidShowName && newShowName.trim() !== '') {
       const newShowPath = newShowName.trim();
       setCurrentShow({ name: newShowName, path: newShowPath });
       setShowAddAsNewShow(false);
-      toast.success(`Adding as ${newShowName}`);
+      await addNewShow(newShowName, newShowPath)
+      toast.success(`Adding new show: ${newShowName}`)
     } else {
       toast.error(validationError || 'Please provide a valid show name.');
     }
