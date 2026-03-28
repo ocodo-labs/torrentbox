@@ -17,19 +17,22 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
   const { handleAction } = useTransmissionContext();
   const [showTVShows, setShowTVShows] = useState<boolean>(false);
   const [showAddAsNewShow, setShowAddAsNewShow] = useState<boolean>(false);
-  const [currentShow, setCurrentShow] = useState<StorageNamePath>({} as StorageNamePath);
+  const [addingShow, setAddingShow] = useState<boolean>(false);
+  const [inputShow, setInputShow] = useState<StorageNamePath>({} as StorageNamePath);
   const [newShowName, setNewShowName] = useState<string>('');
   const [isValidShowName, setIsValidShowName] = useState<boolean>(true);
   const [validationError, setValidationError] = useState<string | undefined>(undefined);
 
-  const handleMoveToCurrentShowClick = () => {
-    const seriesName = currentShow.name;
-    const pathName = currentShow.path;
-    setCurrentShow({} as StorageNamePath);
-    return handleAction(file, "files/move/tvshows", {
+  const handleMoveToExistingShowClick = async () => {
+    const seriesName = inputShow.name;
+    const pathName = inputShow.path;
+    setInputShow({} as StorageNamePath);
+    setAddingShow(true);
+    await handleAction(file, "files/move/tvshows", {
       'X-TVSeries': seriesName,
       'X-TVSeriesPath': pathName
     });
+    setAddingShow(false);
   };
 
   const handleNewShowNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,7 +48,7 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
     if (show.path === '') {
       setShowAddAsNewShow(true);
     } else {
-      setCurrentShow(show);
+      setInputShow(show);
       setShowAddAsNewShow(false);
     }
   };
@@ -76,9 +79,11 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
   const handleSubmitNewShow = async () => {
     if (isValidShowName && newShowName.trim() !== '') {
       const newShowPath = newShowName.trim();
-      setCurrentShow({ name: newShowName, path: newShowPath });
+      setInputShow({ name: newShowName, path: newShowPath });
       setShowAddAsNewShow(false);
+      setAddingShow(true);
       await addNewShow(newShowName, newShowPath)
+      setAddingShow(false);
     } else {
       toast.error(validationError || 'Please provide a valid show name.');
     }
@@ -104,7 +109,7 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
                 onClick={() => {
                   setShowTVShows(false);
                   setShowAddAsNewShow(false);
-                  setCurrentShow({} as StorageNamePath);
+                  setInputShow({} as StorageNamePath);
                 }}
                 className="h-4 w-4"
                 style={thinIconStyle}
@@ -113,7 +118,7 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
         </div>
       </TooltipCompact>
 
-      {showTVShows && !showAddAsNewShow && !currentShow.name && (
+      {showTVShows && !showAddAsNewShow && !inputShow.name && (
         <StoragePathSelect
           selectLabel="Move to TV show..."
           items={[...tvShows, { name: 'Add new tv show...', path: '' }]}
@@ -121,7 +126,7 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
         />
       )}
 
-      {showAddAsNewShow && !currentShow.path && (
+      {showAddAsNewShow && !inputShow.path && (
         <TVShowAddAsNewShow
           newShowName={newShowName}
           handleNewShowNameChange={handleNewShowNameChange}
@@ -133,7 +138,28 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
         <p className="text-red-500 text-xs">{validationError}</p>
       )}
 
-      {currentShow.name && !showAddAsNewShow && (
+      {addingShow &&
+        <>
+          <div
+            className={cn(
+              `
+                rounded-full
+                bg-primary
+                cursor-wait
+                select-none
+                text-xs
+                p-1
+                px-3
+                animate-pulse
+              `
+            )}
+          >
+            Moving to {inputShow.name}
+          </div>
+        </>
+      }
+
+      {inputShow.name && !showAddAsNewShow && !addingShow && (
         <div
           className={cn(
             `
@@ -147,25 +173,29 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
           )}
           onClick={
             () =>
-              currentShow.path
+              inputShow.path
                 ?
-                handleMoveToCurrentShowClick()
+                handleMoveToExistingShowClick()
                 :
-                handleSubmitNewShow()
+                inputShow.name
+                  ?
+                  handleSubmitNewShow()
+                  :
+                  setShowAddAsNewShow(true)
           }
         >
           {
-            currentShow.path
+            inputShow.path
               ?
-              `Move to ${currentShow.name}`
+              `Move to ${inputShow.name}`
               :
-              currentShow.name
+              inputShow.name
           }
         </div>
       )}
 
       {
-        !currentShow.name && showAddAsNewShow && (
+        !inputShow.name && showAddAsNewShow && (
           <div
             className={cn(
               `
