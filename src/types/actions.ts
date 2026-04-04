@@ -3,6 +3,7 @@ type DestructiveDownloadedFileAction =
 'files/move/movies' |
 'files/move/tvshows' |
 'files/move/books' |
+'files/move/audiobooks' |
 'files/move/music' |
 'files/move/software'
 

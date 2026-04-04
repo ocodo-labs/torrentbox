@@ -1,13 +1,12 @@
 import React, { useState } from "react"
 import type { FC } from "react"
 import type { StorageNamePath } from "@/contexts/storage-provider"
-import { cn } from "@/lib/utils"
 import { StoragePathSelect } from "@/components/downloaded/storage-path-select"
 import { TVShowAddAsNewShow } from "@/components/downloaded/tv-show-add-as-new-show"
 import { TooltipCompact } from "@/components/tooltip-compact"
 import { useStorage } from "@/contexts/storage-context"
 import { useTransmissionContext } from "@/contexts/transmission-provider"
-import { thinIconStyle } from "@/lib/styling"
+import { inputShowNameClasses, movingToShowIndicatorClasses, thinIconStyle } from "@/lib/styling"
 import { validateNewShowName } from "@/lib/tv-show-validation"
 import { CircleX, Tv } from "lucide-react"
 import { toast } from "sonner"
@@ -53,8 +52,25 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
     }
   };
 
-  const addNewShow = async (showName: string, path: string) => {
+  const fetchAndShowTVSeriesList = () => {
+    fetchTVShowList();
+    setShowTVShows(true);
+  }
 
+  const hideTVSeriesList = () => {
+    setShowTVShows(false);
+    setShowAddAsNewShow(false);
+    setInputShow({} as StorageNamePath);
+  }
+
+  const selectNewShowOrAddNew = () =>
+    inputShow.path
+      ? handleMoveToExistingShowClick()
+      : inputShow.name
+        ? handleSubmitNewShow()
+        : setShowAddAsNewShow(true)
+
+  const addNewShow = async (showName: string, path: string) => {
     await handleAction(file, "files/move/tvshows", {
       'X-TVSeries': showName,
       'X-TVSeriesPath': path,
@@ -97,20 +113,13 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
             !showTVShows
               ?
               <Tv
-                onClick={() => {
-                  fetchTVShowList();
-                  setShowTVShows(true);
-                }}
+                onClick={fetchAndShowTVSeriesList}
                 className="h-4 w-4"
                 style={thinIconStyle}
               />
               :
               <CircleX
-                onClick={() => {
-                  setShowTVShows(false);
-                  setShowAddAsNewShow(false);
-                  setInputShow({} as StorageNamePath);
-                }}
+                onClick={hideTVSeriesList}
                 className="h-4 w-4"
                 style={thinIconStyle}
               />
@@ -141,72 +150,25 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
       {addingShow &&
         <>
           <div
-            className={cn(
-              `
-                rounded-full
-                bg-primary
-                cursor-wait
-                select-none
-                text-xs
-                p-1
-                px-3
-                animate-pulse
-              `
-            )}
+            className={movingToShowIndicatorClasses}
           >
             Moving to {inputShow.name}
           </div>
         </>
       }
 
-      {inputShow.name && !showAddAsNewShow && !addingShow && (
-        <div
-          className={cn(
-            `
-              rounded-full
-              bg-primary
-              cursor-pointer
-              text-xs
-              p-1
-              px-3
-            `
-          )}
-          onClick={
-            () =>
-              inputShow.path
-                ?
-                handleMoveToExistingShowClick()
-                :
-                inputShow.name
-                  ?
-                  handleSubmitNewShow()
-                  :
-                  setShowAddAsNewShow(true)
-          }
-        >
-          {
-            inputShow.path
-              ?
-              `Move to ${inputShow.name}`
-              :
-              inputShow.name
-          }
-        </div>
-      )}
+      {
+        inputShow.name && !showAddAsNewShow && !addingShow && (
+          <div className={inputShowNameClasses} onClick={selectNewShowOrAddNew}>
+            {inputShow.path ? `Move to ${inputShow.name}` : inputShow.name}
+          </div>
+        )
+      }
 
       {
         !inputShow.name && showAddAsNewShow && (
           <div
-            className={cn(
-              `
-                rounded-full
-                bg-primary
-                cursor-pointer
-                text-xs
-                p-1
-                px-3
-              `
-            )}
+            className={inputShowNameClasses}
             onClick={handleSubmitNewShow}
           >
             Add Show...

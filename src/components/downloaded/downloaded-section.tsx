@@ -5,15 +5,16 @@ import {
 } from "@/types/actions";
 import type { Torrent } from "@/types/torrent";
 import { type FC, useState } from "react";
-import { TVShowToStorage } from "./tv-show-to-storage";
-import { MusicToStorage } from "./music-to-storage";
-import { SoftwareToStorage } from "./software-to-storage";
-import { BooksToStorage } from "./books-to-storage";
-import { MoviesToStorage } from "./movies-to-storage";
-import { RenameDownloaded } from "./rename-downloaded";
-import { ShowMorePlaces } from "./show-more-places";
-import { HideMorePlaces } from "./hide-more-places";
-import { DeleteDownloaded } from "./delete-downloaded";
+import { TVShowToStorage } from "@/components/downloaded/tv-show-to-storage";
+import { MusicToStorage } from "@/components/downloaded/music-to-storage";
+import { SoftwareToStorage } from "@/components/downloaded/software-to-storage";
+import { BookToStorage } from "@/components/downloaded/books-to-storage";
+import { MoviesToStorage } from "@/components/downloaded/movies-to-storage";
+import { RenameDownloaded } from "@/components/downloaded/rename-downloaded";
+import { ShowMorePlaces } from "@/components/downloaded/show-more-places";
+import { HideMorePlaces } from "@/components/downloaded/hide-more-places";
+import { DeleteDownloaded } from "@/components/downloaded/delete-downloaded";
+import { AudiobookToStorage } from "@/components/downloaded/audiobook-to-storage";
 
 export const DownloadedSection: FC = () => {
   const { handleAction, handleRenameDownloaded, downloadedFiles } =
@@ -68,7 +69,8 @@ export const DownloadedFileRow: FC<DownloadedFileRowProps> = ({file}) => {
           {showMore && (
             <>
               <HideMorePlaces onClick={() => setShowMore(false)} />
-              <BooksToStorage file={file} />
+              <BookToStorage file={file} />
+              <AudiobookToStorage file={file} />
               <MusicToStorage file={file} />
               <SoftwareToStorage file={file} />
             </>

@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 export const thinIconStyle = {
   strokeWidth: 0.75,
 };
@@ -67,3 +69,27 @@ export const modalItemToolIconClasses = `
 export const modalToolButton = `hover:bg-background rounded-full p-1 cursor-pointer
                              transition-colors duration-700
                              w-6 h-6 flex items-center justify-center`;
+
+export const movingToShowIndicatorClasses = cn(
+  `
+                rounded-full
+                bg-primary
+                cursor-wait
+                select-none
+                text-xs
+                p-1
+                px-3
+                animate-pulse
+              `
+);
+
+export const inputShowNameClasses = cn(
+  `
+              rounded-full
+              bg-primary
+              cursor-pointer
+              text-xs
+              p-1
+              px-3
+            `
+);

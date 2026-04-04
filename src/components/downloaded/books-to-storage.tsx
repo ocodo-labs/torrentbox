@@ -4,7 +4,7 @@ import { BookIcon } from "lucide-react"
 import type { FC } from "react"
 import { AsycJobLongPressTooltipButton } from "@/components/long-press-tooltip-button";
 
-export const BooksToStorage: FC<{ file: string }> = ({ file }) => {
+export const BookToStorage: FC<{ file: string }> = ({ file }) => {
   const { handleAction } = useTransmissionContext()
 
   return (<AsycJobLongPressTooltipButton
