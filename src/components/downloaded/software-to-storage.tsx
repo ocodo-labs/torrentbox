@@ -3,9 +3,12 @@ import { AsycJobLongPressTooltipButton } from "@/components/long-press-tooltip-b
 import { Binary } from "lucide-react"
 import { thinIconStyle } from "@/lib/styling"
 import { useTransmissionContext } from "@/contexts/transmission-provider"
+import type { MoveToStorageProps } from "@/types/torrent"
 
-export const SoftwareToStorage: FC<{ file: string }> = ({ file }) => {
+export const SoftwareToStorage: FC<MoveToStorageProps> = ({ file, setFileMoving, setMoveType, fileMoving, moveType }) => {
   const { handleAction } = useTransmissionContext()
+
+  if (fileMoving && moveType != 'software') return;
 
   return (<AsycJobLongPressTooltipButton
     title="Move to Software"
@@ -16,6 +19,13 @@ export const SoftwareToStorage: FC<{ file: string }> = ({ file }) => {
         style={thinIconStyle}
       />
     }
-    onLongPress={() => handleAction(file, "files/move/software")}
+
+    onLongPress={async () => {
+      setFileMoving(true);
+      setMoveType('software');
+      await handleAction(file, "files/move/software")
+      setFileMoving(false);
+      setMoveType(undefined);
+    }}
   />)
 }

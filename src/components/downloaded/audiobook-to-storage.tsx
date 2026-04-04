@@ -2,9 +2,12 @@ import { AsycJobLongPressTooltipButton } from "@/components/long-press-tooltip-b
 import { thinIconStyle } from "@/lib/styling"
 import type { FC, SVGProps } from "react"
 import { useTransmissionContext } from "@/contexts/transmission-provider"
+import type { MoveToStorageProps } from "@/types/torrent"
 
-export const AudiobookToStorage: FC<{ file: string }> = ({ file }) => {
+export const AudiobookToStorage: FC<MoveToStorageProps> = ({ file, setMoveType, moveType, setFileMoving, fileMoving }) => {
   const { handleAction } = useTransmissionContext()
+
+  if (fileMoving && moveType != 'audiobook') return;
 
   return (
     <AsycJobLongPressTooltipButton
@@ -16,7 +19,14 @@ export const AudiobookToStorage: FC<{ file: string }> = ({ file }) => {
           style={thinIconStyle}
         />
       }
-      onLongPress={() => handleAction(file, "files/move/audiobooks")}
+
+      onLongPress={async () => {
+        setFileMoving(true);
+        setMoveType('audiobook');
+        await handleAction(file, "files/move/audiobooks")
+        setFileMoving(false);
+        setMoveType(undefined);
+      }}
     />
   )
 }

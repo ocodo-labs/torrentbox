@@ -1,3 +1,5 @@
+import type { Dispatch, SetStateAction } from "react";
+
 export type TorrentFile = [string, number, number, number, boolean, number];
 
 export interface Torrent {
@@ -52,3 +54,22 @@ export interface TrackerStats {
 		seederCount: number;
 		tier: number;
 }
+
+export interface MoveToStorageProps {
+  setMoveType: Dispatch<SetStateAction<MoveType>>;
+  moveType: MoveType;
+  setFileMoving: Dispatch<SetStateAction<boolean>>;
+  fileMoving: boolean;
+  file: string;
+}
+
+export type MoveType =
+  'tv' |
+  'movie' |
+  'book' |
+  'audiobook' |
+  'music' |
+  'software' |
+  undefined |
+  null
+

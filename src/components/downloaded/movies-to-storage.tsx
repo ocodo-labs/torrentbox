@@ -3,8 +3,9 @@ import { thinIconStyle } from "@/lib/styling";
 import { Clapperboard } from "lucide-react";
 import type { FC } from "react"
 import { AsycJobLongPressTooltipButton } from "@/components/long-press-tooltip-button";
+import type { MoveToStorageProps } from "@/types/torrent";
 
-export const MoviesToStorage: FC<{ file: string }> = ({ file }) => {
+export const MoviesToStorage: FC<MoveToStorageProps> = ({ setMoveType, moveType, fileMoving, setFileMoving, file }) => {
   const { handleAction } = useTransmissionContext()
 
   return (<AsycJobLongPressTooltipButton
@@ -16,6 +17,12 @@ export const MoviesToStorage: FC<{ file: string }> = ({ file }) => {
         style={thinIconStyle}
       />
     }
-    onLongPress={() => handleAction(file, "files/move/movies")}
+    onLongPress={async () => {
+      setFileMoving(true);
+      setMoveType('movie');
+      await handleAction(file, "files/move/movies");
+      setFileMoving(false);
+      setMoveType(undefined);
+    }}
   />)
 };

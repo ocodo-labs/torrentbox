@@ -10,13 +10,13 @@ import { inputShowNameClasses, movingToShowIndicatorClasses, thinIconStyle } fro
 import { validateNewShowName } from "@/lib/tv-show-validation"
 import { CircleX, Tv } from "lucide-react"
 import { toast } from "sonner"
+import type { MoveToStorageProps } from "@/types/torrent"
 
-export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
+export const TVShowToStorage: FC<MoveToStorageProps> = ({ file, setFileMoving, fileMoving, setMoveType, moveType }) => {
   const { tvShows, fetchTVShowList } = useStorage();
   const { handleAction } = useTransmissionContext();
   const [showTVShows, setShowTVShows] = useState<boolean>(false);
   const [showAddAsNewShow, setShowAddAsNewShow] = useState<boolean>(false);
-  const [addingShow, setAddingShow] = useState<boolean>(false);
   const [inputShow, setInputShow] = useState<StorageNamePath>({} as StorageNamePath);
   const [newShowName, setNewShowName] = useState<string>('');
   const [isValidShowName, setIsValidShowName] = useState<boolean>(true);
@@ -26,12 +26,14 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
     const seriesName = inputShow.name;
     const pathName = inputShow.path;
     setInputShow({} as StorageNamePath);
-    setAddingShow(true);
+    setFileMoving(true);
+    setMoveType('tv');
     await handleAction(file, "files/move/tvshows", {
       'X-TVSeries': seriesName,
       'X-TVSeriesPath': pathName
     });
-    setAddingShow(false);
+    setMoveType(undefined);
+    setFileMoving(false);
   };
 
   const handleNewShowNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,13 +99,17 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
       const newShowPath = newShowName.trim();
       setInputShow({ name: newShowName, path: newShowPath });
       setShowAddAsNewShow(false);
-      setAddingShow(true);
+      setMoveType('tv');
+      setFileMoving(true);
       await addNewShow(newShowName, newShowPath)
-      setAddingShow(false);
+      setFileMoving(false);
+      setMoveType(undefined)
     } else {
       toast.error(validationError || 'Please provide a valid show name.');
     }
   };
+
+  if (fileMoving && moveType != 'tv') return;
 
   return (
     <>
@@ -118,6 +124,7 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
                 style={thinIconStyle}
               />
               :
+              !fileMoving &&
               <CircleX
                 onClick={hideTVSeriesList}
                 className="h-4 w-4"
@@ -127,7 +134,7 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
         </div>
       </TooltipCompact>
 
-      {showTVShows && !showAddAsNewShow && !inputShow.name && (
+      {showTVShows && !showAddAsNewShow && !inputShow.name && !fileMoving && (
         <StoragePathSelect
           selectLabel="Move to TV show..."
           items={[...tvShows, { name: 'Add new tv show...', path: '' }]}
@@ -135,7 +142,7 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
         />
       )}
 
-      {showAddAsNewShow && !inputShow.path && (
+      {showAddAsNewShow && !inputShow.path && !fileMoving && (
         <TVShowAddAsNewShow
           newShowName={newShowName}
           handleNewShowNameChange={handleNewShowNameChange}
@@ -147,7 +154,7 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
         <p className="text-red-500 text-xs">{validationError}</p>
       )}
 
-      {addingShow &&
+      {fileMoving && moveType === 'tv' &&
         <>
           <div
             className={movingToShowIndicatorClasses}
@@ -158,7 +165,7 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
       }
 
       {
-        inputShow.name && !showAddAsNewShow && !addingShow && (
+        inputShow.name && !showAddAsNewShow && !fileMoving && (
           <div className={inputShowNameClasses} onClick={selectNewShowOrAddNew}>
             {inputShow.path ? `Move to ${inputShow.name}` : inputShow.name}
           </div>
@@ -166,7 +173,7 @@ export const TVShowToStorage: FC<{ file: string }> = ({ file }) => {
       }
 
       {
-        !inputShow.name && showAddAsNewShow && (
+        !inputShow.name && showAddAsNewShow && !fileMoving && (
           <div
             className={inputShowNameClasses}
             onClick={handleSubmitNewShow}
