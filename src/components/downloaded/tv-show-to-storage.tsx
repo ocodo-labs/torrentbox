@@ -21,10 +21,12 @@ export const TVShowToStorage: FC<MoveToStorageProps> = ({ file, setFileMoving, f
   const [newShowName, setNewShowName] = useState<string>('');
   const [isValidShowName, setIsValidShowName] = useState<boolean>(true);
   const [validationError, setValidationError] = useState<string | undefined>(undefined);
+  const [existingShowName, setExistingShowName] = useState<string | undefined>(undefined);
 
   const handleMoveToExistingShowClick = async () => {
     const seriesName = inputShow.name;
     const pathName = inputShow.path;
+    setExistingShowName(seriesName);
     setInputShow({} as StorageNamePath);
     setFileMoving(true);
     setMoveType('tv');
@@ -159,7 +161,17 @@ export const TVShowToStorage: FC<MoveToStorageProps> = ({ file, setFileMoving, f
           <div
             className={movingToShowIndicatorClasses}
           >
-            Moving to {inputShow.name}
+            {
+              inputShow.name
+              ?
+              <>
+                Moving to {inputShow.name}
+              </>
+              :
+              <>
+                Moving to {existingShowName}
+              </>
+            }
           </div>
         </>
       }

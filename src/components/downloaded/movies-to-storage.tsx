@@ -8,6 +8,8 @@ import type { MoveToStorageProps } from "@/types/torrent";
 export const MoviesToStorage: FC<MoveToStorageProps> = ({ setMoveType, moveType, fileMoving, setFileMoving, file }) => {
   const { handleAction } = useTransmissionContext()
 
+  if (fileMoving && moveType != 'movie') return;
+
   return (<AsycJobLongPressTooltipButton
     title="Move to Movies"
     fillColor="bg-primary"
