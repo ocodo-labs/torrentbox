@@ -235,7 +235,7 @@ def clean_llm_json_response(content: str) -> str:
     return content.strip()
 
 
-def get_ollama_host():
+def get_llm_host():
     ollama_host = str(redis.get("ollama_host"))
     logger.info(ollama_host)
     try:
@@ -257,11 +257,11 @@ def get_ollama_host():
         except Exception:
             logger.error(f"Connection error to {host}")
 
-    logger.error("No ollama hosts available")
+    logger.error("No llm hosts available")
     return None
 
 
-def get_ollama_models(host):
+def get_llm_models(host):
     response = requests.get(f"{host}/api/tags")
     if response.status_code == 200:
         data = response.json()
@@ -270,8 +270,8 @@ def get_ollama_models(host):
     raise ValueError(f"Failed to retrieve models from {host}")
 
 
-def get_ollama_model(name, host=get_ollama_host()):
-    models = get_ollama_models(host)
+def get_llm_model(name, host=get_llm_host()):
+    models = get_llm_models(host)
     if not models:
         raise ValueError(f"Models not found on {host}")
 
@@ -320,15 +320,15 @@ def filename_suggestions(
     suggestions = None
     try_count = 0
 
-    host = get_ollama_host()
+    host = get_llm_host()
 
     if host is None:
-        msg = "No ollama host is available"
+        msg = "No llm host is available"
         logger.info(msg)
         raise Exception(msg)
 
     ollama = Ollama(host=host)
-    ollama_host_models = get_ollama_models(host)
+    ollama_host_models = get_llm_models(host)
 
     if ollama_host_models is None:
         msg = f"No models on {host}"
@@ -441,19 +441,6 @@ def download_torrent_files_move_to(filename, destination, media, headers=None):
         tv_series_name = headers.get("X-TVSeries")
         tv_series_path = headers.get("X-TVSeriesPath")
         tv_series_new = headers.get("X-TVSeriesNew")
-
-        # TODO
-        # if  media == "tvshows":
-        # 1. New series use defaults
-        # 2. Existing series use series rules
-        #    - Scan episode file layout
-        #      From that we can determine season folders are used, named, etc.
-        #         - we expect episodes to be stored per folder:
-        #    - 1 season - flat not sub folders
-        #    - greater than 1 season - make folders for
-        #      - seasons and move S01 episodes into S01 folder
-        #      - make new season folder only when there is a new season episode to place in that folder.
-        # see: tv_series_storage_analysis.py
 
         if tv_series_name:
             tv_series_path = headers.get("X-TVSeriesPath")
@@ -834,7 +821,7 @@ async def update_config(payload: Request):
 @api.get("/llm/status")
 def get_llm_status():
     try:
-        if get_ollama_host():
+        if get_llm_host():
             return Response(status_code=200)
     except Exception:
         pass
@@ -847,12 +834,12 @@ def post_llm_suggest_names(b: SuggestNamesIn):
     try:
         suggestions = filename_suggestions(b.filename)
     except Exception as e:
-        return HTTPException(500, "Message: {}, ollama server error".format(e))
+        return HTTPException(500, "Message: {}, llm server error".format(e))
 
     try:
         payload = suggestions
     except Exception as e:
-        return HTTPException(500, "Message: {}, ollama suggestions error".format(e))
+        return HTTPException(500, "Message: {}, llm suggestions error".format(e))
 
     return payload
 
