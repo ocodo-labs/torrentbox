@@ -12,9 +12,9 @@ export const DownloadedSection: FC = () => {
         <h2 className="text-xl font-semibold mb-4">Downloaded</h2>
         <div className="space-y-4">
           {
-            downloadedFiles.map((file: string, index: number) => (
+            downloadedFiles.map((file: string) => (
               <DownloadedFileRow
-                key={index}
+                key={file}
                 file={file}
                 handleAction={handleAction}
                 handleRename={handleRenameDownloaded}
