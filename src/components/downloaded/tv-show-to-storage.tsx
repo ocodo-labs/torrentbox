@@ -112,6 +112,13 @@ export const TVShowToStorage: FC<MoveToStorageProps> = ({ file, setFileMoving, f
     }
   };
 
+  const MovingToTVIcon = () => (
+    <OcodoLoaderIcon
+      className="animate-spin"
+      stroke="#FFFFFF"
+      width={`16px`} height={`16px`} />
+  )
+
   if (fileMoving && moveType != 'tv') return;
 
   return (
@@ -164,14 +171,14 @@ export const TVShowToStorage: FC<MoveToStorageProps> = ({ file, setFileMoving, f
           >
             {
               inputShow.name
-              ?
-              <>
-                <OcodoLoaderIcon className="animate-spin" width={`16px`} height={`16px`} /> Moving to {inputShow.name}
-              </>
-              :
-              <>
-                <OcodoLoaderIcon className="animate-spin" width={`16px`} height={`16px`} /> Moving to {existingShowName}
-              </>
+                ?
+                <>
+                  <MovingToTVIcon /> Moving to {inputShow.name}
+                </>
+                :
+                <>
+                  <MovingToTVIcon /> Moving to {existingShowName}
+                </>
             }
           </div>
         </>

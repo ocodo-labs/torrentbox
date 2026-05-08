@@ -9,7 +9,7 @@ export const OcodoLoaderIcon = (props: SVGProps<SVGSVGElement>) => (
     {...props}
   >
     <path
-      stroke='#888888'
+      stroke={ props.stroke ?? '#888888'}
       strokeWidth={18.5}
       strokeOpacity={0.1}
       fill='none'
@@ -17,7 +17,7 @@ export const OcodoLoaderIcon = (props: SVGProps<SVGSVGElement>) => (
     />
     <path
       fill='none'
-      stroke='#888888'
+      stroke={props.stroke ?? '#888888'}
       strokeLinecap='round'
       strokeWidth={18.5}
       d='M93.091 19.475a53.9 53.9 0 0 0-26.945-7.22c-29.764 0-53.892 24.127-53.891 53.89'
