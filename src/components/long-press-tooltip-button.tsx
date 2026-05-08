@@ -44,8 +44,10 @@ export const AsycJobLongPressTooltipButton: FC<AsyncJobLongPressTooltipButtonPro
   return (
     <>
       {isRunning ? (
-        <div className="rounded-full p-2 bg-foreground/30">
-          <OcodoLoaderIcon className="w-6 h-6 animate-spin" />
+        <div className="rounded-full p-1 bg-foreground/30">
+          <OcodoLoaderIcon
+            className="animate-spin"
+            width={`16px`} height={`16px`} />
         </div>
       ) : (
         <LongPressTooltipButton onLongPress={handleLongPress} {...props} />
