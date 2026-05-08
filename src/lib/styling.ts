@@ -72,6 +72,8 @@ export const modalToolButton = `hover:bg-background rounded-full p-1 cursor-poin
 
 export const movingToShowIndicatorClasses = cn(
   `
+                flex flex-row
+                gap-2
                 rounded-full
                 bg-primary
                 cursor-wait

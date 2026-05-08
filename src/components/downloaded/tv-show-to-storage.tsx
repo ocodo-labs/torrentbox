@@ -11,6 +11,7 @@ import { validateNewShowName } from "@/lib/tv-show-validation"
 import { CircleX, Tv } from "lucide-react"
 import { toast } from "sonner"
 import type { MoveToStorageProps } from "@/types/torrent"
+import { OcodoLoaderIcon } from "@/components/icons/ocodo-loader-icon"
 
 export const TVShowToStorage: FC<MoveToStorageProps> = ({ file, setFileMoving, fileMoving, setMoveType, moveType }) => {
   const { tvShows, fetchTVShowList } = useStorage();
@@ -165,11 +166,11 @@ export const TVShowToStorage: FC<MoveToStorageProps> = ({ file, setFileMoving, f
               inputShow.name
               ?
               <>
-                Moving to {inputShow.name}
+                <OcodoLoaderIcon className="animate-spin" width={`16px`} height={`16px`} /> Moving to {inputShow.name}
               </>
               :
               <>
-                Moving to {existingShowName}
+                <OcodoLoaderIcon className="animate-spin" width={`16px`} height={`16px`} /> Moving to {existingShowName}
               </>
             }
           </div>
