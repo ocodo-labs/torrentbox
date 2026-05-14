@@ -115,7 +115,6 @@ export const TVShowToStorage: FC<MoveToStorageProps> = ({ file, setFileMoving, f
   const MovingToIcon = () => (
     <OcodoLoaderIcon
       className="animate-spin"
-      stroke="#FFFFFF"
       width={`16px`} height={`16px`} />
   )
 

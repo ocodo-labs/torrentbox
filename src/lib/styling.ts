@@ -75,7 +75,7 @@ export const movingToShowIndicatorClasses = cn(
                 flex flex-row
                 gap-2
                 rounded-full
-                bg-primary
+                border-1
                 cursor-wait
                 select-none
                 text-xs
