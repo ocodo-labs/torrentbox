@@ -44,7 +44,7 @@ export const AsycJobLongPressTooltipButton: FC<AsyncJobLongPressTooltipButtonPro
   return (
     <>
       {isRunning ? (
-        <div className="rounded-full p-1 bg-foreground/30">
+        <div className="rounded-full p-1 bg-foreground/20">
           <OcodoLoaderIcon
             className="animate-spin"
             width={`16px`} height={`16px`} />
