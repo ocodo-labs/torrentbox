@@ -143,6 +143,7 @@ class ExternalLink:
 
 @dataclass
 class ConfigModel:
+    mounts: List[str]
     downloads: str
     external_links: List[ExternalLink]
     media: ConfigMediaSettings
@@ -445,29 +446,39 @@ def download_torrent_files_move_to(filename, destination, media, headers=None):
         if tv_series_name:
             tv_series_path = headers.get("X-TVSeriesPath")
             if tv_series_path:
-                if tv_series_new and tv_series_new == 'true':
-                    logger.info(f'TODO: TV Series video(s) move to tv series: {tv_series_name} - {filename} to {destination} - in {tv_series_path}')
+                if tv_series_new and tv_series_new == "true":
+                    logger.info(
+                        f"TODO: TV Series video(s) move to tv series: {tv_series_name} - {filename} to {destination} - in {tv_series_path}"
+                    )
                     try:
                         Path(dest, tv_series_path).mkdir()
                     except OSError:
-                        raise HTTPException(500, f"Cannot create path: {str(Path(dest, tv_series_path))}")
+                        raise HTTPException(
+                            500,
+                            f"Cannot create path: {str(Path(dest, tv_series_path))}",
+                        )
                 else:
-                    logger.info(f'TODO: TV Series video(s) move to tv series: {tv_series_name} - {filename} to {destination} - in {tv_series_path}')
+                    logger.info(
+                        f"TODO: TV Series video(s) move to tv series: {tv_series_name} - {filename} to {destination} - in {tv_series_path}"
+                    )
                     # check exists or raise 404
                     if not Path(dest, tv_series_path).exists():
-                        raise HTTPException(404, f"No existing TV Series path: '{tv_series_path}'")
+                        raise HTTPException(
+                            404, f"No existing TV Series path: '{tv_series_path}'"
+                        )
 
                 shutil.move(str(path), Path(dest, tv_series_path))
-                return {"info": f"Moved {filename} to {tv_series_path} in {destination}"}
+                return {
+                    "info": f"Moved {filename} to {tv_series_path} in {destination}"
+                }
             else:
-                error_msg = f'TV Series without mandatory series path - {tv_series_name}'
+                error_msg = (
+                    f"TV Series without mandatory series path - {tv_series_name}"
+                )
                 logger.error(error_msg)
                 raise HTTPException(500, error_msg)
 
-
-
     try:
-
         if media == "movies":
             # File: wrap movie video files in a folder
             # only if explicitly configured
@@ -552,7 +563,7 @@ def get_video_title(filename: str):
         raise ValueError(f"Unsupported file type: {filename}")
 
 
-def set_video_title(filename: str, title: str = ''):
+def set_video_title(filename: str, title: str = ""):
     """
     Retitle video (mp4 or mkv) using the filename stem
     (filename minus extension), or use the given title.
@@ -762,6 +773,25 @@ def retitle_videos(torrent_id):
         )
 
 
+@api.get('/df', tags=["api"])
+def df():
+    out = subprocess.check_output(
+        ["df", "-h"] + list(config.mounts),
+        text=True
+    ).splitlines()
+
+    out[0] = re.sub(r'Use%', r'UsedPercent', out[0])
+    h = out[0].split()
+
+    data = []
+    for l in out[1:]:
+        row = dict(zip(h, l.split()))
+        if 'UsedPercent' in row:
+            row['UsedPercent'] = int(row['UsedPercent'].rstrip('%'))
+        data.append(row)
+
+    return data
+
 @api.get("/health", tags=["api"])
 @api.head("/health", tags=["api"])
 def health_check():
@@ -892,7 +922,6 @@ async def torrent_files_rename_route(payload: TorrentFilesRenameIn):
 
 @api.get("/torrents/poster/search")
 async def search_torrent_posters(query: str = Query(...)):
-
     url = f"https://www.rottentomatoes.com/search?search={query}"
     try:
         response = requests.get(url)
@@ -1015,7 +1044,7 @@ def torrent_remove(torrent_id: str):
 def torrent_cleanup(payload: TorrentCleanupIn):
     failed = []
     files = payload.files
-    filepath = ''
+    filepath = ""
 
     for file in files:
         try:
@@ -1047,7 +1076,7 @@ def torrent_cleanup(payload: TorrentCleanupIn):
 @api.get("/torrents/files/delete")
 def files_delete(filename):
     path = torrent_download_path(filename)
-    context = 'unknown'
+    context = "unknown"
     if not os.path.exists(path):
         raise HTTPException(404, f"{filename} not found in downloads")
     try:
@@ -1063,11 +1092,15 @@ def files_delete(filename):
 
 
 @api.get("/torrents/files/move/{destination}")
-def files_move_to_destination(request: Request, destination: str, filename: str = Query(...)):
+def files_move_to_destination(
+    request: Request, destination: str, filename: str = Query(...)
+):
     media = config.media[destination]
     if media and media.directory:
         directory = media.directory
-        return download_torrent_files_move_to(filename, directory, media=destination, headers=request.headers)
+        return download_torrent_files_move_to(
+            filename, directory, media=destination, headers=request.headers
+        )
 
     raise HTTPException(404, f"Cannot find destination: {destination}")
 

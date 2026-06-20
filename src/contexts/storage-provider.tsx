@@ -5,12 +5,22 @@ import { toast } from "sonner";
 export type StorageNamePath = {name: string, path: string}
 export type StorageTVLibrary = StorageNamePath[]
 export type StorageMovieLibrary = StorageNamePath[]
+export type StorageInfo = {
+  Filesystem: string;
+  Size: string;
+  Used: string;
+  Avail: string;
+  UsedPercent: number;
+  Mounted: string;
+}
 
 export interface StorageContextType {
   tvShows: StorageTVLibrary;
   setTVShows: Dispatch<SetStateAction<StorageTVLibrary>>;
   fetchTVShowList: () => Promise<void>;
   movies: StorageMovieLibrary;
+  fetchStorageInfo: () => Promise<void>;
+  storageInfo: StorageInfo[];
   setMovies: Dispatch<SetStateAction<StorageMovieLibrary>>;
   fetchMovieList: () => Promise<void>;
   refreshTopLists: () => Promise<void>;
@@ -23,6 +33,18 @@ export const StorageProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const [tvShows, setTVShows] = useState<StorageTVLibrary>([]);
   const [movies, setMovies] = useState<StorageMovieLibrary>([]);
+  const [storageInfo, setStorageInfo] = useState<StorageInfo[]>([])
+
+  const fetchStorageInfo = async () => {
+    const response = await fetch(
+      `${serverBaseUrl}/df`
+    )
+
+    if(response.ok) {
+      const data = await response.json()
+      setStorageInfo(data as StorageInfo[])
+    }
+  }
 
   const fetchTVShowList = async () => {
     try {
@@ -73,6 +95,8 @@ export const StorageProvider: FC<{ children: ReactNode }> = ({ children }) => {
       fetchMovieList,
       clearTopLists,
       refreshTopLists,
+      fetchStorageInfo,
+      storageInfo,
     }}>
       {children}
     </StorageContext.Provider>
