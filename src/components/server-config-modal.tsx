@@ -24,7 +24,7 @@ export function ServerConfigModal() {
   );
 
   return (
-    <ModalOverlay isOpen={isOpen} onClose={close} className='md:w-[90vw]'>
+    <ModalOverlay isOpen={isOpen} onClose={close} >
       <>
         {
           loading || <ModalHeader title='Server Storage' />
@@ -39,18 +39,19 @@ export function ServerConfigModal() {
 
         {storageInfo.every(i => i.UsedPercent) &&
           <>
-            <div className='flex flex-row gap-4'>
+            <div className='flex flex-row gap-10 items-center justify-center'>
               {
                 storageInfo.map((i) => {
-                  return <div className='flex flex-col gap-2'>
+                  return <div className='flex flex-col gap-2 justify-center items-center'>
                     <ProgressRing
-                      radius={60}
+                      radius={80}
                       percentage={i.UsedPercent}
                       strokeBg="var(--primary)"
                       strokeFg="var(--destructive)"
+                      strokeWidth={40}
                     />
-                    <div className='text-xl'>{i.Mounted}</div>
-                    <div className='text-sm'>{i.Avail} free</div>
+                    <div className='text-xl font-mono mt-4'>{i.Mounted}</div>
+                    <div className='text-sm font-mono'>{i.Avail} free</div>
                   </div>
                 })
               }
