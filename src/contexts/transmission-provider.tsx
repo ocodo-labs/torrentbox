@@ -4,7 +4,7 @@ import { notifyCompletion } from '@/lib/utils';
 import type { DestructiveDownloadedFileAction, DestructiveTorrentAction } from '@/types/actions';
 import { type SoftDeletedFileType, SoftDeletedFile } from '@/types/soft-deleted-file';
 import { type Torrent, type TransmissionData, type TorrentFile } from '@/types/torrent';
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react'
 import { toast } from 'sonner';
 import videoFileExtensions from 'video-extensions';
@@ -19,6 +19,8 @@ export interface FileRenameType {
 
 interface TransmissionContextType {
   torrents: Torrent[]
+  sortedTorrents: Torrent[]
+  toggleSort: (key: SortKey) => void
   downloadedFiles: string[]
   connectionError: boolean
   suggestionsLLMOnline: boolean
@@ -80,6 +82,9 @@ export const useTransmissionContext = (): TransmissionContextType => {
 
 const TransmissionContext = createContext<TransmissionContextType | undefined>(undefined);
 
+type SortKey = 'addedDate' | 'name';
+type SortOrder = 'asc' | 'desc';
+
 export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [torrents, setTorrents] = useState<Torrent[]>([])
   const [downloadedFiles, setDownloadedFiles] = useState<string[]>([])
@@ -125,6 +130,34 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const canRename = (torrent: Torrent) => torrent?.files?.length > 0
 
+  const [sortKey, setSortKey] = useState<SortKey>('addedDate');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+
+  const sortByAddedDate = (a: Torrent, b: Torrent) => a.addedDate - b.addedDate;
+  const sortByName = (a: Torrent, b: Torrent) => a.name.localeCompare(b.name);
+
+  const sortStrategies = {
+    addedDate: sortByAddedDate,
+    name: sortByName,
+  } as const;
+
+  const sortedTorrents = useMemo(() => {
+    const compare = sortStrategies[sortKey];
+    return [...torrents].sort((a, b) => {
+      const result = compare(a, b);
+      return sortOrder === 'asc' ? result : -result;
+    });
+  }, [torrents, sortKey, sortOrder]);
+
+  const toggleSort = (key: SortKey = 'addedDate') => {
+    if (sortKey === key) {
+      setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortKey(key);
+      setSortOrder('desc');
+    }
+  };
+
   const fetchTorrents = useLeadingEdgeDebounce(async () => {
     try {
       const res = await fetch(
@@ -136,10 +169,10 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         return
       }
       const data: TransmissionData = await res.json()
-      const newTorrents: Torrent[] = data.downloading
-      setTorrents(newTorrents)
+      const downloading: Torrent[] = data.downloading
+      setTorrents(downloading)
       setDownloadedFiles(data.downloaded)
-      newTorrents.forEach(t => notifyCompletion(t))
+      downloading.forEach(t => notifyCompletion(t))
       setConnectionError(false)
       return
     } catch {
@@ -541,6 +574,8 @@ export const TransmissionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   return (
     <TransmissionContext.Provider value={{
       torrents,
+      sortedTorrents,
+      toggleSort,
       downloadedFiles,
       connectionError,
       suggestionsLLMOnline,

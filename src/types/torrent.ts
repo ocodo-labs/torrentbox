@@ -4,6 +4,7 @@ export type TorrentFile = [string, number, number, number, boolean, number];
 
 export interface Torrent {
     id: string;
+    addedDate: number;
     name: string;
     percent: number;
     files: TorrentFile[];

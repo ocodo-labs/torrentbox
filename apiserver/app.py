@@ -1012,6 +1012,7 @@ def get_torrents_active():
                 "files": torrent.get_files(),
                 "id": torrent.hash_string,
                 "name": torrent.name,
+                "addedDate": torrent.added_date.timestamp(),
                 "percent": percent,
                 "speed": speed,
                 "total": torrent.size_when_done,

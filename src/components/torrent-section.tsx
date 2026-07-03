@@ -10,6 +10,7 @@ const TorrentsSection = () => {
 
   const {
     torrents,
+    sortedTorrents,
     selectedTorrents,
     setSelectedTorrents,
     clearSoftDeleted,
@@ -73,7 +74,7 @@ const TorrentsSection = () => {
           </>
         }
         <div className="space-y-4">
-          {torrents.map((torrent: Torrent) => (
+          {sortedTorrents.map((torrent: Torrent) => (
             <TorrentRow
               key={torrent.id}
               torrent={torrent}
