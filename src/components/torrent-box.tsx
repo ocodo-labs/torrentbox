@@ -9,6 +9,7 @@ import { type FC, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { useTransmissionContext } from "@/contexts/transmission-provider"
 import { useActivity } from "@/contexts/activity-detector"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export const TorrentBox: FC = () => {
   const [mounted, setMounted] = useState(false)
@@ -29,6 +30,7 @@ export const TorrentBox: FC = () => {
     newName,
     setNewName,
     suggestions,
+    downloadedFiles,
   } = useTransmissionContext()
 
   useEffect(() => {
@@ -84,8 +86,20 @@ export const TorrentBox: FC = () => {
         ) : (
           <div className="space-y-8">
             <TorrentSearch />
-            <TorrentsSection />
-            <DownloadedSection />
+            <Tabs defaultValue="torrents" className="w-[96vw]">
+              <TabsList>
+                <TabsTrigger value="torrents">Torrents</TabsTrigger>
+                {downloadedFiles.length > 0 &&
+                  <TabsTrigger value="downloads">Downloads</TabsTrigger>
+                }
+              </TabsList>
+              <TabsContent value="torrents">
+                <TorrentsSection />
+              </TabsContent>
+              <TabsContent value="downloads">
+                <DownloadedSection />
+              </TabsContent>
+            </Tabs>
           </div>
         )}
       </main >

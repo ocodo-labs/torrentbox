@@ -21,7 +21,6 @@ const TorrentsSection = () => {
   if (torrents.length > 0) {
     return (
       <section>
-        <div className="text-xl font-semibold mb-4">Torrents</div>
         {selectedTorrents.size > 0 &&
           <>
             <div className="flex flex-row gap-2 my-2">

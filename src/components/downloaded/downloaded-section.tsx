@@ -9,7 +9,6 @@ export const DownloadedSection: FC = () => {
   if (downloadedFiles.length > 0) {
     return (
       <section>
-        <h2 className="text-xl font-semibold mb-4">Downloaded</h2>
         <div className="space-y-4">
           {
             downloadedFiles.map((file: string) => (
