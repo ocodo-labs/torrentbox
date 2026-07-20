@@ -80,7 +80,7 @@ export const TorrentBox: FC = () => {
   return (
     <div className="flex flex-col min-h-screen bg-background/90 text-foreground">
       <HeadingBar />
-      <main className="flex-grow p-4 overflow-auto">
+      <main className="p-4 overflow-auto">
         {connectionError ? (
           <ConnectionErrorPanel fetchTorrents={fetchTorrents} />
         ) : (
@@ -102,7 +102,7 @@ export const TorrentBox: FC = () => {
             </Tabs>
           </div>
         )}
-      </main >
+      </main>
       <RenameDialog
         title="Rename Torrent"
         open={renameDialogOpen}
@@ -114,6 +114,6 @@ export const TorrentBox: FC = () => {
         onConfirm={confirmRename}
         onCancel={cancelRenameTorrent}
       />
-    </div >
+    </div>
   )
 }
