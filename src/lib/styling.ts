@@ -20,7 +20,7 @@ export const pinnedSearchQueryClasses = `
 `;
 
 export const modalOverlay =
-  "fixed inset-0 bg-background/80 backdrop-blur-sm z-50";
+  "fixed inset-0 bg-background/50 backdrop-blur-md z-50";
 
 export const modalContainer = `
   fixed inset-0
@@ -76,8 +76,8 @@ export const movingToShowIndicatorClasses = cn(
                 gap-2
                 rounded-full
                 cursor-wait
-                border-1                
-                border-foreground                
+                border-1
+                border-foreground
                 select-none
                 text-xs
                 p-1
