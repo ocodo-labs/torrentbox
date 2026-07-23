@@ -12,6 +12,7 @@ dependencies = [
     "omegaconf>=2.3.0",
     "pystache>=0.6.8",
     "pytest>=9.0.2",
+    "redis>=4.6.0",
     "ruamel-yaml>=0.18.16",
     "transmission-rpc>=7.0.11",
 ]

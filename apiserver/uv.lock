@@ -936,6 +936,7 @@ dependencies = [
     { name = "omegaconf" },
     { name = "pystache" },
     { name = "pytest" },
+    { name = "redis" },
     { name = "ruamel-yaml" },
     { name = "transmission-rpc" },
 ]
@@ -949,6 +950,7 @@ requires-dist = [
     { name = "omegaconf", specifier = ">=2.3.0" },
     { name = "pystache", specifier = ">=0.6.8" },
     { name = "pytest", specifier = ">=9.0.2" },
+    { name = "redis", specifier = ">=4.6.0" },
     { name = "ruamel-yaml", specifier = ">=0.18.16" },
     { name = "transmission-rpc", specifier = ">=7.0.11" },
 ]

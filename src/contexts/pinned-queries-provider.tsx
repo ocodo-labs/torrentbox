@@ -1,33 +1,97 @@
-import React, { createContext, type ReactNode } from 'react';
-import { useLocalStorage } from 'usehooks-ts';
+import React, {
+  createContext,
+  type ReactNode,
+  useEffect,
+  useState,
+} from 'react';
 
 export interface PinnedQueriesContextType {
   pinnedQueries: string[];
   setPinnedQueries: React.Dispatch<React.SetStateAction<string[]>>;
-  pinQuery: (query: string) => void;
-  unpinQuery: (query: string) => void;
+  pinQuery: (query: string) => Promise<void>;
+  unpinQuery: (query: string) => Promise<void>;
+  refreshPinnedQueries: () => Promise<void>;
 }
 
-export const PinnedQueriesContext = createContext<PinnedQueriesContextType | undefined>(undefined);
+export const PinnedQueriesContext =
+  createContext<PinnedQueriesContextType | undefined>(undefined);
 
-export const PinnedQueriesProvider = ({ children }: { children: ReactNode }) => {
-  const [pinnedQueries, setPinnedQueries] = useLocalStorage<string[]>('pinned-search-queries', []);
+export const PinnedQueriesProvider = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
+  const [pinnedQueries, setPinnedQueries] = useState<string[]>([]);
 
-  const pinQuery = (query: string) => {
-    setPinnedQueries(prev => Array.from(new Set([...prev, query])));
+  const applyPinnedQueriesResponse = (data: { queries: string[] }) => {
+    setPinnedQueries(data.queries);
   };
 
-  const unpinQuery = (query: string) => {
-    setPinnedQueries(prev => prev.filter(q => q !== query));
+  const refreshPinnedQueries = async () => {
+    const response = await fetch('/api/pinned');
+
+    if (!response.ok) {
+      throw new Error('Failed to load pinned queries');
+    }
+
+    const data = await response.json();
+
+    applyPinnedQueriesResponse(data);
+  };
+
+  useEffect(() => {
+    refreshPinnedQueries();
+  }, []);
+
+  const pinQuery = async (query: string) => {
+    const response = await fetch(
+      `/api/pinned`,
+      {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to pin query');
+    }
+
+    const data = await response.json();
+
+    applyPinnedQueriesResponse(data);
+  };
+
+  const unpinQuery = async (query: string) => {
+    const response = await fetch(
+      `/api/pinned/${encodeURIComponent(query)}`,
+      {
+        method: 'DELETE'
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to unpin query');
+    }
+
+    const data = await response.json();
+
+    applyPinnedQueriesResponse(data);
   };
 
   return (
     <PinnedQueriesContext.Provider
-      value={{ pinnedQueries, setPinnedQueries, pinQuery, unpinQuery }}
+      value={{
+        pinnedQueries,
+        setPinnedQueries,
+        pinQuery,
+        unpinQuery,
+        refreshPinnedQueries,
+      }}
     >
       {children}
     </PinnedQueriesContext.Provider>
   );
 };
-
-

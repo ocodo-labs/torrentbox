@@ -773,6 +773,55 @@ def retitle_videos(torrent_id):
         )
 
 
+PINNED_KEY = "pinned_queries"
+
+
+def get_pinned_queries():
+    queries = list(redis.smembers(PINNED_KEY))
+    if queries:
+        return queries
+    else:
+        return []
+
+
+class PinnedQueryIn(BaseModel):
+    query: str
+
+
+@api.post("/pinned")
+async def pin_query(payload: PinnedQueryIn):
+    query = payload.query
+    redis.sadd(PINNED_KEY, query)
+    queries = get_pinned_queries()
+
+    return {
+        "query": query,
+        "pinned": True,
+        "queries": queries,
+    }
+
+
+@api.delete("/pinned/{query}")
+async def unpin_query(query: str):
+    redis.srem(PINNED_KEY, query)
+    queries = get_pinned_queries()
+
+    return {
+        "query": query,
+        "pinned": False,
+        "queries": queries,
+    }
+
+
+@api.get("/pinned")
+async def get_pinned():
+    queries = get_pinned_queries()
+
+    return {
+        "queries": queries,
+    }
+
+
 @api.get('/df', tags=["api"])
 def df():
     out = subprocess.check_output(
@@ -784,8 +833,8 @@ def df():
     h = out[0].split()
 
     data = []
-    for l in out[1:]:
-        row = dict(zip(h, l.split()))
+    for line in out[1:]:
+        row = dict(zip(h, line.split()))
         if 'UsedPercent' in row:
             row['UsedPercent'] = int(row['UsedPercent'].rstrip('%'))
         data.append(row)
