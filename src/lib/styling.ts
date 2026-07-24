@@ -82,7 +82,6 @@ export const movingToShowIndicatorClasses = cn(
                 text-xs
                 p-1
                 px-3
-                animate-pulse
               `
 );
 
