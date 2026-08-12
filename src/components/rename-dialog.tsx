@@ -67,7 +67,6 @@ const RenameDialog = (props: RenameDialogProps) => {
         />
 
         <div className='grid grid-cols-1 gap-0'>
-          {suggestionsServiceOnline && suggestions.length == 0 ? (<IndeterminateProgress />) : ""}
           {suggestions.map((suggestion, index) => (
             <div
               key={index}
