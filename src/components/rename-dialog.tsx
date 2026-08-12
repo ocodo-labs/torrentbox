@@ -7,6 +7,7 @@ import { thinIconStyle } from '@/lib/styling'
 import { cn } from '@/lib/utils'
 import { Description } from '@radix-ui/react-dialog'
 import type { Dispatch, SetStateAction } from 'react'
+import { useTransmissionContext } from '@/contexts/transmission-provider'
 
 interface RenameDialogProps {
   open: boolean
@@ -31,6 +32,11 @@ const RenameDialog = (props: RenameDialogProps) => {
     onConfirm,
     title } = props
 
+  const {
+    activeLLMSuggestions,
+    setActiveLLMSuggestions,
+  } = useTransmissionContext()
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -38,7 +44,18 @@ const RenameDialog = (props: RenameDialogProps) => {
         <DialogHeader>
           <DialogTitle>
             <div className="flex flex-row items-center justify-start gap-2">
-              {suggestionsServiceOnline ? <NeuralNetwork style={thinIconStyle} className="w-4 h-4" /> : ''}
+              {suggestionsServiceOnline && (
+                <NeuralNetwork
+                  style={thinIconStyle}
+                  className={`w-4 h-4 cursor-pointer transition-all duration-300
+                      ${activeLLMSuggestions
+                      ? "text-cyan-400 drop-shadow-[0_0_5px_rgba(34,211,238,0.8)] animate-pulse"
+                      : "text-muted-foreground opacity-40 hover:opacity-70"
+                    }
+                  `}
+                  onClick={() => setActiveLLMSuggestions(prev => !prev)}
+                />
+              )}
               {title}
             </div>
           </DialogTitle>
