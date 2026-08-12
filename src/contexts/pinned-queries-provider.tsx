@@ -1,13 +1,15 @@
-import React, {
-  createContext,
+import {
+  type Dispatch,
   type ReactNode,
+  type SetStateAction,
+  createContext,
   useEffect,
   useState,
 } from 'react';
 
 export interface PinnedQueriesContextType {
   pinnedQueries: string[];
-  setPinnedQueries: React.Dispatch<React.SetStateAction<string[]>>;
+  setPinnedQueries: Dispatch<SetStateAction<string[]>>;
   pinQuery: (query: string) => Promise<void>;
   unpinQuery: (query: string) => Promise<void>;
   refreshPinnedQueries: () => Promise<void>;
