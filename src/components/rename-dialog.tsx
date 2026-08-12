@@ -1,4 +1,3 @@
-import { IndeterminateProgress } from '@/components/indeterminate-progress'
 import { NeuralNetwork } from '@/components/icons/neural-network-icon'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
