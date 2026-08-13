@@ -6,6 +6,7 @@ import { thinIconStyle } from '@/lib/styling'
 import { cn } from '@/lib/utils'
 import { Description } from '@radix-ui/react-dialog'
 import type { Dispatch, SetStateAction } from 'react'
+import { useRef } from 'react'
 import { useTransmissionContext } from '@/contexts/transmission-provider'
 import { TooltipCompact } from '@/components/tooltip-compact'
 
@@ -21,7 +22,7 @@ interface RenameDialogProps {
   title: string
 }
 
-const RenameDialog = (props: RenameDialogProps) => {
+export const RenameDialog = (props: RenameDialogProps) => {
   const { open,
     onOpenChange,
     newName,
@@ -37,9 +38,16 @@ const RenameDialog = (props: RenameDialogProps) => {
     setActiveLLMSuggestions,
   } = useTransmissionContext()
 
+  const inputRef = useRef<HTMLInputElement>(null)
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent
+        onOpenAutoFocus={(e) => {
+          e.preventDefault()
+          inputRef.current?.focus()
+        }}
+      >
         <Description style={{ 'display': 'none' }}>Rename</Description>
         <DialogHeader>
           <DialogTitle>
@@ -63,6 +71,7 @@ const RenameDialog = (props: RenameDialogProps) => {
           </DialogTitle>
         </DialogHeader>
         <Input
+          ref={inputRef}
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           onKeyDown={(e) => (e.code == "Enter") && onConfirm()}
@@ -91,5 +100,3 @@ const RenameDialog = (props: RenameDialogProps) => {
     </Dialog>
   )
 }
-
-export { RenameDialog }
