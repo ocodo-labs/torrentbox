@@ -319,6 +319,7 @@ export const TransmissionProvider: React.FC<{
   const fetchSuggestions = useCallback(
     async (filename: string) => {
       const requestId = ++suggestionsRequestId.current;
+      const endpoint = `${serverBaseUrl}/llm/suggest_names`
 
       if (
         !filename ||
@@ -331,7 +332,7 @@ export const TransmissionProvider: React.FC<{
 
       try {
         const response = await fetch(
-          `${serverBaseUrl}/llm/suggest_names`,
+          `${serverBaseUrl}${endpoint}`,
           {
             method: 'POST',
             body: JSON.stringify({ filename }),
