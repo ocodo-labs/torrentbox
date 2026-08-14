@@ -80,6 +80,7 @@ export const movingToShowIndicatorClasses = cn(
                 border-foreground
                 select-none
                 text-xs
+                animate-pulse
                 p-1
                 px-3
               `

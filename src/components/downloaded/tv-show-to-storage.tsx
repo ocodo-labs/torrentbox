@@ -13,6 +13,12 @@ import { toast } from "sonner"
 import type { MoveToStorageProps } from "@/types/torrent"
 import { OcodoLoaderIcon } from "@/components/icons/ocodo-loader-icon"
 
+const MovingToIcon = () => (
+  <OcodoLoaderIcon
+    className="animate-spin"
+    width={`16px`} height={`16px`} />
+)
+
 export const TVShowToStorage: FC<MoveToStorageProps> = ({ file, setFileMoving, fileMoving, setMoveType, moveType }) => {
   const { tvShows, fetchTVShowList } = useStorage();
   const { handleAction } = useTransmissionContext();
@@ -111,12 +117,6 @@ export const TVShowToStorage: FC<MoveToStorageProps> = ({ file, setFileMoving, f
       toast.error(validationError || 'Please provide a valid show name.');
     }
   };
-
-  const MovingToIcon = () => (
-    <OcodoLoaderIcon
-      className="animate-spin"
-      width={`16px`} height={`16px`} />
-  )
 
   if (fileMoving && moveType != 'tv') return;
 
