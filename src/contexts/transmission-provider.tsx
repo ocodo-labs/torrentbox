@@ -29,10 +29,23 @@ import videoFileExtensions from 'video-extensions';
 import subtitleFileExtensions from '@/lib/subtitle-file-extensions';
 import { playSound } from '@/lib/play-sound';
 import { useLocalStorage } from 'usehooks-ts';
+import { suggestRename } from '@/lib/rename/om-rename-engine';
+
 
 export interface FileRenameType {
   filename: string;
   newname: string;
+}
+
+export interface RenameSuggestion {
+  name: string;
+  media_type: 'movie' | 'tv' | 'unknown';
+  extension?: string;
+  type?: string;
+  year?: string;
+  season?: number;
+  episode?: number;
+  matched_pattern?: string;
 }
 
 interface TransmissionContextType {
@@ -175,12 +188,6 @@ export const TransmissionProvider: React.FC<{
     new Set()
   );
 
-  /*
-   * Incremented whenever a new suggestion request becomes relevant.
-   *
-   * This prevents a slow response for torrent A from replacing the
-   * suggestions that have already been requested for torrent B.
-   */
   const suggestionsRequestId = useRef(0);
 
   const getFilenames = (torrent: Torrent) =>
@@ -188,9 +195,7 @@ export const TransmissionProvider: React.FC<{
 
   const getActiveFilenames = (torrent: Torrent) =>
     torrent.files
-      .filter(
-        (_, index) => !isSoftDeleted(torrent.id, index)
-      )
+      .filter((_, index) => !isSoftDeleted(torrent.id, index))
       .map((entry) => entry[0]);
 
   const getActiveFiles = (torrent: Torrent) =>
@@ -309,36 +314,31 @@ export const TransmissionProvider: React.FC<{
   }, 1500);
 
   /*
-   * Fetch suggestions for a specific filename.
+   * Fetch LLM suggestions for a specific filename.
    *
-   * This function deliberately accepts the filename as an argument rather
-   * than reading currentTorrent/currentFilename from state. The caller
-   * therefore cannot accidentally fetch suggestions for the previous
-   * selection because React has not committed the new state yet.
+   * Local suggestions are deliberately handled separately below.
+   * This function only adds/replaces the LLM contribution; it does not
+   * clear locally generated suggestions.
    */
   const fetchSuggestions = useCallback(
     async (filename: string) => {
       const requestId = ++suggestionsRequestId.current;
-      const endpoint = `${serverBaseUrl}/llm/suggest_names`
+      const endpoint = `${serverBaseUrl}/llm/suggest_names`;
 
       if (
         !filename ||
         !suggestionsLLMOnline ||
         !activeLLMSuggestions
       ) {
-        setSuggestions(new Set());
         return;
       }
 
       try {
-        const response = await fetch(
-          `${serverBaseUrl}${endpoint}`,
-          {
-            method: 'POST',
-            body: JSON.stringify({ filename }),
-            headers: json_header,
-          }
-        );
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          body: JSON.stringify({ filename }),
+          headers: json_header,
+        });
 
         if (!response.ok) {
           console.log(
@@ -349,7 +349,6 @@ export const TransmissionProvider: React.FC<{
             toast(
               `Failed to get suggestions (${response.status})`
             );
-            setSuggestions(new Set());
           }
 
           return;
@@ -357,20 +356,24 @@ export const TransmissionProvider: React.FC<{
 
         const data = await response.json();
 
-        /*
-         * Ignore responses belonging to an older target.
-         */
         if (requestId !== suggestionsRequestId.current) {
           return;
         }
 
-        setSuggestions(new Set<string>(data.suggestions));
+        setSuggestions((current) => {
+          const next = new Set(current);
+
+          for (const suggestion of data.suggestions ?? []) {
+            next.add(suggestion);
+          }
+
+          return next;
+        });
       } catch (error) {
         console.log('Error fetching suggestions:', error);
 
         if (requestId === suggestionsRequestId.current) {
           toast('Failed to get name suggestions');
-          setSuggestions(new Set());
         }
       }
     },
@@ -378,19 +381,33 @@ export const TransmissionProvider: React.FC<{
   );
 
   /*
-   * The provider now owns the relationship between rename state and
+   * Generate local rename suggestions immediately.
+   *
+   * The local engine is deterministic and does not depend on the LLM.
+   * Both sources share the same Set so the UI can continue treating
+   * suggestions as a single collection.
+   */
+  const generateLocalSuggestions = useCallback((filename: string) => {
+    if (!filename) {
+      return;
+    }
+
+    const localSuggestions = suggestRename(filename);
+
+    setSuggestions((current) => {
+      const next = new Set(current);
+
+      for (const suggestion of localSuggestions) {
+        next.add(suggestion.name);
+      }
+
+      return next;
+    });
+  }, []);
+
+  /*
+   * The provider owns the relationship between rename state and
    * suggestions.
-   *
-   * This fires when:
-   *   - rename opens
-   *   - the selected torrent changes
-   *   - the selected torrent file changes
-   *   - the downloaded file changes
-   *   - LLM suggestions are enabled
-   *   - LLM service status changes
-   *
-   * Crucially, it runs after React has committed the new state, so it
-   * cannot see the previous selected item.
    */
   const suggestionFilename = useMemo(() => {
     if (!renameDialogOpen) {
@@ -427,6 +444,10 @@ export const TransmissionProvider: React.FC<{
     currentTorrentFilename,
   ]);
 
+  /*
+   * Generate local suggestions first, then optionally fetch LLM
+   * suggestions. Neither operation clears the other's results.
+   */
   useEffect(() => {
     if (!suggestionFilename) {
       suggestionsRequestId.current += 1;
@@ -434,11 +455,11 @@ export const TransmissionProvider: React.FC<{
       return;
     }
 
+    generateLocalSuggestions(suggestionFilename);
     void fetchSuggestions(suggestionFilename);
   }, [
     suggestionFilename,
-    activeLLMSuggestions,
-    suggestionsLLMOnline,
+    generateLocalSuggestions,
     fetchSuggestions,
   ]);
 
@@ -721,9 +742,6 @@ export const TransmissionProvider: React.FC<{
   };
 
   const resetState = () => {
-    /*
-     * Invalidate any in-flight suggestion request.
-     */
     suggestionsRequestId.current += 1;
 
     setCurrentDownloadedFile(null);
