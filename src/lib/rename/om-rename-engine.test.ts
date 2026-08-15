@@ -7,6 +7,13 @@ import {
 
 describe("om_rename_engine", () => {
   describe("movies", () => {
+    it("renames a movie with an already bracketed year correctly", () => {
+      const result = "The Matrix (1999).mkv"
+      expect(result).toEqual(
+        suggestRename("The.Matrix.(1999).1080p.BluRay.x265-PISSMASTER.mkv")[0].name
+      )
+    })
+
     it("renames a typical movie release", () => {
       const result = suggestRename(
         "The.Matrix.1999.1080p.BluRay.x265-GROUP.mkv",
@@ -63,7 +70,7 @@ describe("om_rename_engine", () => {
 
     it("preserves a configured video extension for TV", () => {
       const result = suggestRename(
-        "Some.Show.S03E04.1080p.WEBRip.x265.mkv",
+        "Some.Show.S03E04.1080p.WEBRip.x265.CCABB.mkv",
       );
 
       expect(result[0]).toEqual(

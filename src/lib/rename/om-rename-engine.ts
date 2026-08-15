@@ -137,35 +137,36 @@ function normalizeSeparators(value: string): string {
 }
 
 function removeNoise(value: string): string {
+  /*
+   * Noise marks the beginning of the noise suffix.
+   *
+   * Once any configured regex pattern or noise token is encountered,
+   * everything from that point onward is considered noise and discarded.
+   *
+   * Keep these definitions conservative: a false positive destroys the
+   * remainder of the title.
+   */
   let result = value;
 
-  /*
-   * Remove configured regex noise first. These patterns describe things
-   * such as 1080p, 5.1, 23.976fps, etc.
-   */
   for (const pattern of noisePatterns) {
-    result = result.replace(pattern, " ");
+    const match = result.match(pattern);
+
+    if (match?.index !== undefined) {
+      result = result.slice(0, match.index);
+    }
   }
 
-  /*
-   * Configured noise values are tokens, not arbitrary substrings.
-   *
-   * This is important: "WEB" may be noise, but it must never turn
-   * "The Web" or an ordinary word containing those characters into garbage.
-   */
   const tokens = normalizeSeparators(result)
     .split(" ")
     .filter(Boolean);
 
-  const kept: string[] = [];
+  const firstNoiseToken = tokens.findIndex(token =>
+    noiseTokens.has(token.toLowerCase())
+  );
 
-  for (const token of tokens) {
-    if (!noiseTokens.has(token.toLowerCase())) {
-      kept.push(token);
-    }
-  }
-
-  return kept.join(" ");
+  return tokens
+    .slice(0, firstNoiseToken === -1 ? tokens.length : firstNoiseToken)
+    .join(" ");
 }
 
 function capitalizeWords(value: string): string {
