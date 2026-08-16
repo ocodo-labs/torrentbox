@@ -200,6 +200,16 @@ describe("om_rename_engine", () => {
         "Movie (2020).mkv",
       );
     });
+
+    it("removes noise and everything past it", () => {
+      const result = suggestRename(
+        "Movie.2020.1080p.BluRay.x265-GROUP.REPACK.Any String [After Noise].mkv",
+      );
+
+      expect(result[0]?.name).toBe(
+        "Movie (2020).mkv"
+      );
+    });
   });
 
   describe("MIME types", () => {
