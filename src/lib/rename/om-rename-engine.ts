@@ -65,10 +65,10 @@ export interface RenameConfig {
 
 const renameConfig = config as RenameConfig;
 
-function extensionOf(
+const extensionOf = (
   filename: string,
   config: RenameConfig,
-): string | undefined {
+): string | undefined => {
   const match = filename.match(/\.([^.]+)$/);
 
   if (!match) {
@@ -94,31 +94,35 @@ function extensionOf(
   }
 
   return undefined;
-}
+};
 
-function stripExtension(
+const basenameOfPath = (value: string): string =>
+  value.replace(/[\\/]+$/, "").split(/[\\/]/).pop() ?? "";
+
+const stripExtension = (
   filename: string,
   config: RenameConfig,
 ): {
   basename: string;
   extension?: string;
-} {
-  const extension = extensionOf(filename, config);
+} => {
+  const basename = basenameOfPath(filename);
+  const extension = extensionOf(basename, config);
 
   if (!extension) {
-    return { basename: filename };
+    return { basename };
   }
 
   return {
-    basename: filename.slice(0, -(extension.length + 1)),
+    basename: basename.slice(0, -(extension.length + 1)),
     extension,
   };
-}
+};
 
-function normalizeSeparators(
+const normalizeSeparators = (
   value: string,
   config: RenameConfig,
-): string {
+): string => {
   let result = value;
 
   for (const separator of config.separators) {
@@ -126,12 +130,12 @@ function normalizeSeparators(
   }
 
   return result.replace(/\s+/g, " ").trim();
-}
+};
 
-function removeNoise(
+const removeNoise = (
   value: string,
   config: RenameConfig,
-): string {
+): string => {
   /*
    * Noise marks the beginning of the noise suffix.
    *
@@ -172,12 +176,12 @@ function removeNoise(
   return tokens
     .slice(0, firstNoiseToken === -1 ? tokens.length : firstNoiseToken)
     .join(" ");
-}
+};
 
-function capitalizeWords(
+const capitalizeWords = (
   value: string,
   config: RenameConfig,
-): string {
+): string => {
   if (!config.formatting.title.capitalize_words) {
     return value;
   }
@@ -191,12 +195,12 @@ function capitalizeWords(
       return word.charAt(0).toUpperCase() + word.slice(1);
     })
     .join(" ");
-}
+};
 
-function cleanTitle(
+const cleanTitle = (
   value: string,
   config: RenameConfig,
-): string {
+): string => {
   let result = value;
 
   if (config.behavior.normalize_separators) {
@@ -214,13 +218,13 @@ function cleanTitle(
   }
 
   return capitalizeWords(result, config);
-}
+};
 
-function formatTvMarker(
+const formatTvMarker = (
   season: number,
   episode: number,
   config: RenameConfig,
-): string {
+): string => {
   const seasonText = String(season).padStart(
     config.formatting.tv.season_digits,
     "0",
@@ -232,22 +236,24 @@ function formatTvMarker(
   );
 
   return `${config.formatting.tv.season_prefix}${seasonText}${config.formatting.tv.episode_prefix}${episodeText}`;
-}
+};
 
-function getMimeType(extension?: string): string | undefined {
+const getMimeType = (
+  extension?: string,
+): string | undefined => {
   if (!extension) {
     return undefined;
   }
 
   return mime.getType(extension) ?? undefined;
-}
+};
 
-function buildSuggestion(
+const buildSuggestion = (
   name: string,
   mediaType: RenameSuggestion["media_type"],
   extension: string | undefined,
   extra: Partial<RenameSuggestion> = {},
-): RenameSuggestion {
+): RenameSuggestion => {
   return {
     name,
     media_type: mediaType,
@@ -255,59 +261,96 @@ function buildSuggestion(
     type: getMimeType(extension),
     ...extra,
   };
-}
+};
 
-function suggestMovie(
+const findMovieYear = (
+  basename: string,
+  config: RenameConfig,
+): { year: string; index: number; title: string } | undefined => {
+  const yearRegex = new RegExp(config.patterns.movie.year, "g");
+  const matches = [...basename.matchAll(yearRegex)];
+
+  for (const match of matches) {
+    if (!match.groups?.year || match.index === undefined) {
+      continue;
+    }
+
+    const beforeYear = basename.slice(0, match.index);
+    const title = cleanTitle(
+      removeNoise(beforeYear, config),
+      config,
+    );
+
+    if (title) {
+      return {
+        year: match.groups.year,
+        index: match.index,
+        title,
+      };
+    }
+  }
+
+  return undefined;
+};
+
+const suggestMovie = (
   basename: string,
   extension: string | undefined,
   config: RenameConfig,
-): RenameSuggestion | undefined {
-  const yearRegex = new RegExp(config.patterns.movie.year);
-  const yearMatch = basename.match(yearRegex);
+): RenameSuggestion | undefined => {
+  const yearMatch = findMovieYear(basename, config);
 
-  if (!yearMatch?.groups?.year) {
-    return undefined;
-  }
+  if (yearMatch) {
+    const movieName = config.formatting.movie.year.enabled
+      ? `${yearMatch.title}${config.formatting.movie.year.prefix}${yearMatch.year}${config.formatting.movie.year.suffix}`
+      : yearMatch.title;
 
-  const year = yearMatch.groups.year;
+    const finalName =
+      config.behavior.preserve_extension && extension
+        ? `${movieName}.${extension}`
+        : movieName;
 
-  /*
-   * The movie title is everything before the year.
-   *
-   * This is deliberately done before noise removal so that release
-   * metadata after the year cannot become part of the title.
-   */
-  const beforeYear = basename.slice(0, yearMatch.index ?? 0);
-  const title = cleanTitle(removeNoise(beforeYear, config), config);
-
-  if (!title) {
-    return undefined;
-  }
-
-  const movieName = config.formatting.movie.year.enabled
-    ? `${title}${config.formatting.movie.year.prefix}${year}${config.formatting.movie.year.suffix}`
-    : title;
-
-  const finalName = config.behavior.preserve_extension && extension
-    ? `${movieName}.${extension}`
-    : movieName;
-
-  return buildSuggestion(
-    finalName,
-    "movie",
-    extension,
-    {
-      year,
+    return buildSuggestion(finalName, "movie", extension, {
+      year: yearMatch.year,
       matched_pattern: "movie.year",
-    },
-  );
-}
+    });
+  }
 
-function suggestTv(
+  const cleaned = cleanTitle(
+    removeNoise(basename, config),
+    config,
+  );
+
+  const normalized = cleanTitle(basename, config);
+  const noiseRemoved = cleaned !== normalized;
+
+  const videoExtensions = new Set(
+    config.extensions.video.map((x) => x.toLowerCase()),
+  );
+
+  const isVideo = extension
+    ? videoExtensions.has(extension.toLowerCase())
+    : false;
+
+  if (!cleaned || (!noiseRemoved && !isVideo)) {
+    return undefined;
+  }
+
+  const finalName =
+    config.behavior.preserve_extension && extension
+      ? `${cleaned}.${extension}`
+      : cleaned;
+
+  return buildSuggestion(finalName, "movie", extension, {
+    matched_pattern: "movie.no_year",
+  });
+};
+
+const suggestTv = (
   basename: string,
   extension: string | undefined,
   config: RenameConfig,
-): RenameSuggestion | undefined {
+): RenameSuggestion | undefined => {
   const seasonEpisodeRegex = new RegExp(
     config.patterns.tv.season_episode,
     "i",
@@ -367,13 +410,13 @@ function suggestTv(
       matched_pattern: "tv.season_episode",
     },
   );
-}
+};
 
-function suggestUnknown(
+const suggestUnknown = (
   basename: string,
   extension: string | undefined,
   config: RenameConfig,
-): RenameSuggestion {
+): RenameSuggestion => {
   /*
    * Unknown files still get separator cleanup, but we do NOT run semantic
    * movie/TV noise stripping against them.
@@ -389,7 +432,7 @@ function suggestUnknown(
     "unknown",
     extension,
   );
-}
+};
 
 export class MediaRenameEngine {
   private readonly config: RenameConfig;
@@ -453,8 +496,8 @@ export class MediaRenameEngine {
 
 const defaultEngine = new MediaRenameEngine();
 
-export function suggestRename(
+export const suggestRename = (
   filename: string,
-): RenameSuggestion[] {
+): RenameSuggestion[] => {
   return defaultEngine.suggestRename(filename);
-}
+};

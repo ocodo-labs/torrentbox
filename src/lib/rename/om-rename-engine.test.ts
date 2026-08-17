@@ -6,7 +6,96 @@ import {
 } from "./om-rename-engine";
 
 describe("om_rename_engine", () => {
+
+  describe("path input", () => {
+
+    it("handles a movie file path", () => {
+      const result = suggestRename(
+        "Some Movie (2020)/some.movie.2020.1080p.h264.webrip.mkv",
+      );
+
+      expect(result[0]?.name).toBe("Some Movie (2020).mkv");
+    });
+
+    it("handles a nested movie path without an extension", () => {
+      const result = suggestRename(
+        "Some Movie (2020)/some.movie.2020.1080p.h264.webrip/",
+      );
+
+      expect(result[0]?.name).toBe("Some Movie (2020)");
+    });
+
+    it("returns a filename rather than a path for a TV episode", () => {
+      const result = suggestRename(
+        "Some Show/Season 02/some.show.s02e03.1080p.mkv",
+      );
+
+      expect(result[0]?.name).toBe("Some Show S02E03.mkv");
+    });
+  });
+
   describe("movies", () => {
+
+    it("handles a movie title that is itself a year (1971)", () => {
+      const result = suggestRename(
+        "1971.1080p.BluRay.x264.mkv",
+      );
+
+      expect(result[0]).toEqual(
+        expect.objectContaining({
+          name: "1971.mkv",
+          media_type: "movie",
+          extension: "mkv",
+          matched_pattern: "movie.no_year",
+        }),
+      );
+    });
+
+    it("handles a movie title that is itself a year (2001)", () => {
+      const result = suggestRename(
+        "2001.2160p.h264.mp4",
+      );
+
+      expect(result[0]).toEqual(
+        expect.objectContaining({
+          name: "2001.mp4",
+          media_type: "movie",
+          extension: "mp4",
+          matched_pattern: "movie.no_year",
+        }),
+      );
+    });
+
+    it("handles a movie title with noise but no year", () => {
+      const result = suggestRename(
+        "The.Matrix.1080p.BluRay.x265.mkv",
+      );
+
+      expect(result[0]).toEqual(
+        expect.objectContaining({
+          name: "The Matrix.mkv",
+          media_type: "movie",
+          extension: "mkv",
+          matched_pattern: "movie.no_year",
+        }),
+      );
+    });
+
+    it("handles a movie title beginning with a year-like token", () => {
+      const result = suggestRename(
+        "2001.A.Space.Odyssey.1968.1080p.BluRay.mkv",
+      );
+
+      expect(result[0]).toEqual(
+        expect.objectContaining({
+          name: "2001 A Space Odyssey (1968).mkv",
+          media_type: "movie",
+          extension: "mkv",
+          year: "1968",
+        }),
+      );
+    });
+
     it("renames a movie with an already bracketed year correctly", () => {
       const result = "The Matrix (1999).mkv"
       expect(result).toEqual(
