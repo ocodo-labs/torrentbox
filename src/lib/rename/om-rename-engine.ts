@@ -1,5 +1,5 @@
 import mime from "mime";
-import config from "./media_rename_config.json";
+import config from "./om_rename_config.json";
 
 export interface RenameSuggestion {
   name: string;
