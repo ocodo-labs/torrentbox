@@ -38,13 +38,13 @@ export function ServerConfigModal() {
                 storageInfo.map((i) => {
                   return <div className='flex flex-col gap-2 justify-center items-center'>
                     <ProgressRing
-                      radius={80}
+                      radius={50}
                       percentage={i.UsedPercent}
                       strokeBg="var(--primary)"
                       strokeFg="var(--destructive)"
-                      strokeWidth={40}
+                      strokeWidth={30}
                     />
-                    <div className='text-md mt-4'>{i.Mounted}</div>
+                    <div className='mt-4'>{i.Mounted}</div>
                     <div className='text-xs '>{i.Avail} free</div>
                   </div>
                 })
