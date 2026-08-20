@@ -44,8 +44,8 @@ export function ServerConfigModal() {
                       strokeFg="var(--destructive)"
                       strokeWidth={40}
                     />
-                    <div className='text-xl font-mono mt-4'>{i.Mounted}</div>
-                    <div className='text-sm font-mono'>{i.Avail} free</div>
+                    <div className='text-md mt-4'>{i.Mounted}</div>
+                    <div className='text-xs '>{i.Avail} free</div>
                   </div>
                 })
               }
