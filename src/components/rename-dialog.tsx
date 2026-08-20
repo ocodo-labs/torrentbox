@@ -54,16 +54,16 @@ export const RenameDialog = (props: RenameDialogProps) => {
             <div className="flex flex-row items-center justify-start gap-2">
               {suggestionsServiceOnline && (
                 <TooltipCompact tooltipChildren={`LLM rename suggestions ${activeLLMSuggestions ? 'on' : 'off'}`}>
-                    <NeuralNetwork
-                      style={thinIconStyle}
-                      className={`w-4 h-4 cursor-pointer transition-all duration-300
+                  <NeuralNetwork
+                    style={thinIconStyle}
+                    className={`w-4 h-4 cursor-pointer transition-all duration-300
                       ${activeLLMSuggestions
-                          ? "text-cyan-400 drop-shadow-[0_0_5px_rgba(34,211,238,0.8)] animate-pulse"
-                          : "text-muted-foreground opacity-40 hover:opacity-70"
-                        }
+                        ? "text-cyan-400 drop-shadow-[0_0_5px_rgba(34,211,238,0.8)] animate-pulse"
+                        : "text-muted-foreground opacity-40 hover:opacity-70"
+                      }
                       `}
-                      onClick={() => setActiveLLMSuggestions(prev => !prev)}
-                    />
+                    onClick={() => setActiveLLMSuggestions(prev => !prev)}
+                  />
                 </TooltipCompact>
               )}
               {title}
@@ -76,7 +76,10 @@ export const RenameDialog = (props: RenameDialogProps) => {
           onChange={(e) => setNewName(e.target.value)}
           onKeyDown={(e) => (e.code == "Enter") && onConfirm()}
         />
-
+        {
+          suggestions.length > 0 &&
+          <div className='text-sm'>Suggested...</div>
+        }
         <div className='grid grid-cols-1 gap-0'>
           {suggestions.map((suggestion, index) => (
             <div

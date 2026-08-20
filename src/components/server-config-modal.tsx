@@ -21,7 +21,7 @@ export function ServerConfigModal() {
     <ModalOverlay isOpen={isOpen} onClose={close} >
       <>
         {
-          loading || <ModalHeader title='Server Storage' />
+          loading || <ModalHeader title='Server Config' />
         }
         {
           loading &&
@@ -33,19 +33,24 @@ export function ServerConfigModal() {
 
         {storageInfo.every(i => i.UsedPercent) &&
           <>
-            <div className='flex flex-row gap-10 items-center justify-center'>
+            <div className='flex flex-row gap-2 items-center justify-start'>
+              <div className='text-md font-bold'>Server Storage</div>
               {
                 storageInfo.map((i) => {
-                  return <div className='flex flex-col gap-2 justify-center items-center'>
-                    <ProgressRing
-                      radius={50}
-                      percentage={i.UsedPercent}
-                      strokeBg="var(--primary)"
-                      strokeFg="var(--destructive)"
-                      strokeWidth={30}
-                    />
-                    <div className='mt-4'>{i.Mounted}</div>
-                    <div className='text-xs '>{i.Avail} free</div>
+                  return <div className='flex flex-row gap-2 justify-start place-items-center'>
+                    <div>
+                      <ProgressRing
+                        radius={12}
+                        percentage={i.UsedPercent}
+                        strokeBg="var(--primary)"
+                        strokeFg="var(--destructive)"
+                        strokeWidth={6}
+                      />
+                    </div>
+                    <div className='flex flex-col gap-x-2'>
+                      <div className='text-xxs mt-4'>{i.Mounted}</div>
+                      <div className='text-xxs '>{i.Avail} free</div>
+                    </div>
                   </div>
                 })
               }
