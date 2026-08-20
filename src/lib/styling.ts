@@ -77,7 +77,8 @@ export const movingToShowIndicatorClasses = cn(
                 rounded-full
                 cursor-wait
                 border-1
-                border-foreground
+                border-foreground/30
+                border-dotted
                 select-none
                 text-xs
                 animate-pulse
