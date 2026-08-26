@@ -6,7 +6,18 @@ import { playSound } from "@/lib/play-sound";
 import { cn } from "@/lib/utils";
 import type { Torrent } from "@/types/torrent";
 import { RegexIcon, ReplaceAllIcon, ReplaceIcon } from "lucide-react";
-import { useState, type FC } from "react";
+import { useEffect, useState, type FC } from "react";
+import { suggestRename } from "@/lib/rename/om-rename-engine";
+
+interface FileEntry {
+  filename: string;
+  basename: string;
+  basenameNoExt: string;
+  replaced: string;
+  ext: string | undefined;
+}
+
+type FileEntries = FileEntry[]
 
 export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
 
@@ -16,30 +27,58 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
   const [isRepeated, setIsRepeated] = useState(false);
   const [pattern, setPattern] = useState("");
   const [replacement, setReplacement] = useState("");
-  const entries = getShowVideoFilenames(torrent).map(
-    filename => {
-      const basename = filename.replace(`${torrent.name}/`, '')
-      const ext = basename.split('.').pop()
-      const basenameNoExt = basename.replace(`.${ext}`, '')
+  const [replacements, setReplacements] = useState<string[]>([]);
+  const [entries, setEntries] = useState<FileEntries>([]);
+  const [changed, setChanged] = useState<FileEntries>([]);
+  const [hasDupes, setHasDupes] = useState<boolean>(false);
 
-      let replaced = isRepeated
-      ? basenameNoExt.replaceAll(pattern, replacement)
-      : basenameNoExt.replace(pattern, replacement)
-
-      if (isRegex) {
-        try {
-          replaced = basenameNoExt.replace(new RegExp(pattern), replacement)
-        } catch {
-          // ignore regex errors
-        }
+  const autoSuggestions = () => {
+    const videoFilenames: FileEntries = getShowVideoFilenames(torrent).map(
+      filename => {
+        const basename = filename.replace(`${torrent.name}/`, '');
+        const ext = basename.split('.').pop();
+        const basenameNoExt = basename.replace(`.${ext}`, '');
+        const replaced = suggestRename(basenameNoExt)[0].name;
+        return { filename, basename, basenameNoExt, replaced, ext };
       }
-      return { filename, basename, basenameNoExt, replaced, ext }
-    }
-  )
+    )
+    setEntries(videoFilenames);
+  }
 
-  const replacements = entries.map(e => e.replaced)
-  const hasDupes = Array.from(new Set(replacements)).length != replacements.length
-  const changed = entries.filter(e => e.replaced != e.basenameNoExt)
+  useEffect(() => {
+    const videoFilenames: FileEntries = getShowVideoFilenames(torrent).map(
+      filename => {
+        const basename = filename.replace(`${torrent.name}/`, '');
+        const ext = basename.split('.').pop();
+        const basenameNoExt = basename.replace(`.${ext}`, '');
+
+        let replaced = isRepeated
+          ? basenameNoExt.replaceAll(pattern, replacement)
+          : basenameNoExt.replace(pattern, replacement);
+
+        if (isRegex) {
+          try {
+            replaced = basenameNoExt.replace(new RegExp(pattern), replacement);
+          } catch {
+            // ignore regex errors
+          }
+        }
+        return { filename, basename, basenameNoExt, replaced, ext };
+      }
+    )
+
+    setEntries(videoFilenames)
+  }, []);
+
+  useEffect(() => {
+    setReplacements(entries.map(e => e.replaced))
+    setChanged(entries.filter(e => e.replaced != e.basenameNoExt))
+  }, [entries])
+
+  useEffect(() => {
+    setHasDupes(Array.from(new Set(replacements)).length != replacements.length)
+  }, [replacements])
+
   const batchRenamePayload = entries.map(e => {
     return {
       newname: `${e.replaced}.${e.ext}`,
@@ -110,6 +149,27 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
             />
           )
         }
+
+        <div>or</div>
+
+        <AsycJobLongPressTooltipButton
+          className="bg-emerald-800 text-white hover:bg-emerald-700"
+          title="Auto Rename"
+          onLongPress={() => {
+            autoSuggestions();
+            batchRenameTorrentFiles(torrent, batchRenamePayload)
+            return playSound("sounds/torrent-success.mp3")
+          }}
+          icon={
+            <div
+              className="px-3 cursor-pointer"
+              onClick={() => autoSuggestions()}
+            >
+              Auto Rename
+            </div>
+          }
+        />
+
       </div>
       {
         entries.map(
@@ -118,15 +178,12 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
             return (
               <div className={
                 `
-              grid
-              grid-cols-2
-              items-center
-              justify-between
+              grid grid-cols-2
+              items-center justify-between
               p-2
               bg-foreground/10
               overflow-x-auto
-              border-b-1
-              border-foreground/20
+              border-b-1 border-foreground/20
               `
               }>
                 <div>
