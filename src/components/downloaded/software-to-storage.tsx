@@ -1,5 +1,5 @@
 import type { FC } from "react"
-import { AsycJobLongPressTooltipButton } from "@/components/long-press-tooltip-button"
+import { AsyncJobLongPressTooltipButton } from "@/components/long-press-tooltip-button"
 import { Binary } from "lucide-react"
 import { thinIconStyle } from "@/lib/styling"
 import { useTransmissionContext } from "@/contexts/transmission-provider"
@@ -10,7 +10,7 @@ export const SoftwareToStorage: FC<MoveToStorageProps> = ({ file, setFileMoving,
 
   if (fileMoving && moveType != 'software') return;
 
-  return (<AsycJobLongPressTooltipButton
+  return (<AsyncJobLongPressTooltipButton
     title="Move to Software"
     fillColor="bg-primary"
     icon={

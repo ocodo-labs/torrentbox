@@ -1,4 +1,4 @@
-import { AsycJobLongPressTooltipButton } from "@/components/long-press-tooltip-button"
+import { AsyncJobLongPressTooltipButton } from "@/components/long-press-tooltip-button"
 import { thinIconStyle } from "@/lib/styling"
 import type { FC, SVGProps } from "react"
 import { useTransmissionContext } from "@/contexts/transmission-provider"
@@ -10,7 +10,7 @@ export const AudiobookToStorage: FC<MoveToStorageProps> = ({ file, setMoveType, 
   if (fileMoving && moveType != 'audiobook') return;
 
   return (
-    <AsycJobLongPressTooltipButton
+    <AsyncJobLongPressTooltipButton
       title="Move to Audiobooks"
       fillColor="bg-primary"
       icon={

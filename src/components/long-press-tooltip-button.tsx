@@ -28,7 +28,7 @@ type AsyncJobLongPressTooltipButtonProps = Omit<LongPressTooltipButtonProps, 'on
   onLongPress: () => Promise<void>
 }
 
-export const AsycJobLongPressTooltipButton: FC<AsyncJobLongPressTooltipButtonProps> = ({ onLongPress, ...props }) => {
+export const AsyncJobLongPressTooltipButton: FC<AsyncJobLongPressTooltipButtonProps> = ({ onLongPress, ...props }) => {
   const [isRunning, setIsRunning] = useState<boolean>(false)
 
   const handleLongPress = async () => {
