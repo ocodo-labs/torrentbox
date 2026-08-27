@@ -2,11 +2,11 @@ import { OcodoLoaderIcon } from "@/components/icons/ocodo-loader-icon";
 import { type LongPressTooltipButtonProps, LongPressTooltipButton } from "@/components/long-press-tooltip-button";
 import { type FC, useState } from "react";
 
-type AsyncJobLongPressTooltipButtonProps = Omit<LongPressTooltipButtonProps, 'onLongPress'> & {
+type LongPressAsyncJobTooltipButtonProps = Omit<LongPressTooltipButtonProps, 'onLongPress'> & {
   onLongPress: () => Promise<void>;
 };
 
-export const AsyncJobLongPressTooltipButton: FC<AsyncJobLongPressTooltipButtonProps> = ({ onLongPress, ...props }) => {
+export const LongPressAsyncJobTooltipButton: FC<LongPressAsyncJobTooltipButtonProps> = ({ onLongPress, ...props }) => {
   const [isRunning, setIsRunning] = useState<boolean>(false);
 
   const handleLongPress = async () => {

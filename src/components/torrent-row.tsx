@@ -3,7 +3,7 @@ import prettyBytes from 'pretty-bytes'
 import {
   LongPressTooltipButton,
 } from "@/components/long-press-tooltip-button";
-import { AsyncJobLongPressTooltipButton } from "./async-job-long-press-tooltip-button";
+import { LongPressAsyncJobTooltipButton } from "./async-job-long-press-tooltip-button";
 import { TorrentFileRow } from "@/components/torrent-file-row";
 import { Progress } from "@/components/ui/progress";
 import { useTransmissionContext } from "@/contexts/transmission-provider";
@@ -106,7 +106,7 @@ export const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
         </div>
         <div className="flex flex-row items-center gap-2 ">
           {hasTitleableVideo && complete &&
-            <AsyncJobLongPressTooltipButton
+            <LongPressAsyncJobTooltipButton
               title="Auto title videos"
               fillColor="bg-primary"
               icon={
@@ -158,7 +158,7 @@ export const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
               }
             />
           )}
-          <AsyncJobLongPressTooltipButton
+          <LongPressAsyncJobTooltipButton
             title="Delete Torrent"
             icon={
               <Trash className="h-4 w-4 cursor-pointer" style={thinIconStyle} />

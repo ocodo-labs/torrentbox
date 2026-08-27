@@ -2,7 +2,7 @@ import { LineMdDownloadIcon } from "@/components/line-md-download-icon"
 import { MediaItemImage } from "@/components/listing-modals/media-item-image"
 import { MediaItemToolWrapper } from "@/components/listing-modals/media-item-tool-wrapper"
 import { mediaItemFetchPoster, mediaItemSearchInGoogle } from "@/components/listing-modals/media-item-tools"
-import { AsyncJobLongPressTooltipButton } from "../async-job-long-press-tooltip-button"
+import { LongPressAsyncJobTooltipButton } from "../async-job-long-press-tooltip-button"
 import { TooltipCompact } from "@/components/tooltip-compact"
 import { useTorrentSearch } from "@/contexts/torrent-search-context"
 import type { TorrentSearchResult } from "@/contexts/torrent-search-provider"
@@ -67,7 +67,7 @@ export function TorrentSearchResultRow(props: TorrentSearchResult) {
           itemTools.map((tool) =>
             <MediaItemToolWrapper key={tool.title} tool={tool} media={media} />)
         }
-        <AsyncJobLongPressTooltipButton
+        <LongPressAsyncJobTooltipButton
           fillColor="bg-primary"
           title={`Download ${name}`}
           onLongPress={() => postTorrentMagnet(name, magnet_link)}

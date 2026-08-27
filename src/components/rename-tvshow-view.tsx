@@ -1,4 +1,4 @@
-import { AsyncJobLongPressTooltipButton } from "./async-job-long-press-tooltip-button";
+import { LongPressAsyncJobTooltipButton } from "./async-job-long-press-tooltip-button";
 import { TooltipCompact } from "@/components/tooltip-compact";
 import { Input } from "@/components/ui/input";
 import { useTransmissionContext } from "@/contexts/transmission-provider";
@@ -132,7 +132,7 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
         {
           pattern != "" && !hasDupes && changed.length > 0
           && (
-            <AsyncJobLongPressTooltipButton
+            <LongPressAsyncJobTooltipButton
               className="bg-emerald-800 text-white hover:bg-emerald-700"
               fillColor="bg-primary"
               title="Apply Rename"
@@ -152,7 +152,7 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
 
         <div>or</div>
 
-        <AsyncJobLongPressTooltipButton
+        <LongPressAsyncJobTooltipButton
           className="bg-emerald-800 text-white hover:bg-emerald-700"
           title="Auto Rename"
           onLongPress={() => {

@@ -1,5 +1,5 @@
 import { HeadphonesIcon } from "lucide-react"
-import { AsyncJobLongPressTooltipButton } from "../async-job-long-press-tooltip-button"
+import { LongPressAsyncJobTooltipButton } from "../async-job-long-press-tooltip-button"
 import { thinIconStyle } from "@/lib/styling"
 import type { FC } from "react"
 import { useTransmissionContext } from "@/contexts/transmission-provider"
@@ -10,7 +10,7 @@ export const MusicToStorage: FC<MoveToStorageProps> = ({ setMoveType, moveType, 
 
   if (fileMoving && moveType != 'music') return;
 
-  return (<AsyncJobLongPressTooltipButton
+  return (<LongPressAsyncJobTooltipButton
     title="Move to Music"
     fillColor="bg-primary"
     icon={
