@@ -8,10 +8,9 @@ export const DeleteDownloaded: FC<{ file: string }> = ({ file }) => {
   const { handleAction } = useTransmissionContext()
   return (<LongPressTooltipButton
     title="Delete"
-    icon={
-      <Trash className="h-4 w-4 cursor-pointer" style={thinIconStyle} />
-    }
     onLongPress={() => handleAction(file, "files/delete")}
-  />
+  >
+    <Trash className="h-4 w-4 cursor-pointer" style={thinIconStyle} />
+  </LongPressTooltipButton>
   )
 }

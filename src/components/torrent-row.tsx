@@ -109,14 +109,14 @@ export const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
             <LongPressAsyncJobTooltipButton
               title="Auto title videos"
               fillColor="bg-primary"
-              icon={
-                <Type
-                  className="h-4 w-4 cursor-pointer"
-                  style={thinIconStyle}
-                />
-              }
               onLongPress={() => autoTitleVideos(torrent)}
-            />}
+            >
+              <Type
+                className="h-4 w-4 cursor-pointer"
+                style={thinIconStyle}
+              />
+            </LongPressAsyncJobTooltipButton>
+          }
           {canRename(torrent) && isTVShowSeasonTorrent(torrent) && (
             <TooltipButton
               className={showRenameView ? `bg-primary/80` : ''}
@@ -149,26 +149,20 @@ export const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
             <LongPressTooltipButton
               onLongPress={() => handleAction(torrent, "remove")}
               title="Remove Torrent"
-              fillColor="bg-primary"
-              icon={
-                <X
-                  className="h-4 w-4 cursor-pointer"
-                  style={thinIconStyle}
-                />
-              }
-            />
+              fillColor="bg-primary" >
+              <X style={thinIconStyle} className="h-4 w-4 cursor-pointer" />
+            </LongPressTooltipButton>
           )}
           <LongPressAsyncJobTooltipButton
             title="Delete Torrent"
-            icon={
-              <Trash className="h-4 w-4 cursor-pointer" style={thinIconStyle} />
-            }
             onLongPress={async () => {
               playSound("sounds/torrent-trash.mp3")
               clearSoftDeleted(torrent)
               return handleAction(torrent, "delete")
             }}
-          />
+          >
+            <Trash className="h-4 w-4 cursor-pointer" style={thinIconStyle} />
+          </LongPressAsyncJobTooltipButton>
           {torrent.files.length > 1 ? (
             <TooltipButton
               className={expandedTorrent === torrent.id ? "bg-primary/80" : ""}

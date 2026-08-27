@@ -13,12 +13,6 @@ export const MusicToStorage: FC<MoveToStorageProps> = ({ setMoveType, moveType, 
   return (<LongPressAsyncJobTooltipButton
     title="Move to Music"
     fillColor="bg-primary"
-    icon={
-      <HeadphonesIcon
-        className="h-4 w-4 cursor-pointer"
-        style={thinIconStyle}
-      />
-    }
     onLongPress={async () => {
       setFileMoving(true);
       setMoveType('music');
@@ -26,5 +20,11 @@ export const MusicToStorage: FC<MoveToStorageProps> = ({ setMoveType, moveType, 
       setFileMoving(false);
       setMoveType(undefined);
     }}
-  />)
+  >
+    <HeadphonesIcon
+      className="h-4 w-4 cursor-pointer"
+      style={thinIconStyle}
+    />
+  </LongPressAsyncJobTooltipButton>
+  )
 }

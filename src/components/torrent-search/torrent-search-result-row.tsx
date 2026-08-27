@@ -71,7 +71,9 @@ export function TorrentSearchResultRow(props: TorrentSearchResult) {
           fillColor="bg-primary"
           title={`Download ${name}`}
           onLongPress={() => postTorrentMagnet(name, magnet_link)}
-          icon={<LineMdDownloadIcon className="h-4 w-4" style={thinIconStyle} />} />
+        >
+          <LineMdDownloadIcon className="h-4 w-4" style={thinIconStyle} />
+        </LongPressAsyncJobTooltipButton>
       </div>
     </div>
   )

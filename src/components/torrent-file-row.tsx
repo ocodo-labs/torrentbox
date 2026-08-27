@@ -33,10 +33,11 @@ const TorrentFileRow: FC<TorrentFileRowProps> = ({ torrent, filename, size, down
           onClick={() => handleRenameTorrent(torrent, filename)} />
         <LongPressTooltipButton
           title="Delete"
-          icon={<Trash className="h-4 w-4" style={thinIconStyle} />}
           onLongPress={() => {
             return softDeleteTorrentSubFile(torrent, filename)
-          }} />
+          }}>
+          <Trash className="h-4 w-4" style={thinIconStyle} />
+        </LongPressTooltipButton>
       </div>
     </div>
   )

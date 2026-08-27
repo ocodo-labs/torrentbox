@@ -13,13 +13,6 @@ export const AudiobookToStorage: FC<MoveToStorageProps> = ({ file, setMoveType, 
     <LongPressAsyncJobTooltipButton
       title="Move to Audiobooks"
       fillColor="bg-primary"
-      icon={
-        <AudiobookIcon
-          className="h-4 w-4 cursor-pointer"
-          style={thinIconStyle}
-        />
-      }
-
       onLongPress={async () => {
         setFileMoving(true);
         setMoveType('audiobook');
@@ -27,7 +20,12 @@ export const AudiobookToStorage: FC<MoveToStorageProps> = ({ file, setMoveType, 
         setFileMoving(false);
         setMoveType(undefined);
       }}
-    />
+    >
+      <AudiobookIcon
+        className="h-4 w-4 cursor-pointer"
+        style={thinIconStyle}
+      />
+    </LongPressAsyncJobTooltipButton>
   )
 }
 

@@ -28,47 +28,43 @@ const TorrentsSection = () => {
                 onLongPress={() => executeSelectedTorrentsAction("remove")}
                 title="Remove Selected Torrents"
                 fillColor="bg-primary"
-                icon={
-                  <X
-                    className="h-4 w-4 cursor-pointer"
-                    style={thinIconStyle}
-                  />
-                }
-              />
+              >
+                <X className="h-4 w-4 cursor-pointer" style={thinIconStyle} />
+              </LongPressTooltipButton>
+
               <LongPressTooltipButton
                 title="Delete Selected Torrents"
-                icon={
-                  <Trash className="h-4 w-4 cursor-pointer" style={thinIconStyle} />
-                }
                 onLongPress={async () => {
                   playSound("sounds/torrent-trash.mp3")
                   const selected = torrents.filter((t) => selectedTorrents.has(t.id))
                   await executeSelectedTorrentsAction("delete")
                   selected.forEach(clearSoftDeleted)
                 }}
-              />
+              >
+                <Trash className="h-4 w-4 cursor-pointer" style={thinIconStyle} />
+              </LongPressTooltipButton>
+
               <LongPressTooltipButton
                 title="Clear Selection"
                 fillColor="bg-primary"
                 duration={400}
-                icon={
-                  <CircleX className="h-4 w-4 cursor-pointer" style={thinIconStyle} />
-                }
                 onLongPress={() => {
                   setSelectedTorrents(new Set())
                 }}
-              />
+              >
+                <CircleX className="h-4 w-4 cursor-pointer" style={thinIconStyle} />
+              </LongPressTooltipButton>
+
               <LongPressTooltipButton
                 title="Select All"
                 fillColor="bg-primary"
                 duration={400}
-                icon={
-                  <ListChecks className="h-4 w-4 cursor-pointer" style={thinIconStyle} />
-                }
                 onLongPress={() => {
                   setSelectedTorrents(new Set(torrents.map(torrent => torrent.id)))
                 }}
-              />
+              >
+                <ListChecks className="h-4 w-4 cursor-pointer" style={thinIconStyle} />
+              </LongPressTooltipButton>
             </div>
           </>
         }

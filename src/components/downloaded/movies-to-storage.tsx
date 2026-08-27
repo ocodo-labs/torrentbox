@@ -10,21 +10,22 @@ export const MoviesToStorage: FC<MoveToStorageProps> = ({ setMoveType, moveType,
 
   if (fileMoving && moveType != 'movie') return;
 
-  return (<LongPressAsyncJobTooltipButton
-    title="Move to Movies"
-    fillColor="bg-primary"
-    icon={
+  return (
+    <LongPressAsyncJobTooltipButton
+      title="Move to Movies"
+      fillColor="bg-primary"
+      onLongPress={async () => {
+        setFileMoving(true);
+        setMoveType('movie');
+        await handleAction(file, "files/move/movies");
+        setFileMoving(false);
+        setMoveType(undefined);
+      }}
+    >
       <Clapperboard
         className="h-4 w-4 cursor-pointer"
         style={thinIconStyle}
       />
-    }
-    onLongPress={async () => {
-      setFileMoving(true);
-      setMoveType('movie');
-      await handleAction(file, "files/move/movies");
-      setFileMoving(false);
-      setMoveType(undefined);
-    }}
-  />)
+    </LongPressAsyncJobTooltipButton>
+  )
 };

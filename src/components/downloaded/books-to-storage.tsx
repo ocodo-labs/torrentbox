@@ -14,12 +14,6 @@ export const BookToStorage: FC<MoveToStorageProps> = ({ setMoveType, moveType, f
     <LongPressAsyncJobTooltipButton
       title="Move to Books"
       fillColor="bg-primary"
-      icon={
-        <BookIcon
-          className="h-4 w-4 cursor-pointer"
-          style={thinIconStyle}
-        />
-      }
       onLongPress={async () => {
         setFileMoving(true);
         setMoveType('book');
@@ -27,6 +21,11 @@ export const BookToStorage: FC<MoveToStorageProps> = ({ setMoveType, moveType, f
         setFileMoving(false);
         setMoveType(undefined);
       }}
-    />
+    >
+      <BookIcon
+        className="h-4 w-4 cursor-pointer"
+        style={thinIconStyle}
+      />
+    </LongPressAsyncJobTooltipButton>
   )
 }

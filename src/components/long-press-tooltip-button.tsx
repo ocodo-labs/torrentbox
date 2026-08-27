@@ -1,10 +1,10 @@
 import { TooltipCompact } from "@/components/tooltip-compact"
 import { LongPressButton } from "@/components/long-press-button"
-import { type FC, type ReactNode } from "react"
+import type { FC, ReactNode } from "react"
 
 export interface LongPressTooltipButtonProps {
-  title: string
-  icon: ReactNode
+  title: ReactNode
+  children: ReactNode
   duration?: number
   fillColor?: string
   onLongPress: () => void
@@ -13,14 +13,12 @@ export interface LongPressTooltipButtonProps {
 }
 
 export const LongPressTooltipButton: FC<LongPressTooltipButtonProps> = ({
-  title, icon, onLongPress, fillColor, childrenClassName, className,
+  title, children, onLongPress, fillColor, childrenClassName, className,
   duration = 1000
 }) => (
   <TooltipCompact tooltipChildren={title} >
     <LongPressButton childrenClassName={childrenClassName} className={className} onLongPress={onLongPress} fillUpColorClass={fillColor} longPressDuration={duration}>
-      {icon}
+      {children}
     </LongPressButton>
   </TooltipCompact >
 )
-
-

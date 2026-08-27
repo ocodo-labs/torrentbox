@@ -13,13 +13,6 @@ export const SoftwareToStorage: FC<MoveToStorageProps> = ({ file, setFileMoving,
   return (<LongPressAsyncJobTooltipButton
     title="Move to Software"
     fillColor="bg-primary"
-    icon={
-      <Binary
-        className="h-4 w-4 cursor-pointer"
-        style={thinIconStyle}
-      />
-    }
-
     onLongPress={async () => {
       setFileMoving(true);
       setMoveType('software');
@@ -27,5 +20,11 @@ export const SoftwareToStorage: FC<MoveToStorageProps> = ({ file, setFileMoving,
       setFileMoving(false);
       setMoveType(undefined);
     }}
-  />)
+  >
+    <Binary
+      className="h-4 w-4 cursor-pointer"
+      style={thinIconStyle}
+    />
+  </LongPressAsyncJobTooltipButton>
+  )
 }

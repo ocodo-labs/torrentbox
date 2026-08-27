@@ -136,17 +136,16 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
               className="bg-emerald-800 text-white hover:bg-emerald-700"
               fillColor="bg-primary"
               title="Apply Rename"
-              icon={
-                <div
-                  className="cursor-pointer px-3"
-
-                >Rename</div>
-              }
               onLongPress={async () => {
                 batchRenameTorrentFiles(torrent, batchRenamePayload)
                 return playSound("sounds/torrent-success.mp3")
               }}
-            />
+            >
+              <div className="cursor-pointer px-3" >
+                Rename
+              </div>
+            </LongPressAsyncJobTooltipButton>
+
           )
         }
 
@@ -160,15 +159,13 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
             batchRenameTorrentFiles(torrent, batchRenamePayload)
             return playSound("sounds/torrent-success.mp3")
           }}
-          icon={
-            <div
-              className="px-3 cursor-pointer"
-              onClick={() => autoSuggestions()}
-            >
-              Auto Rename
-            </div>
-          }
-        />
+        >
+          <div
+            className="px-3 cursor-pointer"
+            onClick={() => autoSuggestions()}>
+            Auto Rename
+          </div>
+        </LongPressAsyncJobTooltipButton>
 
       </div>
       {
@@ -178,12 +175,11 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
             return (
               <div className={
                 `
-              grid grid-cols-2
+              grid grid-cols-2 p-2
               items-center justify-between
-              p-2
               bg-foreground/10
-              overflow-x-auto
               border-b-1 border-foreground/20
+              overflow-x-auto
               `
               }>
                 <div>
