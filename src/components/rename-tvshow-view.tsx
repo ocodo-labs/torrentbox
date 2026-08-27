@@ -1,4 +1,4 @@
-import { AsyncJobLongPressTooltipButton } from "@/components/long-press-tooltip-button";
+import { AsyncJobLongPressTooltipButton } from "./async-job-long-press-tooltip-button";
 import { TooltipCompact } from "@/components/tooltip-compact";
 import { Input } from "@/components/ui/input";
 import { useTransmissionContext } from "@/contexts/transmission-provider";

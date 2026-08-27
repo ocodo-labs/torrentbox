@@ -1,9 +1,9 @@
 import { TooltipButton, TooltipCompact } from "@/components/tooltip-compact";
 import prettyBytes from 'pretty-bytes'
 import {
-  AsyncJobLongPressTooltipButton,
   LongPressTooltipButton,
 } from "@/components/long-press-tooltip-button";
+import { AsyncJobLongPressTooltipButton } from "./async-job-long-press-tooltip-button";
 import { TorrentFileRow } from "@/components/torrent-file-row";
 import { Progress } from "@/components/ui/progress";
 import { useTransmissionContext } from "@/contexts/transmission-provider";

@@ -1,5 +1,5 @@
 import { HeadphonesIcon } from "lucide-react"
-import { AsyncJobLongPressTooltipButton } from "@/components/long-press-tooltip-button"
+import { AsyncJobLongPressTooltipButton } from "../async-job-long-press-tooltip-button"
 import { thinIconStyle } from "@/lib/styling"
 import type { FC } from "react"
 import { useTransmissionContext } from "@/contexts/transmission-provider"

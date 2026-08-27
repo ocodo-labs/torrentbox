@@ -2,7 +2,7 @@ import { useTransmissionContext } from "@/contexts/transmission-provider";
 import { thinIconStyle } from "@/lib/styling";
 import { Clapperboard } from "lucide-react";
 import type { FC } from "react"
-import { AsycJobLongPressTooltipButton } from "@/components/long-press-tooltip-button";
+import { AsyncJobLongPressTooltipButton } from "../async-job-long-press-tooltip-button";
 import type { MoveToStorageProps } from "@/types/torrent";
 
 export const MoviesToStorage: FC<MoveToStorageProps> = ({ setMoveType, moveType, fileMoving, setFileMoving, file }) => {
@@ -10,7 +10,7 @@ export const MoviesToStorage: FC<MoveToStorageProps> = ({ setMoveType, moveType,
 
   if (fileMoving && moveType != 'movie') return;
 
-  return (<AsycJobLongPressTooltipButton
+  return (<AsyncJobLongPressTooltipButton
     title="Move to Movies"
     fillColor="bg-primary"
     icon={

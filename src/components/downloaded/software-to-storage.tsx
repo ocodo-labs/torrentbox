@@ -1,5 +1,5 @@
 import type { FC } from "react"
-import { AsyncJobLongPressTooltipButton } from "@/components/long-press-tooltip-button"
+import { AsyncJobLongPressTooltipButton } from "../async-job-long-press-tooltip-button"
 import { Binary } from "lucide-react"
 import { thinIconStyle } from "@/lib/styling"
 import { useTransmissionContext } from "@/contexts/transmission-provider"

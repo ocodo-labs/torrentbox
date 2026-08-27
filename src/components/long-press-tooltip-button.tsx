@@ -1,9 +1,8 @@
 import { TooltipCompact } from "@/components/tooltip-compact"
 import { LongPressButton } from "@/components/long-press-button"
-import { OcodoLoaderIcon } from "@/components/icons/ocodo-loader-icon"
-import { useState, type FC, type ReactNode } from "react"
+import { type FC, type ReactNode } from "react"
 
-interface LongPressTooltipButtonProps {
+export interface LongPressTooltipButtonProps {
   title: string
   icon: ReactNode
   duration?: number
@@ -24,34 +23,4 @@ export const LongPressTooltipButton: FC<LongPressTooltipButtonProps> = ({
   </TooltipCompact >
 )
 
-type AsyncJobLongPressTooltipButtonProps = Omit<LongPressTooltipButtonProps, 'onLongPress'> & {
-  onLongPress: () => Promise<void>
-}
 
-export const AsyncJobLongPressTooltipButton: FC<AsyncJobLongPressTooltipButtonProps> = ({ onLongPress, ...props }) => {
-  const [isRunning, setIsRunning] = useState<boolean>(false)
-
-  const handleLongPress = async () => {
-    setIsRunning(true)
-
-    try {
-      await onLongPress()
-    } finally {
-      setIsRunning(false)
-    }
-  }
-
-  return (
-    <>
-      {isRunning ? (
-        <div className="rounded-full p-1 bg-foreground/20">
-          <OcodoLoaderIcon
-            className="animate-spin"
-            width={`16px`} height={`16px`} />
-        </div>
-      ) : (
-        <LongPressTooltipButton onLongPress={handleLongPress} {...props} />
-      )}
-    </>
-  )
-}

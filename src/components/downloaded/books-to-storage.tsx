@@ -2,7 +2,7 @@ import { useTransmissionContext } from "@/contexts/transmission-provider"
 import { thinIconStyle } from "@/lib/styling"
 import { BookIcon } from "lucide-react"
 import type { FC } from "react"
-import { AsyncJobLongPressTooltipButton } from "@/components/long-press-tooltip-button";
+import { AsyncJobLongPressTooltipButton } from "../async-job-long-press-tooltip-button";
 import type { MoveToStorageProps } from "@/types/torrent";
 
 export const BookToStorage: FC<MoveToStorageProps> = ({ setMoveType, moveType, fileMoving, setFileMoving, file }) => {
