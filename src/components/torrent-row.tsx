@@ -3,7 +3,7 @@ import prettyBytes from 'pretty-bytes'
 import {
   LongPressTooltipButton,
 } from "@/components/long-press-tooltip-button";
-import { LongPressAsyncJobTooltipButton } from "./async-job-long-press-tooltip-button";
+import { LongPressAsyncJobTooltipButton } from "./long-press-async-job-tooltip-button";
 import { TorrentFileRow } from "@/components/torrent-file-row";
 import { Progress } from "@/components/ui/progress";
 import { useTransmissionContext } from "@/contexts/transmission-provider";

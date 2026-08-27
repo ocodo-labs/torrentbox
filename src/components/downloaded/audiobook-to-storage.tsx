@@ -1,4 +1,4 @@
-import { LongPressAsyncJobTooltipButton } from "../async-job-long-press-tooltip-button"
+import { LongPressAsyncJobTooltipButton } from "../long-press-async-job-tooltip-button"
 import { thinIconStyle } from "@/lib/styling"
 import type { FC, SVGProps } from "react"
 import { useTransmissionContext } from "@/contexts/transmission-provider"
