@@ -22,6 +22,9 @@ export interface RenameConfig {
       year: string;
     };
   };
+  prenoise: {
+    patterns: string[];
+  };
   noise: Record<string, string[]>;
   noise_patterns: string[];
   extensions: {
@@ -176,6 +179,22 @@ const removeNoise = (
   return tokens
     .slice(0, firstNoiseToken === -1 ? tokens.length : firstNoiseToken)
     .join(" ");
+};
+
+const removePrenoise = (
+  value: string,
+  config: RenameConfig,
+): string => {
+  let result = value;
+
+  for (const pattern of config.prenoise.patterns) {
+    if (result.startsWith(pattern)) {
+      result = result.slice(pattern.length);
+      break;
+    }
+  }
+
+  return result.replace(/^[\s._-]+/, "").trim();
 };
 
 const capitalizeWords = (
@@ -452,8 +471,10 @@ export class MediaRenameEngine {
       return [];
     }
 
+    const cleanedInput = removePrenoise(input, this.config);
+
     const { basename, extension } = stripExtension(
-      input,
+      cleanedInput,
       this.config,
     );
 

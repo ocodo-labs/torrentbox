@@ -7,6 +7,24 @@ import {
 
 describe("om_rename_engine", () => {
 
+  describe("prenoise removal", () => {
+    it("removes a configured prefix before parsing the media name", () => {
+      const result = suggestRename(
+        "www.UIndex.org - The.Matrix.1999.1080p.BluRay.x265.mkv",
+      );
+
+      expect(result[0]).toEqual(
+        expect.objectContaining({
+          name: "The Matrix (1999).mkv",
+          media_type: "movie",
+          extension: "mkv",
+          year: "1999",
+          matched_pattern: "movie.year",
+        }),
+      );
+    });
+  });
+
   describe("path input", () => {
 
     it("handles a movie file path", () => {
