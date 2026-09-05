@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export const TorrentBox: FC = () => {
   const [mounted, setMounted] = useState(false)
+  const [activeTab, setActiveTab] = useState("torrents")
   const { active } = useActivity()
 
   const {
@@ -34,6 +35,12 @@ export const TorrentBox: FC = () => {
     fetchTorrents()
   }, [active, fetchTorrents])
 
+  useEffect(() => {
+    if (downloadedFiles.length === 0) {
+      setActiveTab("torrents")
+    }
+  }, [downloadedFiles])
+
   if (!mounted) {
     return null
   }
@@ -49,12 +56,20 @@ export const TorrentBox: FC = () => {
           <div className="space-y-8">
             <TorrentSearch />
 
-            <Tabs defaultValue="torrents" className="w-[96vw]">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-[96vw]"
+            >
               <TabsList>
-                <TabsTrigger value="torrents">Torrents</TabsTrigger>
+                <TabsTrigger value="torrents">
+                  Torrents
+                </TabsTrigger>
 
                 {downloadedFiles.length > 0 && (
-                  <TabsTrigger value="downloads">Downloads</TabsTrigger>
+                  <TabsTrigger value="downloads">
+                    Downloads
+                  </TabsTrigger>
                 )}
               </TabsList>
 
