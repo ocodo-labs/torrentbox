@@ -1,4 +1,5 @@
 import { PinnedQueryDragItem } from "@/components/torrent-search/pinned-query-drag-item"
+import { useTorrentSearch } from "@/contexts/torrent-search-context"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import type { FC } from "react"
@@ -12,6 +13,11 @@ export const PinnedQuery: FC<PinnedQueryType> = ({
   id,
   query
 }) => {
+
+  const {
+    searchQuery,
+  } = useTorrentSearch()
+
   const {
     attributes,
     listeners,
@@ -27,12 +33,16 @@ export const PinnedQuery: FC<PinnedQueryType> = ({
     opacity: isDragging ? 0.25 : 1,
   };
 
+  const isActive =
+    searchQuery.trim().toLocaleLowerCase() === query.trim().toLocaleLowerCase()
+
   return (
     <PinnedQueryDragItem
       id={query}
       query={query}
       ref={setNodeRef}
       style={style}
+      isActive={isActive}
       {...attributes}
       {...listeners}>
     </PinnedQueryDragItem>
