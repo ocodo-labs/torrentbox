@@ -28,7 +28,7 @@ export const PinnedQueryDragItem = forwardRef<HTMLDivElement, ItemProps>((
       <div
         className={cn(`${pinnedSearchQueryClasses}`, `${
           isActive
-            ? "bg-warning text-warning"
+            ? "bg-primary"
             : ""
         }`)}
       >
