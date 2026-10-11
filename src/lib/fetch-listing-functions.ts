@@ -5,7 +5,7 @@ export const fetchListingMagnet = async (
   href: string
 ): Promise<string | null> => {
   try {
-    const response = await fetch("api/torrents/1337x-magnet", {
+    const response = await fetch("api/torrents/add-magnet", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ href }),
