@@ -67,7 +67,42 @@ pub struct Torrent {
     pub tracker_stats: Vec<serde_json::Value>,
 
     #[serde(default)]
-    pub files: Vec<serde_json::Value>,
+    pub path: String,
+
+    #[serde(default)]
+    pub files: Vec<TorrentFile>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub(crate) struct TorrentFile {
+    #[serde(default)]
+    pub path: String,
+
+    #[serde(default)]
+    pub name: String,
+
+    #[serde(default)]
+    pub percent: f64,
+
+    #[serde(default)]
+    pub size_when_done: i64,
+
+    #[serde(default)]
+    pub size_is_when_done: i64,
+
+    #[serde(default)]
+    pub active: bool,
+
+    pub magnet_link: String,
+
+    #[serde(default)]
+    pub storage: String,
+
+    #[serde(default)]
+    pub file_type: String,
+
+    #[serde(rename = "file_category", default)]
+    pub file_category: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -149,22 +184,23 @@ impl TransmissionRpc {
     /// Fetch all torrents and their file lists.
     pub async fn get_torrents(&self) -> Result<Vec<Torrent>, RpcError> {
         let arguments = serde_json::json!({
-            "fields": [
-                "id",
-                "hashString",
-                "name",
-                "addedDate",
-                "sizeWhenDone",
-                "leftUntilDone",
-                "rateDownload",
-                "rateUpload",
-                "uploadRatio",
-                "secondsDownloading",
-                "magnetLink",
-                "trackerStats",
-                "files"
-            ]
-        });
+                "fields": [
+                    "id",
+                    "hashString",
+                    "name",
+                    "addedDate",
+                    "sizeWhenDone",
+                    "leftUntilDone",
+                    "rateDownload",
+                    "rateUpload",
+                    "uploadRatio",
+                    "secondsDownloading",
+                    "magnetLink",
+            "trackerStats",
+            "path",
+            "files"
+        ]
+            });
 
         let result = self.call("torrent-get", arguments).await?;
         let result: TorrentGetResult = serde_json::from_value(result)?;
