@@ -45,13 +45,6 @@ media:
       - mkv
       - avi
       - webm
-naming:
-  hosts:
-    - http://nvidia-host:11434
-    - http://4090-host:11434
-  models:
-    - gemma3:latest
-    - llama3.1:latest
 transmission:
   port: 9091
   host: transmission.local

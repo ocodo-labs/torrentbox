@@ -17,14 +17,12 @@ from fastapi.staticfiles import StaticFiles
 from omegaconf import OmegaConf
 from omegaconf.errors import OmegaConfBaseException
 from starlette.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 from transmission_rpc import Client as Transmission
-from ollama import Client as Ollama
 from redis import Redis
 from ruamel.yaml import YAML
 from io import StringIO
-import pystache
+
 
 """
 I was one of those people who luckily was
@@ -222,182 +220,6 @@ def save_config(config):
 
 
 print(config_to_yaml(config))
-load_dotenv()
-
-
-def clean_llm_json_response(content: str) -> str:
-    # Remove Markdown-style code block (```json ... ```)
-    code_block_pattern = re.compile(r"```(?:json)?\s*(\{.*?\})\s*```", re.DOTALL)
-    match = code_block_pattern.search(content)
-
-    if match:
-        return match.group(1).strip()
-
-    return content.strip()
-
-
-def get_llm_host():
-    ollama_host = str(redis.get("ollama_host"))
-    logger.info(ollama_host)
-    try:
-        if ollama_host:
-            response = requests.get(ollama_host, timeout=0.2)
-            if response.status_code == 200:
-                return ollama_host
-            else:
-                redis.delete("ollama_host")
-    except Exception:
-        redis.delete("ollama_host")
-
-    for host in config.naming.hosts:
-        try:
-            response = requests.get(host, timeout=1)
-            if response.status_code == 200:
-                redis.set("ollama_host", host)
-                return host
-        except Exception:
-            logger.error(f"Connection error to {host}")
-
-    logger.error("No llm hosts available")
-    return None
-
-
-def get_llm_models(host):
-    response = requests.get(f"{host}/api/tags")
-    if response.status_code == 200:
-        data = response.json()
-        return [model for model in data["models"]]
-
-    raise ValueError(f"Failed to retrieve models from {host}")
-
-
-def get_llm_model(name, host=get_llm_host()):
-    models = get_llm_models(host)
-    if not models:
-        raise ValueError(f"Models not found on {host}")
-
-    model = next(
-        (model for model in models if model["name"] == name or name in model["name"]),
-        None,
-    )
-
-    if model:
-        return model
-
-    raise ValueError(f"Model {name} not found")
-
-
-def use_valid_extension_or_remove(extension):
-    if extension in config.valid_extensions:
-        return extension
-    else:
-        return ""
-
-
-def dedupe_suggestions(suggestions):
-    return list(set(suggestions))
-
-
-def fix_suggestion_extensions(filename, suggestions):
-    # Always use the extension of the given filename
-    extension = os.path.splitext(filename)[1]
-
-    extension = use_valid_extension_or_remove(extension)
-
-    for i, s in enumerate(suggestions):
-        s_base, s_ext = os.path.splitext(s)
-        if s_ext != extension:
-            suggestions[i] = s_base + extension
-    return suggestions
-
-
-def filename_suggestions(
-    filename, model=config.naming.models[0], models=config.naming.models, max_tries=10
-):
-    prompt = render_mustache_template(
-        os.path.join("templates", "prompt.mustache"), {"filename": filename}
-    )
-
-    suggestions = None
-    try_count = 0
-
-    host = get_llm_host()
-
-    if host is None:
-        msg = "No llm host is available"
-        logger.info(msg)
-        raise Exception(msg)
-
-    ollama = Ollama(host=host)
-    ollama_host_models = get_llm_models(host)
-
-    if ollama_host_models is None:
-        msg = f"No models on {host}"
-        raise Exception(msg)
-
-    for llm in ollama_host_models:
-        logger.info(f" - {llm}")
-
-    host_model_names = [m.get("name") for m in ollama_host_models if "name" in m]
-
-    if model not in host_model_names:
-        fallback_model = next(
-            (
-                m
-                for m in config.naming.models
-                if any(m == h.get("name") for h in ollama_host_models)
-            ),
-            None,
-        )
-
-        if fallback_model:
-            model = fallback_model
-        else:
-            model = host_model_names[0]
-
-    while suggestions is None:
-        response = ollama.chat(
-            model=model, messages=[{"role": "user", "content": prompt}]
-        )
-
-        try:
-            logger.info("Ollama response message content")
-            content = response["message"]["content"]
-            content = clean_llm_json_response(content)
-            suggestions = json.loads(content)
-            logger.info("LLM suggested:")
-            logger.info(suggestions)
-            suggestions["suggestions"] = fix_suggestion_extensions(
-                filename, suggestions["suggestions"]
-            )
-
-            return suggestions
-
-        except Exception:
-            try_count += 1
-            suggestions = None
-            if try_count > max_tries:
-                raise Exception(f"{try_count} max retries, unable to get suggestions")
-
-    return suggestions
-
-
-def filter_words(word_list):
-    filter_words = [word.lower() for word in config.filters.words]
-    return [word for word in word_list if word.lower() not in filter_words]
-
-
-def preprocess_title(title: str) -> set:
-    title = os.path.splitext(title)[0]
-    title = re.sub(r"['\"]", "", title)
-    title = re.sub(r"[._+-]", " ", title)
-    words = [word for word in title.split() if word.isalnum()]
-    words = filter_words(words)
-    return set(words)
-
-
-def ordered_intersection(list1, list2):
-    return [word for word in list1 if word in list2]
 
 
 def get_matches_from(
