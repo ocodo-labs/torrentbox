@@ -151,12 +151,6 @@ redis = Redis(decode_responses=True)
 loadable_images = (".png", ".jpg", ".jpeg", ".gif", ".webp")
 
 
-def render_mustache_template(template_path: str, context: dict) -> str:
-    template = Path(template_path).read_text()
-    rendered_template = pystache.render(template, context)
-    return rendered_template
-
-
 async def invalidate_cache(namespace: str):
     for key in await redis.keys(f"{namespace}*"):
         redis.delete(key)
