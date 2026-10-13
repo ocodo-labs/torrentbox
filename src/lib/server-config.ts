@@ -12,11 +12,6 @@ export interface ConfigMediaSettings {
   tvshows: ConfigMedia;
 }
 
-export interface ConfigNamingSettings {
-  hosts: string[];
-  models: string[];
-}
-
 export interface ConfigTransmissionSettings {
   port: number;
   host: string;
@@ -29,7 +24,6 @@ export interface ConfigFiltersSettings {
 export interface ConfigModel {
   downloads: string;
   media: ConfigMediaSettings;
-  naming: ConfigNamingSettings;
   transmission: ConfigTransmissionSettings;
   valid_extensions: string[];
   filters: ConfigFiltersSettings;

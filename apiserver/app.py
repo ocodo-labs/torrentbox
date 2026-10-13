@@ -86,11 +86,6 @@ class TorrentCleanupIn(BaseModel):
     files: List[str]
 
 
-class SuggestNamesIn(BaseModel):
-    filename: str
-    model: Optional[str] = None
-
-
 class FilenameIn(BaseModel):
     filename: str
 
@@ -717,32 +712,6 @@ async def update_config(payload: Request):
         return OmegaConf.to_container(merged)
     except Exception as e:
         return f"{e}"
-
-
-@api.get("/llm/status")
-def get_llm_status():
-    try:
-        if get_llm_host():
-            return Response(status_code=200)
-    except Exception:
-        pass
-
-    raise HTTPException(404)
-
-
-@api.post("/llm/suggest_names")
-def post_llm_suggest_names(b: SuggestNamesIn):
-    try:
-        suggestions = filename_suggestions(b.filename)
-    except Exception as e:
-        return HTTPException(500, "Message: {}, llm server error".format(e))
-
-    try:
-        payload = suggestions
-    except Exception as e:
-        return HTTPException(500, "Message: {}, llm suggestions error".format(e))
-
-    return payload
 
 
 @api.get("/external_links")
