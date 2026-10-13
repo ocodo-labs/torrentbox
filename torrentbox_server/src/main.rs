@@ -1,5 +1,6 @@
 mod active_torrents;
 mod config;
+mod downloads;
 mod transmission_rpc;
 
 use axum::{
@@ -11,7 +12,6 @@ use axum::{
 };
 use config::Config;
 use serde::Serialize;
-use serde_json::Value;
 use std::{env, net::SocketAddr, sync::Arc};
 use tokio::net::TcpListener;
 use tower_http::services::{ServeDir, ServeFile};
