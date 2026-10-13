@@ -55,7 +55,11 @@ Port required torrent-site scraping, search parameters and result formats, poste
 
 Acceptance: search results retain the existing API contract; external-site failures are handled; filesystem paths and media URLs remain frontend-compatible.
 
+<<<<<<< Updated upstream
 ## Frontend and Deployment
+=======
+## 9. Phase Seven — Frontend and Deployment
+>>>>>>> Stashed changes
 
 - Preserve API prefix and static frontend serving if the current backend provides it.
 - Verify the expected `dist/` location and deployment working directory.
@@ -63,9 +67,15 @@ Acceptance: search results retain the existing API contract; external-site failu
 - Update deployment configuration only as necessary.
 - Keep Python available for comparison and rollback until cutover is accepted.
 
+<<<<<<< Updated upstream
 Acceptance: frontend requests and static assets work without unplanned frontend changes.
 
 ## Tests and Cutover
+=======
+Acceptance: frontend requests and static assets work without unplanned frontend changes;
+
+## 10. Phase Eight — Tests and Cutover
+>>>>>>> Stashed changes
 
 - Unit-test configuration, serialization, and error handling.
 - Integration-test routes and service clients.
@@ -76,6 +86,7 @@ Acceptance: frontend requests and static assets work without unplanned frontend 
 
 Acceptance: required routes have regression coverage; response shapes and status codes are compatible; key external-service and filesystem side effects are verified.
 
+<<<<<<< Updated upstream
 ## Error Handling
 
 Use a shared application error type and preserve existing response formats where required. Return appropriate client errors for invalid input, the expected status for missing resources, and server errors for unexpected failures. Log actionable diagnostics without exposing credentials, secrets, or sensitive internal paths.
@@ -91,6 +102,13 @@ do not waste time with Cucumber or other test fallacies.
 Follow Pivotal Labs methods, where applicable.
 
 ## Non-Goals
+=======
+## 11. Error Handling
+
+Use a shared application error type and preserve existing response formats where required. Return appropriate client errors for invalid input, the expected status for missing resources, and server errors for unexpected failures. Log actionable diagnostics without exposing credentials, secrets, or sensitive internal paths.
+
+## 12. Non-Goals
+>>>>>>> Stashed changes
 
 - Rewriting the frontend.
 - Adding unrelated features.
@@ -103,6 +121,12 @@ Follow Pivotal Labs methods, where applicable.
 1. `torrentbox_server/` builds and runs independently.
 2. All required API endpoints are implemented.
 3. Frontend and required integrations continue to work.
+<<<<<<< Updated upstream
 4. Regression tests cover API contracts and important side effects.
 5. Build, configuration, execution, and deployment instructions are documented.
 6. The Python service can be retired without losing required functionality.
+=======
+5. Regression tests cover API contracts and important side effects.
+6. Build, configuration, execution, and deployment instructions are documented.
+7. The Python service can be retired without losing required functionality.
+>>>>>>> Stashed changes

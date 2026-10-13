@@ -1,14 +1,11 @@
-import { NeuralNetwork } from '@/components/icons/neural-network-icon'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { thinIconStyle } from '@/lib/styling'
 import { cn } from '@/lib/utils'
 import { Description } from '@radix-ui/react-dialog'
 import type { Dispatch, SetStateAction } from 'react'
 import { useRef } from 'react'
 import { useTransmissionContext } from '@/contexts/transmission-provider'
-import { TooltipCompact } from '@/components/tooltip-compact'
 
 interface RenameDialogProps {
   open: boolean
@@ -16,7 +13,6 @@ interface RenameDialogProps {
   newName: string
   setNewName: Dispatch<SetStateAction<string>>
   suggestions: string[]
-  suggestionsServiceOnline: boolean
   onCancel: () => void
   onConfirm: () => void
   title: string
@@ -27,16 +23,10 @@ export const RenameDialog = (props: RenameDialogProps) => {
     onOpenChange,
     newName,
     setNewName,
-    suggestionsServiceOnline,
     suggestions,
     onCancel,
     onConfirm,
     title } = props
-
-  const {
-    activeLLMSuggestions,
-    setActiveLLMSuggestions,
-  } = useTransmissionContext()
 
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -52,20 +42,6 @@ export const RenameDialog = (props: RenameDialogProps) => {
         <DialogHeader>
           <DialogTitle>
             <div className="flex flex-row items-center justify-start gap-2">
-              {suggestionsServiceOnline && (
-                <TooltipCompact tooltipChildren={`LLM rename suggestions ${activeLLMSuggestions ? 'on' : 'off'}`}>
-                  <NeuralNetwork
-                    style={thinIconStyle}
-                    className={`w-4 h-4 cursor-pointer transition-all duration-300
-                      ${activeLLMSuggestions
-                        ? "text-cyan-400 drop-shadow-[0_0_5px_rgba(34,211,238,0.8)] animate-pulse"
-                        : "text-muted-foreground opacity-40 hover:opacity-70"
-                      }
-                      `}
-                    onClick={() => setActiveLLMSuggestions(prev => !prev)}
-                  />
-                </TooltipCompact>
-              )}
               {title}
             </div>
           </DialogTitle>

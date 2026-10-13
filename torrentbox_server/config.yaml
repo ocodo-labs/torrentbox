@@ -1,0 +1,170 @@
+mounts:
+  - /mnt/Mirage
+  - /mnt/Mira
+  - /mnt/Overflow
+downloads: /mnt/Mirage/downloads
+external_links:
+  - name: ShowRSS Feed
+    href: https://showrss.hub/
+  - name: 1337x top 100
+    href: https://1337x.to/top-100
+  - name: tpb.party home
+    href: https://tpb.party
+media:
+  audiobooks:
+    directory: /mnt/Mirage/audiobooks
+    wrap: null
+    exts:
+      - mp3
+      - m4a
+  books:
+    directory: /mnt/Mirage/books
+    wrap: null
+    exts:
+      - epub
+      - pdf
+      - zip
+  movies:
+    directory: /mnt/Mira/movies
+    wrap: false
+    exts:
+      - mp4
+      - mkv
+      - avi
+      - webm
+  music:
+    directory: /mnt/Mirage/Music
+    wrap: null
+    exts:
+      - mp3
+      - m4a
+      - ogg
+      - flac
+      - wav
+  software:
+    directory: /mnt/Mirage/windows software
+    wrap: null
+    exts:
+      - zip
+      - msi
+      - exe
+      - 7z
+  tvshows:
+    directory: /mnt/Overflow/tv-shows
+    wrap: null
+    exts:
+      - mp4
+      - mkv
+      - avi
+      - webm
+naming:
+  hosts:
+    - http://polaris:11434
+    - http://pulsar:11434
+    - http://jupiter:11434
+    - http://sol:11434
+    - http://neptune:11434
+    - http://didot:11434
+  models:
+    - llama3.1:latest
+transmission:
+  port: 9091
+  host: helios
+valid_extensions:
+  - .txt
+  - .md
+  - .rst
+  - .rtf
+  - .csv
+  - .tsv
+  - .json
+  - .xml
+  - .yaml
+  - .yml
+  - .ini
+  - .log
+  - .jpg
+  - .jpeg
+  - .png
+  - .gif
+  - .bmp
+  - .tiff
+  - .tif
+  - .webp
+  - .svg
+  - .ico
+  - .heif
+  - .heic
+  - .icns
+  - .mp3
+  - .wav
+  - .ogg
+  - .flac
+  - .aac
+  - .m4a
+  - .wma
+  - .mp4
+  - .mkv
+  - .avi
+  - .mov
+  - .webm
+  - .flv
+  - .wmv
+  - .3gp
+  - .pdf
+  - .doc
+  - .docx
+  - .xls
+  - .xlsx
+  - .ppt
+  - .pptx
+  - .odt
+  - .ods
+  - .odp
+  - .zip
+  - .tar
+  - .gz
+  - .bz2
+  - .xz
+  - .7z
+  - .rar
+  - .dmg
+  - .pkg
+  - .ttf
+  - .otf
+  - .woff
+  - .woff2
+  - .nfo
+  - .epub
+  - .iso
+  - .swf
+  - .jsonld
+  - .srt
+  - .idx
+  - .sub
+filters:
+  words:
+    - YIFY
+    - BluRay
+    - BRip
+    - BrRip
+    - DVDRip
+    - TVRip
+    - x264
+    - x265
+    - 1080p
+    - 720p
+    - HEVC
+    - DC
+    - 10bit
+    - 10bi
+    - DSNP
+    - REPACK
+    - DDP5.1
+    - xxx
+    - AAC
+    - AMZN
+    - Tigole
+    - successfulcrab
+    - WebRip
+images: /mnt/Mirage/Wallpapers/preferred

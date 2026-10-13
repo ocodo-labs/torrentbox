@@ -55,10 +55,6 @@ interface TransmissionContextType {
   downloadedFiles: string[];
   connectionError: boolean;
 
-  suggestionsLLMOnline: boolean;
-  activeLLMSuggestions: boolean;
-  setActiveLLMSuggestions: Dispatch<SetStateAction<boolean>>;
-
   getFilenames: (torrent: Torrent) => string[];
   getActiveFilenames: (torrent: Torrent) => string[];
   getActiveFiles: (torrent: Torrent) => TorrentFile[];
@@ -70,7 +66,6 @@ interface TransmissionContextType {
   canRename: (torrent: Torrent) => boolean;
 
   fetchTorrents: () => Promise<void>;
-  fetchSuggestions: (filename: string) => Promise<void>;
 
   isSoftDeleted: (hash: string, index: number) => boolean;
   softDeleteTorrentSubFile: (torrent: Torrent, filename: string) => void;
@@ -164,9 +159,6 @@ export const TransmissionProvider: React.FC<{
     useLocalStorage<SoftDeletedFile[]>('soft-deleted-files', []);
 
   const [connectionError, setConnectionError] = useState(false);
-  const [suggestionsLLMOnline, setSuggestionsLLMOnline] = useState(false);
-  const [activeLLMSuggestions, setActiveLLMSuggestions] =
-    useLocalStorage<boolean>('activeLLMSuggestions', false);
 
   const [expandedTorrent, setExpandedTorrent] = useState<string | null>(null);
 
@@ -272,15 +264,6 @@ export const TransmissionProvider: React.FC<{
     }
   };
 
-  const fetchSuggestNamesStatus = useCallback(async () => {
-    try {
-      const response = await fetch(`${serverBaseUrl}/llm/status`);
-      setSuggestionsLLMOnline(response.ok);
-    } catch {
-      setSuggestionsLLMOnline(false);
-    }
-  }, []);
-
   const fetchTorrents = useLeadingEdgeDebounce(async () => {
     try {
       const response = await fetch(
@@ -308,77 +291,8 @@ export const TransmissionProvider: React.FC<{
     } catch {
       toast('Fetch Error');
       setConnectionError(true);
-    } finally {
-      fetchSuggestNamesStatus();
     }
   }, 1500);
-
-  /*
-   * Fetch LLM suggestions for a specific filename.
-   *
-   * Local suggestions are deliberately handled separately below.
-   * This function only adds/replaces the LLM contribution; it does not
-   * clear locally generated suggestions.
-   */
-  const fetchSuggestions = useCallback(
-    async (filename: string) => {
-      const requestId = ++suggestionsRequestId.current;
-      const endpoint = `${serverBaseUrl}/llm/suggest_names`;
-
-      if (
-        !filename ||
-        !suggestionsLLMOnline ||
-        !activeLLMSuggestions
-      ) {
-        return;
-      }
-
-      try {
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          body: JSON.stringify({ filename }),
-          headers: json_header,
-        });
-
-        if (!response.ok) {
-          console.log(
-            `Network error fetching suggestions: ${response.status}`
-          );
-
-          if (requestId === suggestionsRequestId.current) {
-            toast(
-              `Failed to get suggestions (${response.status})`
-            );
-          }
-
-          return;
-        }
-
-        const data = await response.json();
-
-        if (requestId !== suggestionsRequestId.current) {
-          return;
-        }
-
-        setSuggestions((current) => {
-          const next = new Set(current);
-
-          for (const suggestion of data.suggestions ?? []) {
-            next.add(suggestion);
-          }
-
-          return next;
-        });
-      } catch (error) {
-        console.log('Error fetching suggestions:', error);
-
-        if (requestId === suggestionsRequestId.current) {
-          toast('Failed to get name suggestions');
-        }
-      }
-    },
-    [suggestionsLLMOnline, activeLLMSuggestions]
-  );
 
   /*
    * Generate local rename suggestions immediately.
@@ -445,8 +359,8 @@ export const TransmissionProvider: React.FC<{
   ]);
 
   /*
-   * Generate local suggestions first, then optionally fetch LLM
-   * suggestions. Neither operation clears the other's results.
+   * Generate local suggestions. The LLM fetch is handled separately
+   * and is no longer combined with local generation.
    */
   useEffect(() => {
     if (!suggestionFilename) {
@@ -456,11 +370,9 @@ export const TransmissionProvider: React.FC<{
     }
 
     generateLocalSuggestions(suggestionFilename);
-    void fetchSuggestions(suggestionFilename);
   }, [
     suggestionFilename,
     generateLocalSuggestions,
-    fetchSuggestions,
   ]);
 
   const confirmRenameDownloadedFile = async () => {
@@ -965,10 +877,6 @@ export const TransmissionProvider: React.FC<{
         downloadedFiles,
         connectionError,
 
-        suggestionsLLMOnline,
-        activeLLMSuggestions,
-        setActiveLLMSuggestions,
-
         getActiveFilenames,
         getActiveFiles,
         getShowFilenames,
@@ -980,7 +888,6 @@ export const TransmissionProvider: React.FC<{
         canRename,
 
         fetchTorrents,
-        fetchSuggestions,
 
         softDeleteTorrentSubFile,
         isSoftDeleted,

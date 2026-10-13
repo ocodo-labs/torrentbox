@@ -16,7 +16,6 @@ export const TorrentBox: FC = () => {
 
   const {
     connectionError,
-    suggestionsLLMOnline,
     fetchTorrents,
     confirmRename,
     cancelRenameTorrent,
@@ -92,7 +91,6 @@ export const TorrentBox: FC = () => {
         newName={newName}
         setNewName={setNewName}
         suggestions={Array.from(suggestions)}
-        suggestionsServiceOnline={suggestionsLLMOnline}
         onConfirm={confirmRename}
         onCancel={cancelRenameTorrent}
       />

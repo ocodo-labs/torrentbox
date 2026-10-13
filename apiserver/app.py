@@ -3,7 +3,6 @@ import subprocess
 import shutil
 from pathlib import Path
 import re
-import json
 import sys
 import logging
 import requests
@@ -12,7 +11,7 @@ from fastapi import FastAPI, Request, APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from pydantic.dataclasses import dataclass
 from typing import Optional, List
-from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, Response
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from omegaconf import OmegaConf
 from omegaconf.errors import OmegaConfBaseException
@@ -22,7 +21,6 @@ from transmission_rpc import Client as Transmission
 from redis import Redis
 from ruamel.yaml import YAML
 from io import StringIO
-
 
 """
 I was one of those people who luckily was
@@ -112,12 +110,6 @@ class ConfigMediaSettings:
 
 
 @dataclass
-class ConfigNamingSettings:
-    hosts: List[str]
-    models: List[str]
-
-
-@dataclass
 class ConfigTransmissionSettings:
     port: int
     host: str
@@ -140,7 +132,6 @@ class ConfigModel:
     downloads: str
     external_links: List[ExternalLink]
     media: ConfigMediaSettings
-    naming: ConfigNamingSettings
     transmission: ConfigTransmissionSettings
     valid_extensions: List[str]
     filters: ConfigFiltersSettings
@@ -188,11 +179,11 @@ except OmegaConfBaseException as e:
 
 
 def config_to_yaml(config):
-    # OmegaConf to_yaml is subpar use ruamel.yaml + StringIO
+    # OmegaConf to_yaml is subpar use ruamel.yaml
     data = OmegaConf.to_container(config)
     yaml = YAML()
     yaml.indent(sequence=4, offset=2)
-    stream = StringIO()
+    stream = io.StringIO()
     yaml.dump(data, stream)  # smfh
     return stream.getvalue()
 
@@ -209,6 +200,24 @@ def save_config(config):
 
 
 print(config_to_yaml(config))
+
+def filter_words(word_list):
+    filter_words = [word.lower() for word in config.filters.words]
+    return [word for word in word_list if word.lower() not in filter_words]
+
+
+def preprocess_title(title: str) -> set:
+    title = os.path.splitext(title)[0]
+    title = re.sub(r"['\"]", "", title)
+    title = re.sub(r"[._+-]", " ", title)
+    words = [word for word in title.split() if word.isalnum()]
+    words = filter_words(words)
+    return set(words)
+
+
+def ordered_intersection(list1, list2):
+    return [word for word in list1 if word in list2]
+>>>>>>> Stashed changes
 
 
 def get_matches_from(
