@@ -20,7 +20,7 @@ from bs4 import BeautifulSoup
 from transmission_rpc import Client as Transmission
 from redis import Redis
 from ruamel.yaml import YAML
-from io import StringIO
+import io
 
 """
 I was one of those people who luckily was
@@ -214,11 +214,8 @@ def preprocess_title(title: str) -> set:
     words = filter_words(words)
     return set(words)
 
-
 def ordered_intersection(list1, list2):
     return [word for word in list1 if word in list2]
->>>>>>> Stashed changes
-
 
 def get_matches_from(
     directory: str, torrent_name: str, valid_exts: List[str]
