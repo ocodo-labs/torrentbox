@@ -17,7 +17,7 @@ Rewrite `apiserver/app.py` as an independent Rust/Axum service in the repository
 
 Use compatible maintained crate versions and include only dependencies required by implemented features.
 
-## Phase One — Foundation
+## Foundation
 
 - Create the Cargo package and executable/library entry points.
 - Implement typed configuration loading and startup validation.
@@ -28,7 +28,7 @@ Use compatible maintained crate versions and include only dependencies required 
 
 Acceptance: `cargo check` succeeds; the service starts with valid configuration; invalid configuration fails with a useful diagnostic; health endpoint responds successfully.
 
-## Phase Two — API Inventory and Contracts
+## API Inventory and Contracts
 
 Enumerate every route and HTTP method in `apiserver/app.py`. For each route, document its path, inputs, request body, response format, status codes, side effects, dependencies, and frontend callers.
 
@@ -36,7 +36,7 @@ Port all required endpoints without unplanned contract changes. Preserve JSON fi
 
 Acceptance: every required existing route is accounted for; omissions or intentional removals are documented explicitly.
 
-## Phase Three — Configuration and Integrations
+## Configuration and Integrations
 
 - Port YAML configuration and relevant environment-variable overrides.
 - Implement required kv store operations.
@@ -45,17 +45,17 @@ Acceptance: every required existing route is accounted for; omissions or intenti
 
 Acceptance: existing configuration remains usable or changes are documented;
 
-## Phase Four — Torrent Management
+## Torrent Management
 
 Torrents are managed by transmission, the server only adds magent links or lists torrents under control of transmisson and allows torrents and their folders, files to be renamed, or removed, or deleted, as per apiserver/app.py
 
-## Phase Five — Search and Media
+## Search and Media
 
 Port required torrent-site scraping, search parameters and result formats, poster/metadata lookup, existing-media detection, media-storage listings, random-image functionality, and pinned-query behavior.
 
 Acceptance: search results retain the existing API contract; external-site failures are handled; filesystem paths and media URLs remain frontend-compatible.
 
-## Phase Seven — Frontend and Deployment
+## Frontend and Deployment
 
 - Preserve API prefix and static frontend serving if the current backend provides it.
 - Verify the expected `dist/` location and deployment working directory.
@@ -65,7 +65,7 @@ Acceptance: search results retain the existing API contract; external-site failu
 
 Acceptance: frontend requests and static assets work without unplanned frontend changes.
 
-## Phase Eight — Tests and Cutover
+## Tests and Cutover
 
 - Unit-test configuration, serialization, and error handling.
 - Integration-test routes and service clients.
