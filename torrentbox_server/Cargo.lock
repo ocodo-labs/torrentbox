@@ -1346,11 +1346,14 @@ name = "torrentbox_server"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "bytes",
+ "http-body-util",
  "reqwest",
  "serde",
  "serde-saphyr",
  "serde_json",
  "tokio",
+ "tower",
  "tower-http",
  "tracing",
  "tracing-subscriber",

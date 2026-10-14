@@ -6,7 +6,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Config {
     #[serde(default)]
     pub mounts: Vec<String>,
@@ -28,7 +28,7 @@ pub struct Config {
     pub images: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ConfigMedia {
     pub directory: String,
 
@@ -38,7 +38,7 @@ pub struct ConfigMedia {
     pub exts: Vec<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct ConfigMediaSettings {
     pub audiobooks: ConfigMedia,
     pub books: ConfigMedia,
@@ -60,7 +60,7 @@ pub struct ConfigFiltersSettings {
     pub words: Vec<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ExternalLink {
     pub name: String,
     pub href: String,

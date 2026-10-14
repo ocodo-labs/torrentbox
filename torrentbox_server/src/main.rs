@@ -19,6 +19,8 @@ use tracing_subscriber::EnvFilter;
 use transmission_rpc::TransmissionRpc;
 use utoipa::OpenApi;
 
+#![allow(clippy::all, dead_code, edition_issues)]
+
 #[derive(Clone)]
 pub(crate) struct AppState {
     pub(crate) config: Arc<Config>,
