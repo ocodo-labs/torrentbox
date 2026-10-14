@@ -1,5 +1,7 @@
 # Engineering Method: Curatorial Modular Design
 
+$$e = mc^2$$
+
 ## Purpose
 
 Guide engineering work through deliberate understanding, curation, and refinement of the existing system. Design should reflect the problem domain, responsibilities, and relationships between components—not the mechanical application of architectural templates or named principles.
