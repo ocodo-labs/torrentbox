@@ -8,6 +8,7 @@ dependencies = [
     "bs4>=0.0.2",
     "fastapi-cache2[redis]>=0.2.2",
     "fastapi[standard]>=0.115.13",
+    "granian>=2.8.5",
     "omegaconf>=2.3.0",
     "pytest>=9.0.2",
     "redis>=4.6.0",
