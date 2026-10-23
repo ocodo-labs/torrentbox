@@ -5,20 +5,5 @@ FASTAPI_PORT=${1:-8880}
 
 cd apiserver
 . .venv/bin/activate
-.venv/bin/fastapi dev --port $FASTAPI_PORT --host 0.0.0.0 &
-FASTAPI_PID=$!
+.venv/bin/granian --interface asgi --host 0.0.0.0 --port $FASTAPI_PORT app:app
 
-# Static build mode for vite
-cd ..
-eval $($HOME/.local/share/fnm/fnm env --shell bash)
-vite build
-
-function cleanup {
-    kill "$FASTAPI_PID"
-    wait "$FASTAPI_PID"
-    exit 0
-}
-
-trap cleanup SIGTERM SIGINT
-wait -n
-exit $?
