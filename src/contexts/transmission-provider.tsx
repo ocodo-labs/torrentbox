@@ -49,6 +49,8 @@ export interface RenameSuggestion {
 }
 
 interface TransmissionContextType {
+  hidden: string[];
+  setHidden: (value: string[]) => void;
   torrents: Torrent[];
   sortedTorrents: Torrent[];
   toggleSort: (key: SortKey) => void;
@@ -153,6 +155,7 @@ type SortOrder = 'asc' | 'desc';
 export const TransmissionProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
+  const [hidden, setHidden] = useLocalStorage<string[]>('hidden', [])
   const [torrents, setTorrents] = useState<Torrent[]>([]);
   const [downloadedFiles, setDownloadedFiles] = useState<string[]>([]);
   const [torrentSoftDeletedFiles, setTorrentSoftDeletedFiles] =
@@ -871,6 +874,8 @@ export const TransmissionProvider: React.FC<{
   return (
     <TransmissionContext.Provider
       value={{
+        hidden,
+        setHidden,
         torrents,
         sortedTorrents,
         toggleSort,

@@ -15,7 +15,6 @@ const TorrentsSection = () => {
     setSelectedTorrents,
     clearSoftDeleted,
     executeSelectedTorrentsAction,
-
   } = useTransmissionContext()
 
   if (torrents.length > 0) {

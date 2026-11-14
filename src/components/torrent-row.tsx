@@ -32,6 +32,7 @@ export const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
     expandedTorrent,
     selectedTorrents,
     setSelectedTorrents,
+    hidden,
   } = useTransmissionContext();
 
   const [showRenameView, setShowRenameView] = useState(false)
@@ -54,6 +55,10 @@ export const TorrentRow: FC<TorrentRowProps> = ({ torrent }) => {
       selectedTorrents.add(id)
       setSelectedTorrents(new Set(selectedTorrents))
     }
+  }
+
+  if (hidden.includes(torrent.name)) {
+    return
   }
 
   return (

@@ -57,10 +57,55 @@ export const TorrentSearchProvider = ({ children }: { children: ReactNode }) => 
 
   const noResultsMessage = `No Torrents Found for ${searchQuery}`
 
-  const { fetchTorrents } = useTransmissionContext()
+  const { fetchTorrents, setHidden, hidden, torrents } = useTransmissionContext()
 
   async function torrentSearch() {
     setResultsFilter('')
+
+    if (searchQuery.trim() === '@hidden') {
+      toast(hidden.length
+        ? `Hidden (${hidden.length}): ${hidden.join(', ')}`
+        : 'Hidden list is empty'
+      )
+      return
+    }
+
+    if (searchQuery.startsWith('+hidden:')) {
+      const value = searchQuery.slice(8).trim()
+
+      if (!value) {
+        toast('Missing title')
+        return
+      }
+
+      if (!torrents.some(torrent => torrent.name === value)) {
+        toast(`Torrent not found: ${value}`)
+        return
+      }
+
+      if (hidden.includes(value)) {
+        toast(`Already hidden: ${value}`)
+        return
+      }
+
+      setHidden([...hidden, value])
+      toast(`Added to hidden: ${value}`)
+      return
+    }
+
+    if (searchQuery.startsWith('-hidden:')) {
+      const value = searchQuery.slice(8).trim()
+
+      if (!value) {
+        toast('Missing title')
+        return
+      }
+
+      setHidden(hidden.filter(item => item !== value))
+      toast(`Removed from hidden: ${value}`)
+      return
+    }
+
     if (searchQuery != "") {
       setSearchResults([])
       setSearching(true)
