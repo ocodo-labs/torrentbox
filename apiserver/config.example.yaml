@@ -57,11 +57,75 @@ external_links:
 valid_extensions:
   - .txt
   - .md
+  - .rst
+  - .rtf
+  - .csv
+  - .tsv
+  - .nfo
+  - .json
+  - .xml
+  - .yaml
+  - .yml
+  - .ini
+  - .log
+  - .jpg
+  - .jpeg
+  - .png
+  - .gif
+  - .bmp
+  - .tiff
+  - .tif
+  - .webp
+  - .svg
+  - .ico
+  - .heif
+  - .heic
+  - .icns
   - .mp3
+  - .wav
+  - .ogg
+  - .flac
+  - .aac
+  - .m4a
+  - .wma
   - .mp4
   - .mkv
-  - .zip
+  - .avi
+  - .mov
+  - .webm
+  - .flv
+  - .wmv
+  - .3gp
   - .pdf
+  - .doc
+  - .docx
+  - .xls
+  - .xlsx
+  - .ppt
+  - .pptx
+  - .odt
+  - .ods
+  - .odp
+  - .zip
+  - .tar
+  - .gz
+  - .bz2
+  - .xz
+  - .7z
+  - .rar
+  - .dmg
+  - .pkg
+  - .ttf
+  - .otf
+  - .woff
+  - .woff2
+  - .epub
+  - .iso
+  - .swf
+  - .jsonld
+  - .srt
+  - .idx
+  - .sub
 filters:
   words:
     - YIFY
