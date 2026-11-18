@@ -1,30 +1,33 @@
-downloads: /mnt/Storage/downloads
+mounts:
+  - ./downloads
+  - ./stored
+downloads: ./downloads
 media:
-  # mandatory media entires:
+  # mandatory media entries:
   # movies, tvshows
   audiobooks:
-    directory: /mnt/Storage/audiobooks
+    directory: ./stored/audiobooks
     exts:
       - mp3
       - m4a
   books:
-    directory: /mnt/Storage/books
+    directory: ./stored/books
     exts:
       - epub
       - pdf
       - zip
   movies:
     # wrap a video file into a folder
-    # (folder named as the video filename without extention)
+    # (folder named as the video filename without extension)
     wrap: true
-    directory: /mnt/Storage/movies
+    directory: ./stored/movies
     exts:
       - mp4
       - mkv
       - avi
       - webm
   music:
-    directory: /mnt/Storage/moviesusic
+    directory: ./stored/music
     exts:
       - mp3
       - m4a
@@ -32,14 +35,14 @@ media:
       - flac
       - wav
   software:
-    directory: /mnt/Storage/software
+    directory: ./stored/software
     exts:
       - zip
       - msi
       - exe
       - 7z
   tvshows:
-    directory: /mnt/Storage/tv-shows
+    directory: ./stored/tv-shows
     exts:
       - mp4
       - mkv
@@ -47,84 +50,18 @@ media:
       - webm
 transmission:
   port: 9091
-  host: transmission.local
+  host: 10.0.0.2
 external_links:
   - name: External Link
-    href: https://example.com
-  - name: Another Example
     href: https://example.com
 valid_extensions:
   - .txt
   - .md
-  - .rst
-  - .rtf
-  - .csv
-  - .tsv
-  - .nfo
-  - .json
-  - .xml
-  - .yaml
-  - .yml
-  - .ini
-  - .log
-  - .jpg
-  - .jpeg
-  - .png
-  - .gif
-  - .bmp
-  - .tiff
-  - .tif
-  - .webp
-  - .svg
-  - .ico
-  - .heif
-  - .heic
-  - .icns
   - .mp3
-  - .wav
-  - .ogg
-  - .flac
-  - .aac
-  - .m4a
-  - .wma
   - .mp4
   - .mkv
-  - .avi
-  - .mov
-  - .webm
-  - .flv
-  - .wmv
-  - .3gp
-  - .pdf
-  - .doc
-  - .docx
-  - .xls
-  - .xlsx
-  - .ppt
-  - .pptx
-  - .odt
-  - .ods
-  - .odp
   - .zip
-  - .tar
-  - .gz
-  - .bz2
-  - .xz
-  - .7z
-  - .rar
-  - .dmg
-  - .pkg
-  - .ttf
-  - .otf
-  - .woff
-  - .woff2
-  - .epub
-  - .iso
-  - .swf
-  - .jsonld
-  - .srt
-  - .idx
-  - .sub
+  - .pdf
 filters:
   words:
     - YIFY
@@ -150,4 +87,5 @@ filters:
     - Tigole
     - successfulcrab
     - WebRip
-images: /mnt/Storage/background-images
+images: /path/to/wallpapers/
+source_site: https://tpb.party
