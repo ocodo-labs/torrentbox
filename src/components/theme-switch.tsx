@@ -4,6 +4,7 @@ import { Moon, Sun } from "lucide-react"
 import { useContext } from "react"
 
 import { cn } from "@/lib/utils"
+import { thinIconStyle } from "@/lib/styling"
 import { ThemeContext, type ThemeContextType } from "@/contexts/theme-context"
 
 type ThemeSwitchProps = Omit<
@@ -49,11 +50,11 @@ function ThemeSwitch({
         {isDarkMode ? (
           <Moon className={cn(
             "absolute left-1/2 top-1/2 block size-2.5 -translate-x-1/2 -translate-y-1/2"
-          )} />
+          )} style={thinIconStyle} />
         ) : (
           <Sun className={cn(
             "absolute left-1/2 top-1/2 block size-2.5 -translate-x-1/2 -translate-y-1/2"
-          )} />)}
+          )} style={thinIconStyle} />}
       </SwitchPrimitive.Thumb>
     </SwitchPrimitive.Root>
   )

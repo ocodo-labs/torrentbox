@@ -53,8 +53,8 @@ export function HeadingBar() {
 
   const themeIcons = (theme: string) => {
     return {
-      light: <Sun className="h-6 w-6" />,
-      dark: <Moon className="h-6 w-6" />,
+      light: <Sun className="h-6 w-6" style={thinIconStyle} />,
+      dark: <Moon className="h-6 w-6" style={thinIconStyle} />,
     }[theme];
   };
 
