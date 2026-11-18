@@ -5,7 +5,6 @@ import { cn } from '@/lib/utils'
 import { Description } from '@radix-ui/react-dialog'
 import type { Dispatch, SetStateAction } from 'react'
 import { useRef } from 'react'
-import { useTransmissionContext } from '@/contexts/transmission-provider'
 
 interface RenameDialogProps {
   open: boolean
