@@ -7,9 +7,7 @@ export const OcodoLoaderIcon = (props: SVGProps<SVGSVGElement>) => {
 
   const strokeColors = {
     'light': '#222222',
-    'oli': '#222222',
     'dark': '#EEEEEE',
-    'oli-dark': '#EEEEEE',
   }
 
   const strokeColor = strokeColors[theme];

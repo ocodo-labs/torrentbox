@@ -1,5 +1,4 @@
 import { BittorrentIcon } from "@/components/icons/bit-torrent-icon";
-import { Olivetti1954 } from "@/components/icons/olivetti-1954-logo";
 import { TorrentNewMagnetDialog } from "@/components/torrent-new-magnet-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -54,12 +53,8 @@ export function HeadingBar() {
 
   const themeIcons = (theme: string) => {
     return {
-      light: <Sun className="h-6 w-6" style={{ strokeWidth: 0.5 }} />,
-      dark: <Moon className="h6 w-6" style={{ strokeWidth: 0.5 }} />,
-      oli: <Olivetti1954 className="h-6 w-6" />,
-      "oli-dark": (
-        <Olivetti1954 className="h-6 w-6" style={{ fill: "#FFFFFF" }} />
-      ),
+      light: <Sun className="h-6 w-6" />,
+      dark: <Moon className="h-6 w-6" />,
     }[theme];
   };
 
