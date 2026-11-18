@@ -122,6 +122,12 @@ class ConfigFiltersSettings:
 
 
 @dataclass
+class ConfigNamingSettings:
+    hosts: List[str]
+    models: List[str]
+
+
+@dataclass
 class ExternalLink:
     name: str
     href: str
@@ -137,6 +143,7 @@ class ConfigModel:
     valid_extensions: List[str]
     filters: ConfigFiltersSettings
     images: str
+    naming: ConfigNamingSettings
     source_site: str = "https://tpb.party"
 
 
