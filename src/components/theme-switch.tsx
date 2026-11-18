@@ -54,7 +54,8 @@ function ThemeSwitch({
         ) : (
           <Sun className={cn(
             "absolute left-1/2 top-1/2 block size-2.5 -translate-x-1/2 -translate-y-1/2"
-          )} style={thinIconStyle} />}
+          )} style={thinIconStyle} />
+	)}
       </SwitchPrimitive.Thumb>
     </SwitchPrimitive.Root>
   )
