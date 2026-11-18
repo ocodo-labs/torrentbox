@@ -1,7 +1,7 @@
 import type { FC } from "react"
 import { Input } from "@/components/ui/input"
 import { IndeterminateProgress } from "@/components/indeterminate-progress"
-import { CircleX, Filter, Pin, SearchIcon } from "lucide-react"
+import { CircleX, Filter, Pin, Radio, SearchIcon } from "lucide-react"
 import { thinIconStyle } from "@/lib/styling"
 import { TooltipCompact } from "@/components/tooltip-compact"
 import { PinnedSearchQueries } from "@/components/torrent-search/pinned-search-queries"
@@ -9,10 +9,16 @@ import { useTorrentSearch } from "@/contexts/torrent-search-context"
 import { usePinnedQueries } from "@/contexts/pinned-queries-context"
 import { TorrentSearchResults } from "@/components/torrent-search/torrent-search-results"
 import { useToggle } from "usehooks-ts"
+import { PinnedQueriesCheckModal } from "@/components/torrent-search/pinned-queries-check-modal"
+import { useLeadingEdgeDebounce } from "@/lib/debounce"
+import { useState } from "react"
 
 export const TorrentSearch: FC = () => {
 
   const [showResultFilter, toggleResultFilter] = useToggle(false)
+  const [showCheckModal, setShowCheckModal] = useState(false)
+
+  const debouncedRefresh = useLeadingEdgeDebounce(() => setShowCheckModal(false), 300)
 
   const {
     pinnedQueries,
@@ -85,6 +91,14 @@ export const TorrentSearch: FC = () => {
               style={thinIconStyle} />
           </TooltipCompact>
         }
+        {pinnedQueries.length > 0 &&
+          <TooltipCompact tooltipChildren={'Did it show up yet?'}>
+            <Radio
+              onClick={() => setShowCheckModal(true)}
+              className="mt-1 size-6 cursor-pointer"
+              style={thinIconStyle} />
+          </TooltipCompact>
+        }
         {searchQuery != '' &&
           <CircleX
             className="w-8 h-8 p-1 min-h-6 min-w-6 cursor-pointer"
@@ -130,6 +144,14 @@ export const TorrentSearch: FC = () => {
         : <TorrentSearchResults
           searchResults={filteredSearchResults} />
       }
+
+      <PinnedQueriesCheckModal
+        isOpen={showCheckModal}
+        onClose={() => {
+          setShowCheckModal(false)
+          debouncedRefresh()
+        }}
+      />
     </div>
   )
 }
