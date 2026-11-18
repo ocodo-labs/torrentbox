@@ -10,15 +10,12 @@ import { usePinnedQueries } from "@/contexts/pinned-queries-context"
 import { TorrentSearchResults } from "@/components/torrent-search/torrent-search-results"
 import { useToggle } from "usehooks-ts"
 import { PinnedQueriesCheckModal } from "@/components/torrent-search/pinned-queries-check-modal"
-import { useLeadingEdgeDebounce } from "@/lib/debounce"
 import { useState } from "react"
 
 export const TorrentSearch: FC = () => {
 
   const [showResultFilter, toggleResultFilter] = useToggle(false)
   const [showCheckModal, setShowCheckModal] = useState(false)
-
-  const debouncedRefresh = useLeadingEdgeDebounce(() => setShowCheckModal(false), 300)
 
   const {
     pinnedQueries,
@@ -147,10 +144,7 @@ export const TorrentSearch: FC = () => {
 
       <PinnedQueriesCheckModal
         isOpen={showCheckModal}
-        onClose={() => {
-          setShowCheckModal(false)
-          debouncedRefresh()
-        }}
+        onClose={() => setShowCheckModal(false)}
       />
     </div>
   )
