@@ -138,12 +138,12 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
           const data = await response.json();
           if (!data?.results?.filter) continue;
 
-          // Filter: has seeds, not porn
+          // Filter: has seeds, not porn, max 5 per query
           const valid = data.results.filter(
             (r: TorrentHit) =>
               parseInt(r.seeds, 10) > 0 &&
               !r.category.toLowerCase().includes("porn")
-          );
+          ).slice(0, 5);
 
           if (valid.length > 0) {
             setHits((prev) => [...prev, ...valid]);
