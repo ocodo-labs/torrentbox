@@ -1,17 +1,21 @@
 mounts:
   - ./downloads
   - ./stored
+
 downloads: ./downloads
+
 media:
   # mandatory media entries:
   # movies, tvshows
   audiobooks:
     directory: ./stored/audiobooks
+    wrap: null
     exts:
       - mp3
       - m4a
   books:
     directory: ./stored/books
+    wrap: null
     exts:
       - epub
       - pdf
@@ -28,6 +32,7 @@ media:
       - webm
   music:
     directory: ./stored/music
+    wrap: null
     exts:
       - mp3
       - m4a
@@ -36,6 +41,7 @@ media:
       - wav
   software:
     directory: ./stored/software
+    wrap: null
     exts:
       - zip
       - msi
@@ -43,17 +49,25 @@ media:
       - 7z
   tvshows:
     directory: ./stored/tv-shows
+    wrap: null
     exts:
       - mp4
       - mkv
       - avi
       - webm
+
+naming:
+  hosts: []
+  models: []
+
 transmission:
   port: 9091
   host: 10.0.0.2
+
 external_links:
   - name: External Link
     href: https://example.com
+
 valid_extensions:
   - .txt
   - .md
@@ -126,6 +140,7 @@ valid_extensions:
   - .srt
   - .idx
   - .sub
+
 filters:
   words:
     - YIFY
@@ -151,5 +166,7 @@ filters:
     - Tigole
     - successfulcrab
     - WebRip
+
 images: /path/to/wallpapers/
+
 source_site: https://tpb.party
