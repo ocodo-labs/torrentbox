@@ -1,14 +1,18 @@
 import { serverBaseUrl } from "@/config";
 import { ModalHeader } from "@/components/modal/modal-header";
 import { ModalOverlay } from "@/components/modal/modal-overlay";
+import { LineMdDownloadIcon } from "@/components/line-md-download-icon";
 import { usePinnedQueries } from "@/contexts/pinned-queries-context";
 import { useTorrentSearch } from "@/contexts/torrent-search-context";
+import { thinIconStyle } from "@/lib/styling";
 import {
   CircleDashed,
+  ExternalLink,
   Loader2,
   Plus,
   Search,
-  Trash2,
+  X,
+  CircleX,
 } from "lucide-react";
 import { type FC, useCallback, useEffect, useRef, useState } from "react";
 
@@ -20,6 +24,7 @@ interface CheckModalProps {
 interface TorrentHit {
   name: string;
   magnet_link: string;
+  href: string;
   seeds: string;
   size: string;
   category: string;
@@ -33,7 +38,6 @@ type ViewState =
 
 const SEARCH_DELAY_MS = 800;
 const FADE_DURATION = 200;
-const TRANSITION_DELAY = 1600;
 
 export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
   isOpen,
@@ -109,14 +113,8 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
     setProgress(0);
     searchAbortRef.current = false;
 
-    // Phase 1: Transition
-    setViewState({ type: "transition" });
-
-    setTimeout(() => {
-      // Phase 2: Searching
-      setViewState({ type: "searching" });
-      runSearch(active);
-    }, TRANSITION_DELAY);
+    setViewState({ type: "searching" });
+    runSearch(active);
   }, [editableQueries]);
 
   // Run through queries sequentially
@@ -182,7 +180,7 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
           </div>
         </ModalHeader>
 
-        <div className="grid gap-2 p-2 rounded-lg bg-background inset-shadow-sm max-h-[80vh] overflow-y-auto">
+        <div className="grid grid-cols-2 gap-2 p-2 rounded-lg bg-background inset-shadow-sm flex-1 min-h-0 overflow-y-auto">
           {editableQueries.map((query, index) => (
             <div
               key={index}
@@ -199,13 +197,13 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
                 onClick={() => removeQuery(index)}
                 className="shrink-0 p-1 hover:bg-background rounded-full transition-colors"
               >
-                <Trash2 className="w-3 h-3 text-muted-foreground" />
+                <X className="w-3 h-3 text-muted-foreground" />
               </button>
             </div>
           ))}
 
           {/* Add new query */}
-          <div className="flex flex-row items-center gap-2 p-2 border border-dashed border-foreground/20 rounded-lg">
+          <div className="col-span-2 flex flex-row items-center gap-2 p-2 border border-dashed border-foreground/20 rounded-lg">
             <Plus className="w-4 h-4 text-muted-foreground/30 shrink-0" />
             <input
               type="text"
@@ -231,35 +229,13 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
     );
   }
 
-  // ─── Transition View ───────────────────────────────────────
-  if (viewState.type === "transition") {
-    return (
-      <ModalOverlay isOpen={isOpen} onClose={onClose}>
-        <div
-          className="flex items-center justify-center h-[60vh]"
-          style={{
-            opacity: 1,
-            transition: `opacity ${FADE_DURATION}ms ease-in-out`,
-          }}
-        >
-          <div className="text-2xl font-light tracking-tight text-muted-foreground">
-            What's out there?
-          </div>
-        </div>
-      </ModalOverlay>
-    );
-  }
-
   // ─── Searching View ────────────────────────────────────────
   if (viewState.type === "searching") {
     return (
       <ModalOverlay isOpen={isOpen} onClose={onClose}>
         <ModalHeader icon={<Loader2 className="w-5 h-5 animate-spin" />} title="Searching">
-          <button
-            onClick={cancelSearch}
-            className="px-3 py-1 text-xs bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/80 transition-colors"
-          >
-            Cancel
+          <button onClick={cancelSearch}>
+            <CircleX className="w-4 h-4 text-muted-foreground" />
           </button>
         </ModalHeader>
 
@@ -293,8 +269,8 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
                 >
                   <div className="flex flex-row gap-2 items-center justify-start">
                     <div className="truncate max-w-[75vw]">{hit.name}</div>
-                    <a href={hit.magnet_link} target="_blank">
-                      <Search className="w-4 h-4 text-muted-foreground" />
+                    <a href={hit.href} target="_blank">
+                      <ExternalLink style={thinIconStyle} className="w-4 h-4" />
                     </a>
                   </div>
                   <div className="flex flex-row gap-3 items-center justify-between mt-1 md:mt-0">
@@ -302,9 +278,8 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
                     <div className="text-xs">{hit.seeds} seeds</div>
                     <button
                       onClick={() => handleMagnetClick(hit.name, hit.magnet_link)}
-                      className="px-2 py-1 text-xs bg-primary text-primary-foreground rounded-full hover:bg-primary/80 transition-colors"
                     >
-                      Download
+                      <LineMdDownloadIcon className="h-4 w-4" style={thinIconStyle} />
                     </button>
                   </div>
                 </div>
@@ -338,8 +313,8 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
             >
               <div className="flex flex-row gap-2 items-center justify-start">
                 <div className="truncate max-w-[75vw]">{hit.name}</div>
-                <a href={hit.magnet_link} target="_blank">
-                  <Search className="w-4 h-4 text-muted-foreground" />
+                <a href={hit.href} target="_blank">
+                  <ExternalLink style={thinIconStyle} className="w-4 h-4" />
                 </a>
               </div>
               <div className="flex flex-row gap-3 items-center justify-between mt-1 md:mt-0">
@@ -347,9 +322,8 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
                 <div className="text-xs">{hit.seeds} seeds</div>
                 <button
                   onClick={() => handleMagnetClick(hit.name, hit.magnet_link)}
-                  className="px-2 py-1 text-xs bg-primary text-primary-foreground rounded-full hover:bg-primary/80 transition-colors"
                 >
-                  Download
+                  <LineMdDownloadIcon className="h-4 w-4" style={thinIconStyle} />
                 </button>
               </div>
             </div>

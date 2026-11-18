@@ -15,12 +15,14 @@ export function ModalOverlay({ isOpen, onClose, children, className }: ModalOver
   return (
     <div className={modalOverlay} onClick={onClose}>
       <div className={modalContainer} onClick={(e) => e.stopPropagation()}>
-        <div className={cn(modalContent, className)}>
+        <div className={cn("flex flex-col", modalContent, className)}>
           <CircleX
             onClick={onClose}
             style={thinIconStyle}
             className={modalClose} />
-          {children}
+          <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+            {children}
+          </div>
         </div>
       </div>
     </div>

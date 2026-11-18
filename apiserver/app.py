@@ -10,6 +10,7 @@ import random
 from fastapi import FastAPI, Request, APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from pydantic.dataclasses import dataclass
+from dataclasses import field
 from typing import Optional, List
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -136,6 +137,7 @@ class ConfigModel:
     valid_extensions: List[str]
     filters: ConfigFiltersSettings
     images: str
+    source_site: str = "https://tpb.party"
 
 
 redis = Redis(decode_responses=True)
@@ -533,15 +535,19 @@ def scrape_torrent_links(html):
         return []
 
 
-def scrape_tpb_rows(row):
-    name = row.select_one('a[href^="https://tpb.party/torrent/"]')
-    category = row.select_one('a[href^="https://tpb.party/browse/"]')
+def scrape_tpb_rows(row, source_site):
+    name = row.select_one(f'a[href^="{source_site}/torrent/"]')
+    category = row.select_one(f'a[href^="{source_site}/browse/"]')
     magnet_link = row.select_one('a[href^="magnet:"]')
     cells = row.select("td")
 
+    href = name.get("href", "")
+    if href.startswith("/"):
+        href = f"{source_site}{href}"
+
     return {
         "name": name.get_text(strip=True),
-        "href": name.get("href"),
+        "href": href,
         "category": category.get_text(strip=True).replace("\n", " "),
         "magnet_link": magnet_link.get("href"),
         # Seeds and Size likely to error when/if tpb changes layout.
@@ -550,14 +556,14 @@ def scrape_tpb_rows(row):
     }
 
 
-def scrape_torrents(html):
+def scrape_torrents(html, source_site):
     soup = BeautifulSoup(html, "html.parser")
     torrents = []
     rows = soup.select("#searchResult tr")
     rows = [row for row in rows if len(row.select("td")) >= 8]
 
     for row in rows:
-        torrent = scrape_tpb_rows(row)
+        torrent = scrape_tpb_rows(row, source_site)
         torrents.append(torrent)
 
     return torrents
@@ -641,8 +647,9 @@ async def get_pinned():
 
 @api.get('/df', tags=["api"])
 def df():
+    mounts = list(config.mounts) if config.mounts else []
     out = subprocess.check_output(
-        ["df", "-h"] + list(config.mounts),
+        ["df", "-h"] + mounts,
         text=True
     ).splitlines()
 
@@ -785,12 +792,12 @@ async def search_torrents(query: Optional[str] = Query(None)):
         result = transmission.add_torrent(query)
         return {"info": f"Added torrent {result}"}
 
-    url = f"https://tpb.party/search/{query}/1/99/0"
+    url = f"{config.source_site}/search/{query}/1/99/0"
     try:
         response = requests.get(url)
         if response.status_code == 200:
             html = response.text
-            torrents_data = scrape_torrents(html)
+            torrents_data = scrape_torrents(html, config.source_site)
             if torrents_data:
                 # check here
                 torrents_data = check_existing_media(torrents_data)
