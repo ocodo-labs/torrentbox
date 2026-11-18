@@ -2,7 +2,7 @@ import { serverBaseUrl } from "@/config";
 import { ModalHeader } from "@/components/modal/modal-header";
 import { ModalOverlay } from "@/components/modal/modal-overlay";
 import { usePinnedQueries } from "@/contexts/pinned-queries-context";
-import { Check, Search, X } from "lucide-react";
+import { Check, CircleDashed, Loader2, Search, X } from "lucide-react";
 import { type FC, useCallback, useEffect, useRef, useState } from "react";
 
 interface CheckModalProps {
@@ -188,13 +188,13 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
             {/* Status icon */}
             <div className="shrink-0 w-4 h-4 flex items-center justify-center">
               {result.status === "searching" ? (
-                <div className="animate-spin w-4 h-4 border-2 border-blue-500/30 border-t-blue-500 rounded-full" />
+                <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
               ) : result.status === "matched" ? (
                 <Check className="w-4 h-4 text-green-500" />
               ) : result.status === "not-found" ? (
                 <X className="w-4 h-4 text-muted-foreground/50" />
               ) : (
-                <div className="w-4 h-4 rounded-full border-2 border-muted-foreground/20" />
+                <CircleDashed className="w-4 h-4 text-muted-foreground/30" />
               )}
             </div>
 
