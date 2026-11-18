@@ -36,3 +36,5 @@ yarn-error.log*
 next-env.d.ts
 apiserver/dist*
 target/
+apiserver/downloads
+apiserver/stored
