@@ -1,7 +1,7 @@
 # 003 — Fix missing effect dependencies and effect chain in RenameTVShowView
 
 - **Status**: TODO
-- **Commit**: 685f69c
+- **Commit**: 685f69c (base); current HEAD: 4172b57
 - **Severity**: HIGH
 - **Category**: Bugs & correctness
 - **Rule**: react-doctor/exhaustive-deps + react-doctor/no-effect-chain + react-doctor/no-derived-state
@@ -9,7 +9,7 @@
 
 ## Problem
 
-`src/components/rename-tvshow-view.tsx` has two effects that form a chain and miss dependencies:
+`src/components/rename-tvshow-view.tsx` has three effects that form a chain and miss dependencies:
 
 **Effect 1** (lines 62-71) — computes `entries` from torrent files:
 
@@ -38,12 +38,12 @@ useEffect(() => {
   )
 
   setEntries(videoFilenames)
-}, []);  // ← missing: pattern, replacement, isRepeated
+}, []);  // ← missing: pattern, replacement, isRepeated, torrent
 ```
 
-This effect only runs once on mount. When the user changes `pattern`, `replacement`, or `isRegex`, the entries never update — the UI shows stale data.
+This effect only runs once on mount. When the user changes `pattern`, `replacement`, `isRegex`, or `torrent`, the entries never update — the UI shows stale data.
 
-**Effect 2** (lines 73-75) — derives `changed` from `replacements`:
+**Effect 2** (lines 73-75) — derives `replacements` and `changed` from `entries`:
 
 ```tsx
 // src/components/rename-tvshow-view.tsx:73 — current
@@ -65,6 +65,8 @@ useEffect(() => {
 ```
 
 Another derived state: `hasDupes` is derived from `replacements`, which is derived from `entries`. Three effects in a chain.
+
+**Also** — `batchRenamePayload` (line 83) is computed on every render from state instead of using `useMemo`.
 
 ## Target
 
@@ -128,7 +130,7 @@ const hasDupes = useMemo(
 Also update `batchRenamePayload` to use `useMemo`:
 
 ```tsx
-// src/components/rename-tvshow-view.tsx:85 — target
+// src/components/rename-tvshow-view.tsx:83 — target
 const batchRenamePayload = useMemo(
   () => entries.map(e => ({
     newname: `${e.replaced}.${e.ext}`,
@@ -138,7 +140,7 @@ const batchRenamePayload = useMemo(
 );
 ```
 
-And remove the old `useState` declarations for `replacements`, `changed`, and `hasDupes` (lines 27-29), replacing them with the `useMemo` declarations above.
+And remove the old `useState` declarations for `replacements`, `changed`, and `hasDupes` (lines 27, 29, 30), replacing them with the `useMemo` declarations above.
 
 ## Repo conventions to follow
 
@@ -148,12 +150,13 @@ And remove the old `useState` declarations for `replacements`, `changed`, and `h
 
 ## Steps
 
-1. At `src/components/rename-tvshow-view.tsx:62`, add `pattern, replacement, isRepeated, torrent` to the dependency array of the first `useEffect`.
-2. At `src/components/rename-tvshow-view.tsx:27`, remove `const [replacements, setReplacements] = useState<string[]>([]);` and replace with `const replacements = useMemo(() => entries.map(e => e.replaced), [entries]);`.
-3. At `src/components/rename-tvshow-view.tsx:28`, remove `const [changed, setChanged] = useState<FileEntries>([]);` and replace with `const changed = useMemo(() => entries.filter(e => e.replaced !== e.basenameNoExt), [entries]);`.
-4. At `src/components/rename-tvshow-view.tsx:29`, remove `const [hasDupes, setHasDupes] = useState<boolean>(false);` and replace with `const hasDupes = useMemo(() => { const unique = new Set(replacements); return unique.size !== replacements.length; }, [replacements]);`.
-5. Remove the three `useEffect` blocks at lines 73-79.
-6. At `src/components/rename-tvshow-view.tsx:85`, wrap `batchRenamePayload` in `useMemo(() => entries.map(...), [entries])`.
+1. At `src/components/rename-tvshow-view.tsx:9`, add `useMemo` to the React import: `import { useEffect, useMemo, useState, type FC } from "react";`.
+2. At `src/components/rename-tvshow-view.tsx:62`, add `pattern, replacement, isRepeated, torrent` to the dependency array of the first `useEffect`.
+3. At `src/components/rename-tvshow-view.tsx:27`, remove `const [replacements, setReplacements] = useState<string[]>([]);` and replace with `const replacements = useMemo(() => entries.map(e => e.replaced), [entries]);`.
+4. At `src/components/rename-tvshow-view.tsx:29`, remove `const [changed, setChanged] = useState<FileEntries>([]);` and replace with `const changed = useMemo(() => entries.filter(e => e.replaced !== e.basenameNoExt), [entries]);`.
+5. At `src/components/rename-tvshow-view.tsx:30`, remove `const [hasDupes, setHasDupes] = useState<boolean>(false);` and replace with `const hasDupes = useMemo(() => { const unique = new Set(replacements); return unique.size !== replacements.length; }, [replacements]);`.
+6. Remove the three `useEffect` blocks at lines 73-79.
+7. At `src/components/rename-tvshow-view.tsx:83`, wrap `batchRenamePayload` in `useMemo(() => entries.map(...), [entries])`.
 
 ## Boundaries
 

@@ -6,7 +6,7 @@ import { playSound } from "@/lib/play-sound";
 import { cn } from "@/lib/utils";
 import type { Torrent } from "@/types/torrent";
 import { RegexIcon, ReplaceAllIcon, ReplaceIcon } from "lucide-react";
-import { useEffect, useState, type FC } from "react";
+import { useEffect, useMemo, useState, type FC } from "react";
 import { suggestRename } from "@/lib/rename/om-rename-engine";
 
 interface FileEntry {
@@ -27,10 +27,22 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
   const [isRepeated, setIsRepeated] = useState(false);
   const [pattern, setPattern] = useState("");
   const [replacement, setReplacement] = useState("");
-  const [replacements, setReplacements] = useState<string[]>([]);
   const [entries, setEntries] = useState<FileEntries>([]);
-  const [changed, setChanged] = useState<FileEntries>([]);
-  const [hasDupes, setHasDupes] = useState<boolean>(false);
+  const replacements = useMemo(
+    () => entries.map(e => e.replaced),
+    [entries]
+  );
+  const changed = useMemo(
+    () => entries.filter(e => e.replaced !== e.basenameNoExt),
+    [entries]
+  );
+  const hasDupes = useMemo(
+    () => {
+      const unique = new Set(replacements);
+      return unique.size !== replacements.length;
+    },
+    [replacements]
+  );
 
   const autoSuggestions = () => {
     const videoFilenames: FileEntries = getShowVideoFilenames(torrent).map(
@@ -68,23 +80,17 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
     )
 
     setEntries(videoFilenames)
-  }, []);
+  }, [pattern, replacement, isRepeated, torrent]);
 
-  useEffect(() => {
-    setReplacements(entries.map(e => e.replaced))
-    setChanged(entries.filter(e => e.replaced != e.basenameNoExt))
-  }, [entries])
 
-  useEffect(() => {
-    setHasDupes(Array.from(new Set(replacements)).length != replacements.length)
-  }, [replacements])
 
-  const batchRenamePayload = entries.map(e => {
-    return {
+  const batchRenamePayload = useMemo(
+    () => entries.map(e => ({
       newname: `${e.replaced}.${e.ext}`,
       filename: e.filename
-    }
-  })
+    })),
+    [entries]
+  );
 
   return (
     <div className="grid grid-cols-1 items-center justify-between  mb-2">
