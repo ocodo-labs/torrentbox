@@ -83,7 +83,7 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
     )
 
     setEntries(videoFilenames)
-  }, [pattern, replacement, isRepeated, torrent]);
+  }, [pattern, replacement, isRepeated, isRegex, torrent]);
 
 
 
@@ -101,7 +101,7 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
               "bg-background/70 absolute right-1 top-1 p-1 px-3 rounded-full flex flex-row gap-2"
             )}>
             <TooltipCompact tooltipChildren={isRegex ? "Regex On" : "Regex Off"}>
-              <RegexIcon className={
+              <RegexIcon data-testid="regex-icon" className={
                 cn(
                   "w-3 h-3 cursor-pointer text-foreground/50",
                   isRegex && "text-foreground")
@@ -111,10 +111,10 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
             </TooltipCompact>
             <TooltipCompact tooltipChildren={isRepeated ? "Replace All" : "Replace One"}>
               {isRepeated
-                ? <ReplaceAllIcon
+                ? <ReplaceAllIcon data-testid="replace-all-icon"
                   className={cn("w-3 h-3 cursor-pointer text-foreground/90")}
                   onClick={() => setIsRepeated(!isRepeated)} />
-                : <ReplaceIcon
+                : <ReplaceIcon data-testid="replace-icon"
                   className={cn("w-3 h-3 cursor-pointer text-foreground/50")}
                   onClick={() => setIsRepeated(!isRepeated)} />
               }
@@ -154,27 +154,31 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
           )
         }
 
-        <div>or</div>
+        {pattern === "" && (
+          <>
+            <div>or</div>
 
-        <LongPressAsyncJobTooltipButton
-          className="bg-emerald-800 text-white hover:bg-emerald-700"
-          title="Auto Rename"
-          onLongPress={async () => {
-            autoSuggestions();
-            const payload = entriesRef.current.map(e => ({
-              newname: `${e.replaced}.${e.ext}`,
-              filename: e.filename
-            }));
-            batchRenameTorrentFiles(torrent, payload)
-            return playSound("sounds/torrent-success.mp3")
-          }}
-        >
-          <div
-            className="px-3 cursor-pointer"
-            onClick={() => autoSuggestions()}>
-            Auto Rename
-          </div>
-        </LongPressAsyncJobTooltipButton>
+            <LongPressAsyncJobTooltipButton
+              className="bg-emerald-800 text-white hover:bg-emerald-700"
+              title="Auto Rename"
+              onLongPress={async () => {
+                autoSuggestions();
+                const payload = entriesRef.current.map(e => ({
+                  newname: `${e.replaced}.${e.ext}`,
+                  filename: e.filename
+                }));
+                batchRenameTorrentFiles(torrent, payload)
+                return playSound("sounds/torrent-success.mp3")
+              }}
+            >
+              <div
+                className="px-3 cursor-pointer"
+                onClick={() => autoSuggestions()}>
+                Auto Rename
+              </div>
+            </LongPressAsyncJobTooltipButton>
+          </>
+        )}
 
       </div>
       {
