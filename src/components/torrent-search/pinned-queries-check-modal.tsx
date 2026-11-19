@@ -220,7 +220,7 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
           <button
             onClick={startSearch}
             disabled={editableQueries.filter((q) => q.trim()).length === 0}
-            className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-full hover:bg-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-full hover:bg-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             Search
           </button>
