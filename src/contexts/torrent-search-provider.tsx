@@ -45,7 +45,11 @@ export const TorrentSearchProvider = ({ children }: { children: ReactNode }) => 
   useEffect(() => {
     if (resultsFilter != '') {
       try {
-        const filterRegex = new RegExp(`^(?!.*${resultsFilter}).*$`, 'i')
+        const escaped = resultsFilter.replace(
+          /[.*+?^${}()|[\]\\]/g,
+          '\\$&'
+        )
+        const filterRegex = new RegExp(`^(?!.*${escaped}).*$`, 'i')
         setFilteredSearchResults(
           searchResults.filter((e) => filterRegex.test(e.name))
         )
