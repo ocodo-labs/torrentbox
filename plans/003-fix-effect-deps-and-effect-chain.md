@@ -1,6 +1,6 @@
 # 003 — Fix missing effect dependencies and effect chain in RenameTVShowView
 
-- **Status**: TODO
+- **Status**: DONE
 - **Commit**: 685f69c (base); current HEAD: 4172b57
 - **Severity**: HIGH
 - **Category**: Bugs & correctness
