@@ -340,7 +340,7 @@ describe('RenameTVShowView', () => {
       newTorrent.files = [
         'Testing.Bad.S02/Testing.Bad.01.720p.WEB.x264-ABC[0].mkv',
         'Testing.Bad.S02/Testing.Bad.02.720p.WEB.x264-ABC[1].mkv',
-      ].map((f, i) => [f, 500000000, 250000000, 0, false, 0] as any)
+      ].map((f) => [f, 500000000, 250000000, 0, false, 0] as any)
       mockGetShowVideoFilenames.mockReturnValue([
         'Testing.Bad.S02/Testing.Bad.01.720p.WEB.x264-ABC[0].mkv',
         'Testing.Bad.S02/Testing.Bad.02.720p.WEB.x264-ABC[1].mkv',

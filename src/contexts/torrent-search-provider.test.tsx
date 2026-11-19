@@ -33,8 +33,8 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 )
 
 const makeResult = (name: string): TorrentSearchResult => ({
-  id: name,
   name,
+  href: '#',
   magnet_link: 'magnet:?xt=urn:btih:test',
   seeds: '10',
   size: '1GB',
@@ -105,7 +105,7 @@ describe('TorrentSearchProvider', () => {
         makeResult('C'),
       ]
 
-      const { result, rerender } = renderHook(() => useSearchTestHarness(), {
+      const { result } = renderHook(() => useSearchTestHarness(), {
         wrapper,
       })
 

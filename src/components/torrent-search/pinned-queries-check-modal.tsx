@@ -237,7 +237,7 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
 
   const completeRejectMode = useCallback(() => {
     // Capture current state synchronously before any updates
-    const selectedKeys = rejectMode.selected;
+    const selectedKeys = rejectMode.mode === "active" ? rejectMode.selected : new Set<string>();
     const rejectedNames: string[] = [];
     for (const hit of hits) {
       if (selectedKeys.has(hitKey(hit))) {
