@@ -2,7 +2,7 @@ import { serverBaseUrl } from '@/config';
 import { useTransmissionContext } from '@/contexts/transmission-provider';
 import { playSound } from '@/lib/play-sound';
 import type { MediaListingItem } from '@/types/media-listing-interfaces';
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useMemo, useState } from 'react';
 import type { ReactNode, Dispatch, SetStateAction } from 'react';
 import { toast } from 'sonner';
 
@@ -35,27 +35,25 @@ export const TorrentSearchProvider = ({ children }: { children: ReactNode }) => 
   const [searchResults, setSearchResults] = useState<TorrentSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [resultsFilter, setResultsFilter] = useState('');
-  const [filteredSearchResults, setFilteredSearchResults] = useState<TorrentSearchResult[]>([]);
 
   // This implementation is ok for personal use,
   // it's not user friendly.
   // It's also a little janky i.e.
   //   (a group should work, but when there's more than two
   //   items in the capture group it doesn't match anything)
-  useEffect(() => {
-    if (resultsFilter != '') {
-      try {
-        const escaped = resultsFilter.replace(
-          /[.*+?^${}()|[\]\\]/g,
-          '\\$&'
-        )
-        const filterRegex = new RegExp(`^(?!.*${escaped}).*$`, 'i')
-        setFilteredSearchResults(
-          searchResults.filter((e) => filterRegex.test(e.name))
-        )
-      } catch {
-
-      }
+  const filteredSearchResults = useMemo(() => {
+    if (resultsFilter === '') {
+      return searchResults
+    }
+    try {
+      const escaped = resultsFilter.replace(
+        /[.*+?^${}()|[\]\\]/g,
+        '\\$&'
+      )
+      const filterRegex = new RegExp(`^(?!.*${escaped}).*$`, 'i')
+      return searchResults.filter((e) => filterRegex.test(e.name))
+    } catch {
+      return searchResults
     }
   }, [searchResults, resultsFilter])
 

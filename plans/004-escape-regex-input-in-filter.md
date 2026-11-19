@@ -1,6 +1,6 @@
 # 004 — Escape user input in dynamic regex and remove derived state
 
-- **Status**: TODO
+- **Status**: DONE
 - **Commit**: 685f69c
 - **Severity**: HIGH
 - **Category**: Bugs & correctness

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import {
   TorrentSearchProvider,
@@ -41,13 +41,10 @@ const makeResult = (name: string): TorrentSearchResult => ({
   category: 'movie',
 })
 
-describe('TorrentSearchProvider', () => {
-  beforeEach(() => {
-    // Reset by re-rendering a fresh provider
-  })
 
-  describe('resultsFilter', () => {
-    it('treats regex special characters as literals', async () => {
+describe('TorrentSearchProvider', () => {
+  describe('filteredSearchResults', () => {
+    it('is derived from searchResults and resultsFilter', () => {
       const results = [
         makeResult('Movie.2020.1080p'),
         makeResult('Movie 2020 1080p'),
@@ -59,33 +56,28 @@ describe('TorrentSearchProvider', () => {
       const { result } = renderHook(() => useSearchTestHarness(), { wrapper })
 
       // Seed search results
-      await act(() => {
+      act(() => {
         result.current.setSearchResults(results)
       })
 
+      // No filter — all results visible
+      expect(result.current.filteredSearchResults).toHaveLength(5)
+
       // Filter with a dot — the filter is an exclusion filter (negative lookahead),
       // so items containing the literal "Movie.2020" are excluded.
-      // With the fix, "." only matches a literal dot, so only
-      // "Movie.2020.1080p" is excluded. The other 4 items remain.
-      await act(() => {
+      // "." only matches a literal dot, so only "Movie.2020.1080p" is excluded.
+      act(() => {
         result.current.setResultsFilter('Movie.2020')
-      })
-
-      // Wait for the effect to run and state to settle
-      await act(async () => {
-        await new Promise((r) => setTimeout(r, 0))
       })
 
       const filtered = result.current.filteredSearchResults
       expect(filtered).toHaveLength(4)
-      // The item containing the literal "Movie.2020" should be excluded
       expect(filtered.find((r) => r.name === 'Movie.2020.1080p')).toBeUndefined()
-      // Items where "." was previously matching any char should now survive
       expect(filtered.find((r) => r.name === 'Movie 2020 1080p')).toBeDefined()
       expect(filtered.find((r) => r.name === 'Movie(2020)')).toBeDefined()
     })
 
-    it('does not throw on unbalanced regex characters', async () => {
+    it('does not throw on unbalanced regex characters', () => {
       const results = [
         makeResult('Show (2020)'),
         makeResult('Show [2020]'),
@@ -93,21 +85,58 @@ describe('TorrentSearchProvider', () => {
 
       const { result } = renderHook(() => useSearchTestHarness(), { wrapper })
 
-      await act(() => {
+      act(() => {
         result.current.setSearchResults(results)
       })
 
       // Unbalanced parens should not throw
-      await act(() => {
+      act(() => {
         result.current.setResultsFilter('(broken')
-      })
-
-      await act(async () => {
-        await new Promise((r) => setTimeout(r, 0))
       })
 
       // Should still have results (no crash)
       expect(result.current.filteredSearchResults).toBeDefined()
+    })
+
+    it('is always consistent with searchResults — no stale divergence', () => {
+      const results = [
+        makeResult('A'),
+        makeResult('B'),
+        makeResult('C'),
+      ]
+
+      const { result, rerender } = renderHook(() => useSearchTestHarness(), {
+        wrapper,
+      })
+
+      act(() => {
+        result.current.setSearchResults(results)
+      })
+      act(() => {
+        result.current.setResultsFilter('B')
+      })
+
+      // filteredSearchResults should always reflect the current state
+      expect(result.current.filteredSearchResults).toHaveLength(2)
+      expect(result.current.filteredSearchResults.map((r) => r.name)).toEqual(
+        ['A', 'C']
+      )
+
+      // Add a new result and verify filtered updates immediately
+      act(() => {
+        result.current.setSearchResults([
+          ...results,
+          makeResult('D'),
+          makeResult('B-extra'),
+        ])
+      })
+
+      expect(result.current.filteredSearchResults).toHaveLength(3)
+      expect(result.current.filteredSearchResults.map((r) => r.name)).toEqual([
+        'A',
+        'C',
+        'D',
+      ])
     })
   })
 })
