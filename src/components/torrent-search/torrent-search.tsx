@@ -89,7 +89,7 @@ export const TorrentSearch: FC = () => {
           </TooltipCompact>
         }
         {pinnedQueries.length > 0 &&
-          <TooltipCompact tooltipChildren={'Search all pinned'}>
+          <TooltipCompact tooltipChildren={'Search saved queries'}>
             <Radio
               onClick={() => setShowCheckModal(true)}
               className="mt-1 size-6 cursor-pointer"
