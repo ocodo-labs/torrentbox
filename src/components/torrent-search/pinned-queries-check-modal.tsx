@@ -13,8 +13,26 @@ import {
   Search,
   X,
   CircleX,
+  Ban,
+  Check,
 } from "lucide-react";
 import { type FC, useCallback, useEffect, useRef, useState } from "react";
+
+const REJECTED_QUERIES_STORAGE_KEY = "torrentbox:rejected-pinned-queries";
+
+function loadRejectedQueries(): string[] {
+  try {
+    const raw = localStorage.getItem(REJECTED_QUERIES_STORAGE_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw) as string[];
+  } catch {
+    return [];
+  }
+}
+
+function saveRejectedQueries(rejected: string[]) {
+  localStorage.setItem(REJECTED_QUERIES_STORAGE_KEY, JSON.stringify(rejected));
+}
 
 interface CheckModalProps {
   isOpen: boolean;
@@ -35,6 +53,14 @@ type ViewState =
   | { type: "transition" }
   | { type: "searching" }
   | { type: "results" };
+
+type RejectModeState =
+  | { mode: "idle" }
+  | { mode: "active"; selected: Set<string> };
+
+function hitKey(hit: TorrentHit): string {
+  return `${hit.name}::${hit.magnet_link}`;
+}
 
 const SEARCH_DELAY_MS = 800;
 const FADE_DURATION = 200;
@@ -58,6 +84,12 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
   const [totalQueries, setTotalQueries] = useState(0);
   const searchAbortRef = useRef(false);
 
+  // Reject mode state
+  const [rejectMode, setRejectMode] = useState<RejectModeState>({ mode: "idle" });
+  const [persistedRejected, setPersistedRejected] = useState<Set<string>>(() => {
+    return new Set(loadRejectedQueries());
+  });
+
   // Initialize when modal opens
   useEffect(() => {
     if (isOpen && pinnedQueries.length > 0) {
@@ -66,6 +98,7 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
       setHits([]);
       setViewState({ type: "refine" });
       searchAbortRef.current = false;
+      setRejectMode({ mode: "idle" });
     }
     if (!isOpen) {
       searchAbortRef.current = false;
@@ -162,6 +195,58 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
   const cancelSearch = useCallback(() => {
     searchAbortRef.current = true;
   }, []);
+
+  // ─── Reject Mode Handlers ──────────────────────────────────
+  const toggleRejectMode = useCallback(() => {
+    setRejectMode((prev) => {
+      if (prev.mode === "idle") {
+        return { mode: "active", selected: new Set() };
+      }
+      return { mode: "idle", selected: new Set() };
+    });
+  }, []);
+
+  const toggleHitSelection = useCallback((hit: TorrentHit) => {
+    setRejectMode((prev) => {
+      if (prev.mode !== "active") return prev;
+      const next = new Set(prev.selected);
+      const key = hitKey(hit);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return { mode: "active", selected: next };
+    });
+  }, []);
+
+  const cancelRejectMode = useCallback(() => {
+    setRejectMode({ mode: "idle" });
+  }, []);
+
+  const completeRejectMode = useCallback(() => {
+    setRejectMode((prev) => {
+      if (prev.mode !== "active") return prev;
+      const rejectedNames: string[] = [];
+      for (const hit of hits) {
+        if (prev.selected.has(hitKey(hit))) {
+          rejectedNames.push(hit.name);
+        }
+      }
+      const currentPersisted = loadRejectedQueries();
+      const merged = Array.from(
+        new Set([...currentPersisted, ...rejectedNames])
+      );
+      saveRejectedQueries(merged);
+      setPersistedRejected(new Set(merged));
+
+      // Remove rejected hits from current results
+      setHits((prevHits) =>
+        prevHits.filter((h) => !prev.selected.has(hitKey(h)))
+      );
+      return { mode: "idle" };
+    });
+  }, [hits]);
 
   const handleMagnetClick = useCallback(
     async (name: string, magnet_link: string) => {
@@ -292,44 +377,134 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
   }
 
   // ─── Results View ──────────────────────────────────────────
+  const isRejectMode = rejectMode.mode === "active";
+  const selectedCount = isRejectMode ? rejectMode.selected.size : 0;
+
+  // Filter out previously persisted rejected items
+  const visibleHits = hits.filter(
+    (h) => !persistedRejected.has(h.name)
+  );
+
+  const isHitSelected = (hit: TorrentHit): boolean => {
+    if (!isRejectMode) return false;
+    return rejectMode.selected.has(hitKey(hit));
+  };
+
   return (
     <ModalOverlay isOpen={isOpen} onClose={onClose}>
       <ModalHeader icon={<Search className="w-5 h-5" />} title="Results">
-        <div className="text-sm text-muted-foreground ml-auto">
-          {hits.length} hits from {totalQueries} queries
+        <div className="flex items-center gap-2">
+          {isRejectMode && (
+            <>
+              <span className="text-sm text-destructive font-medium">
+                {selectedCount} selected
+              </span>
+              <button
+                onClick={cancelRejectMode}
+                className="px-3 py-1 text-xs bg-muted text-muted-foreground rounded-full hover:bg-muted/80 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={completeRejectMode}
+                disabled={selectedCount === 0}
+                className="px-3 py-1 text-xs bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1"
+              >
+                <Check className="w-3 h-3" />
+                OK
+              </button>
+            </>
+          )}
+          <div className="text-sm text-muted-foreground ml-auto">
+            {visibleHits.length} hits from {totalQueries} queries
+          </div>
         </div>
       </ModalHeader>
 
       <div className="grid gap-2 p-2 rounded-lg bg-background inset-shadow-sm max-h-[80vh] overflow-y-auto">
-        {hits.length === 0 ? (
+        {visibleHits.length === 0 ? (
           <div className="flex items-center justify-center py-8 text-muted-foreground">
             Nothing found
           </div>
         ) : (
-          hits.map((hit, index) => (
-            <div
-              key={`${hit.magnet_link}-${index}`}
-              className="flex flex-col md:flex-row justify-between py-2 border-b border-secondary-foreground/10"
-            >
-              <div className="flex flex-row gap-2 items-center justify-start">
-                <div className="truncate max-w-[75vw]">{hit.name}</div>
-                <a href={hit.href} target="_blank">
-                  <ExternalLink style={thinIconStyle} className="w-4 h-4" />
-                </a>
+          visibleHits.map((hit, index) => {
+            const selected = isHitSelected(hit);
+
+            return (
+              <div
+                key={`${hit.magnet_link}-${index}`}
+                onClick={() => {
+                  if (isRejectMode) {
+                    toggleHitSelection(hit);
+                  }
+                }}
+                className={
+                  isRejectMode
+                    ? `flex flex-col md:flex-row justify-between py-2 border-b cursor-pointer transition-colors duration-200 ${
+                        selected
+                          ? "bg-destructive/15 border-destructive/40 text-destructive"
+                          : "border-secondary-foreground/10 hover:bg-muted/30"
+                      }`
+                    : "flex flex-col md:flex-row justify-between py-2 border-b border-secondary-foreground/10"
+                }
+              >
+                <div className="flex flex-row gap-2 items-center justify-start flex-1">
+                  {isRejectMode && (
+                    <div
+                      className={`shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${
+                        selected
+                          ? "bg-destructive border-destructive"
+                          : "border-foreground/30"
+                      }`}
+                    >
+                      {selected && (
+                        <Check className="w-3 h-3 text-destructive-foreground" />
+                      )}
+                    </div>
+                  )}
+                  <div className="truncate max-w-[75vw]">{hit.name}</div>
+                  <a
+                    href={hit.href}
+                    target="_blank"
+                    onClick={(e) => {
+                      if (isRejectMode) e.stopPropagation();
+                    }}
+                  >
+                    <ExternalLink style={thinIconStyle} className="w-4 h-4 shrink-0" />
+                  </a>
+                </div>
+                <div className="flex flex-row gap-3 items-center justify-between mt-1 md:mt-0">
+                  <div className="text-xs text-muted-foreground">{hit.size}</div>
+                  <div className="text-xs">{hit.seeds} seeds</div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (isRejectMode) return;
+                      handleMagnetClick(hit.name, hit.magnet_link);
+                    }}
+                    className={isRejectMode ? "opacity-50 cursor-not-allowed" : ""}
+                  >
+                    <LineMdDownloadIcon className="h-4 w-4" style={thinIconStyle} />
+                  </button>
+                </div>
               </div>
-              <div className="flex flex-row gap-3 items-center justify-between mt-1 md:mt-0">
-                <div className="text-xs text-muted-foreground">{hit.size}</div>
-                <div className="text-xs">{hit.seeds} seeds</div>
-                <button
-                  onClick={() => handleMagnetClick(hit.name, hit.magnet_link)}
-                >
-                  <LineMdDownloadIcon className="h-4 w-4" style={thinIconStyle} />
-                </button>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
+
+      {/* Reject mode toggle — only shown when not in reject mode */}
+      {!isRejectMode && hits.length > 0 && (
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={toggleRejectMode}
+            className="px-4 py-2 text-sm bg-background border border-foreground/20 rounded-full hover:bg-muted transition-colors cursor-pointer flex items-center gap-2"
+          >
+            <Ban className="w-4 h-4" />
+            Reject Results
+          </button>
+        </div>
+      )}
     </ModalOverlay>
   );
 };

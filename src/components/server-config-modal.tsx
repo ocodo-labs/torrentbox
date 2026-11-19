@@ -5,11 +5,14 @@ import { useServerConfig } from '@/contexts/server-config-provider';
 import { OcodoLoaderIcon } from '@/components/icons/ocodo-loader-icon';
 import { ProgressRing } from '@/components/progress-ring';
 import { useStorage } from '@/contexts/storage-context';
-import { useEffect } from 'react';
+import { RejectedListManager } from '@/components/rejected-list-manager';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useEffect, useState } from 'react';
 
 export function ServerConfigModal() {
   const { isOpen, close, loading, error } = useServerConfig();
   const { fetchStorageInfo, storageInfo } = useStorage();
+  const [activeTab, setActiveTab] = useState("server");
 
   useEffect(
     () => {
@@ -17,47 +20,63 @@ export function ServerConfigModal() {
     }, []
   );
 
-  return (
-    <ModalOverlay isOpen={isOpen} onClose={close} >
-      <>
-        {
-          loading || <ModalHeader title='Server Config' />
-        }
-        {
-          loading &&
-          <OcodoLoaderIcon className="w-12 h-12 animate-spin" />
-        }
-        {
-          error && <div className={modalErrorState}>{error}</div>
-        }
+  // Reset tab on open
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab("server");
+    }
+  }, [isOpen]);
 
-        {storageInfo.every(i => i.UsedPercent) &&
-          <>
-            <div className='flex flex-row gap-2 items-center justify-start'>
-              <div className='text-md font-bold'>Server Storage</div>
-              {
-                storageInfo.map((i) => {
-                  return <div className='flex flex-row gap-2 justify-start place-items-center'>
-                    <div>
-                      <ProgressRing
-                        radius={12}
-                        percentage={i.UsedPercent}
-                        strokeBg="var(--primary)"
-                        strokeFg="var(--destructive)"
-                        strokeWidth={6}
-                      />
-                    </div>
-                    <div className='flex flex-col gap-x-2'>
-                      <div className='text-xxs mt-4'>{i.Mounted}</div>
-                      <div className='text-xxs '>{i.Avail} free</div>
-                    </div>
+  return (
+    <ModalOverlay isOpen={isOpen} onClose={close}>
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="w-full"
+      >
+        <TabsList className="mb-4">
+          <TabsTrigger value="server">Server</TabsTrigger>
+          <TabsTrigger value="rejected">Rejected</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="server">
+          {loading || <ModalHeader title="Server Config" />}
+          {loading && (
+            <OcodoLoaderIcon className="w-12 h-12 animate-spin" />
+          )}
+          {error && <div className={modalErrorState}>{error}</div>}
+
+          {storageInfo.every((i) => i.UsedPercent) && (
+            <div className="flex flex-row gap-2 items-center justify-start">
+              <div className="text-md font-bold">Server Storage</div>
+              {storageInfo.map((i) => (
+                <div
+                  key={i.Mounted}
+                  className="flex flex-row gap-2 justify-start place-items-center"
+                >
+                  <div>
+                    <ProgressRing
+                      radius={12}
+                      percentage={i.UsedPercent}
+                      strokeBg="var(--primary)"
+                      strokeFg="var(--destructive)"
+                      strokeWidth={6}
+                    />
                   </div>
-                })
-              }
+                  <div className="flex flex-col gap-x-2">
+                    <div className="text-xxs mt-4">{i.Mounted}</div>
+                    <div className="text-xxs">{i.Avail} free</div>
+                  </div>
+                </div>
+              ))}
             </div>
-          </>
-        }
-      </>
+          )}
+        </TabsContent>
+
+        <TabsContent value="rejected">
+          <RejectedListManager />
+        </TabsContent>
+      </Tabs>
     </ModalOverlay>
   );
 }
