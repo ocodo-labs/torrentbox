@@ -2,6 +2,10 @@
 
 ## Practices
 
+### Git Push
+
+**Never push to remote without explicit user confirmation.** Always ask the user before running `git push`. The agent may stage, commit, and verify tests, but the push itself requires a clear "yes" from the user.
+
 ### Commits
 
 Commits should be verbose and read like a diary or journal entry. Describe what you did, why, and what you found. Avoid terse messages like "fix stuff" or "update file". Write as if someone (or future you) will read this months later and need to understand the reasoning.
