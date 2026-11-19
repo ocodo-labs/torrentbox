@@ -6,7 +6,7 @@ Recommended execution order. Some plans are independent; others should be done i
 |---|------|----------|----------|------------|--------|
 | 001 | Add missing key to entries list in RenameTVShowView | HIGH | Bugs & correctness | — | DONE |
 | 002 | Extract side effects from state updater in PinnedQueriesCheckModal | HIGH | Bugs & correctness | — | DONE |
-| 003 | Fix missing effect dependencies and effect chain in RenameTVShowView | HIGH | Bugs & correctness | — | TODO |
+| 003 | Fix missing effect dependencies and effect chain in RenameTVShowView | HIGH | Bugs & correctness | — | DONE |
 | 004 | Escape user input in dynamic regex and remove derived state | HIGH | Bugs & correctness | — | TODO |
 | 005 | Check fetch response status before parsing body | HIGH | Bugs & correctness | — | TODO |
 | 006 | Add noopener to window.open in LinkListItem | HIGH | Security | — | TODO |
