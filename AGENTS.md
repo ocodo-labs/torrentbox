@@ -34,6 +34,12 @@ cd apiserver
 .venv/bin/fastapi dev --port 8880 --host 0.0.0.0
 ```
 
+> **Note:** The user likely already has the server running. Before starting it, check if port 8880 is already in use:
+> ```bash
+> lsof -i :8880 || ss -tlnp | grep 8880
+> ```
+> If something is listening, skip starting the server — the user probably has it running in another terminal.
+
 ## Building the Client
 
 ```bash
