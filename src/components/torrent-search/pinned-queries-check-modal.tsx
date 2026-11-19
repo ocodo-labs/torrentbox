@@ -82,6 +82,7 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
   const [currentQuery, setCurrentQuery] = useState("");
   const [progress, setProgress] = useState(0);
   const [totalQueries, setTotalQueries] = useState(0);
+  const [filteredCount, setFilteredCount] = useState(0);
   const searchAbortRef = useRef(false);
 
   // Reject mode state
@@ -96,6 +97,7 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
       setEditableQueries([...pinnedQueries]);
       setNewQuery("");
       setHits([]);
+      setFilteredCount(0);
       setViewState({ type: "refine" });
       searchAbortRef.current = false;
       setRejectMode({ mode: "idle" });
@@ -153,6 +155,8 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
   // Run through queries sequentially
   const runSearch = useCallback(
     async (queries: string[]) => {
+      const allHits: TorrentHit[] = [];
+
       for (let i = 0; i < queries.length; i++) {
         if (searchAbortRef.current) break;
 
@@ -177,7 +181,7 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
           ).slice(0, 5);
 
           if (valid.length > 0) {
-            setHits((prev) => [...prev, ...valid]);
+            allHits.push(...valid);
           }
         } catch {
           // skip
@@ -186,10 +190,17 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
         await new Promise((resolve) => setTimeout(resolve, SEARCH_DELAY_MS));
       }
 
+      // Filter out previously rejected items before showing results
+      const filtered = allHits.filter((h) => !persistedRejected.has(h.name));
+      const countFiltered = allHits.length - filtered.length;
+
+      setHits(filtered);
+      setFilteredCount(countFiltered);
+
       // Done
       setViewState({ type: "results" });
     },
-    []
+    [persistedRejected]
   );
 
   const cancelSearch = useCallback(() => {
@@ -241,9 +252,9 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
       setPersistedRejected(new Set(merged));
 
       // Remove rejected hits from current results
-      setHits((prevHits) =>
-        prevHits.filter((h) => !prev.selected.has(hitKey(h)))
-      );
+      const remaining = hits.filter((h) => !prev.selected.has(hitKey(h)));
+      setHits(remaining);
+      setFilteredCount((prev) => prev + rejectedNames.length);
       return { mode: "idle" };
     });
   }, [hits]);
@@ -380,10 +391,8 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
   const isRejectMode = rejectMode.mode === "active";
   const selectedCount = isRejectMode ? rejectMode.selected.size : 0;
 
-  // Filter out previously persisted rejected items
-  const visibleHits = hits.filter(
-    (h) => !persistedRejected.has(h.name)
-  );
+  // hits is already filtered at search time; visibleHits is the same set
+  const visibleHits = hits;
 
   const isHitSelected = (hit: TorrentHit): boolean => {
     if (!isRejectMode) return false;
@@ -417,6 +426,11 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
           )}
           <div className="text-sm text-muted-foreground ml-auto">
             {visibleHits.length} hits from {totalQueries} queries
+            {filteredCount > 0 && (
+              <span className="ml-1 text-muted-foreground/60">
+                ({filteredCount} filtered)
+              </span>
+            )}
           </div>
         </div>
       </ModalHeader>
