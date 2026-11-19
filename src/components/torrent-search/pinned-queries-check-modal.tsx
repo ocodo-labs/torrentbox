@@ -236,28 +236,28 @@ export const PinnedQueriesCheckModal: FC<CheckModalProps> = ({
   }, []);
 
   const completeRejectMode = useCallback(() => {
-    setRejectMode((prev) => {
-      if (prev.mode !== "active") return prev;
-      const rejectedNames: string[] = [];
-      for (const hit of hits) {
-        if (prev.selected.has(hitKey(hit))) {
-          rejectedNames.push(hit.name);
-        }
+    // Capture current state synchronously before any updates
+    const selectedKeys = rejectMode.selected;
+    const rejectedNames: string[] = [];
+    for (const hit of hits) {
+      if (selectedKeys.has(hitKey(hit))) {
+        rejectedNames.push(hit.name);
       }
-      const currentPersisted = loadRejectedQueries();
-      const merged = Array.from(
-        new Set([...currentPersisted, ...rejectedNames])
-      );
-      saveRejectedQueries(merged);
-      setPersistedRejected(new Set(merged));
+    }
 
-      // Remove rejected hits from current results
-      const remaining = hits.filter((h) => !prev.selected.has(hitKey(h)));
-      setHits(remaining);
-      setFilteredCount((prev) => prev + rejectedNames.length);
-      return { mode: "idle" };
-    });
-  }, [hits]);
+    // Persist to localStorage
+    const currentPersisted = loadRejectedQueries();
+    const merged = Array.from(
+      new Set([...currentPersisted, ...rejectedNames])
+    );
+    saveRejectedQueries(merged);
+
+    // Update all state at once
+    setRejectMode({ mode: "idle" });
+    setPersistedRejected(new Set(merged));
+    setHits((prev) => prev.filter((h) => !selectedKeys.has(hitKey(h))));
+    setFilteredCount((prev) => prev + rejectedNames.length);
+  }, [hits, rejectMode]);
 
   const handleMagnetClick = useCallback(
     async (name: string, magnet_link: string) => {
