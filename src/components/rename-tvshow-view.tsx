@@ -6,7 +6,7 @@ import { playSound } from "@/lib/play-sound";
 import { cn } from "@/lib/utils";
 import type { Torrent } from "@/types/torrent";
 import { RegexIcon, ReplaceAllIcon, ReplaceIcon } from "lucide-react";
-import { useEffect, useMemo, useState, type FC } from "react";
+import { useEffect, useMemo, useRef, useState, type FC } from "react";
 import { suggestRename } from "@/lib/rename/om-rename-engine";
 
 interface FileEntry {
@@ -28,6 +28,9 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
   const [pattern, setPattern] = useState("");
   const [replacement, setReplacement] = useState("");
   const [entries, setEntries] = useState<FileEntries>([]);
+  const entriesRef = useRef(entries);
+  // react-doctor-disable-next-line no-ref-current-in-render -- sync ref with state for stale-closure-free payload computation
+  entriesRef.current = entries;
   const replacements = useMemo(
     () => entries.map(e => e.replaced),
     [entries]
@@ -84,14 +87,6 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
 
 
 
-  const batchRenamePayload = useMemo(
-    () => entries.map(e => ({
-      newname: `${e.replaced}.${e.ext}`,
-      filename: e.filename
-    })),
-    [entries]
-  );
-
   return (
     <div className="grid grid-cols-1 items-center justify-between  mb-2">
       <div className="flex flex-row gap-4 items-center justify-items-stretch mb-2">
@@ -143,7 +138,11 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
               fillColor="bg-primary"
               title="Apply Rename"
               onLongPress={async () => {
-                batchRenameTorrentFiles(torrent, batchRenamePayload)
+                const payload = entriesRef.current.map(e => ({
+                  newname: `${e.replaced}.${e.ext}`,
+                  filename: e.filename
+                }));
+                batchRenameTorrentFiles(torrent, payload)
                 return playSound("sounds/torrent-success.mp3")
               }}
             >
@@ -160,9 +159,13 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
         <LongPressAsyncJobTooltipButton
           className="bg-emerald-800 text-white hover:bg-emerald-700"
           title="Auto Rename"
-          onLongPress={() => {
+          onLongPress={async () => {
             autoSuggestions();
-            batchRenameTorrentFiles(torrent, batchRenamePayload)
+            const payload = entriesRef.current.map(e => ({
+              newname: `${e.replaced}.${e.ext}`,
+              filename: e.filename
+            }));
+            batchRenameTorrentFiles(torrent, payload)
             return playSound("sounds/torrent-success.mp3")
           }}
         >
