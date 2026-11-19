@@ -49,3 +49,23 @@ vite build
 The built output goes to `apiserver/dist`, which the server serves as static files.
 
 > **Note:** `vite dev` is only needed when evaluating instant styling changes or triaging difficult client-side quirks. For normal development, build and serve via the server.
+
+## Running Tests
+
+```bash
+npx vitest run
+```
+
+Run a single test file:
+
+```bash
+npx vitest run src/components/rename-tvshow-view.test.tsx
+```
+
+Run in watch mode during development:
+
+```bash
+npx vitest
+```
+
+Tests use jsdom environment with `@` path alias resolution. Setup file is at `vitest.setup.tsx` with mocks for project dependencies, UI components, and the rename engine.

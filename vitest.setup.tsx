@@ -59,17 +59,17 @@ vi.mock('@/components/long-press-async-job-tooltip-button', () => ({
 }))
 
 vi.mock('lucide-react', () => ({
-  RegexIcon: () => {
+  RegexIcon: (props: any) => {
     const React = require('react')
-    return React.createElement('div', { 'data-testid': 'regex-icon' })
+    return React.createElement('div', { 'data-testid': 'regex-icon', ...props })
   },
-  ReplaceAllIcon: () => {
+  ReplaceAllIcon: (props: any) => {
     const React = require('react')
-    return React.createElement('div', { 'data-testid': 'replace-all-icon' })
+    return React.createElement('div', { 'data-testid': 'replace-all-icon', ...props })
   },
-  ReplaceIcon: () => {
+  ReplaceIcon: (props: any) => {
     const React = require('react')
-    return React.createElement('div', { 'data-testid': 'replace-icon' })
+    return React.createElement('div', { 'data-testid': 'replace-icon', ...props })
   },
 }))
 
