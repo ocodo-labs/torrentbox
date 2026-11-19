@@ -173,15 +173,17 @@ export const RenameTVShowView: FC<{ torrent: Torrent }> = ({ torrent }) => {
           entry => {
             const { basename, ext, replaced } = entry
             return (
-              <div className={
+              <div
+                key={entry.filename}
+                className={
+                  `
+                grid grid-cols-2 p-2
+                items-center justify-between
+                bg-foreground/10
+                border-b-1 border-foreground/20
+                overflow-x-auto
                 `
-              grid grid-cols-2 p-2
-              items-center justify-between
-              bg-foreground/10
-              border-b-1 border-foreground/20
-              overflow-x-auto
-              `
-              }>
+                }>
                 <div>
                   {basename}
                 </div>
