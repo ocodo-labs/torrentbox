@@ -62,7 +62,7 @@ describe('RenameTVShowView', () => {
 
       // Find and click the Auto Rename button
       const autoRenameButton = screen.getByText('Auto Rename')
-      
+
       await act(async () => {
         fireEvent.click(autoRenameButton)
       })
@@ -118,7 +118,7 @@ describe('RenameTVShowView', () => {
 
       // Immediately trigger auto-rename (simulating fast user interaction)
       const autoRenameButton = screen.getByText('Auto Rename')
-      
+
       await act(async () => {
         fireEvent.click(autoRenameButton)
       })
@@ -126,7 +126,7 @@ describe('RenameTVShowView', () => {
       // The payload should reflect the current state, not stale values
       expect(mockBatchRenameTorrentFiles).toHaveBeenCalled()
       const calledWith = mockBatchRenameTorrentFiles.mock.calls[0][1] as any[]
-      
+
       // Verify the payload contains the updated entries
       expect(calledWith).toHaveLength(2)
       expect(calledWith[0].filename).toContain('Testing.Bad.01')
@@ -161,7 +161,7 @@ describe('RenameTVShowView', () => {
 
       // Find and click the Rename button (should appear when pattern is not empty)
       const renameButton = screen.getByText('Rename')
-      
+
       await act(async () => {
         fireEvent.click(renameButton)
       })
@@ -208,7 +208,7 @@ describe('RenameTVShowView', () => {
 
       // Immediately trigger rename (simulating fast user interaction)
       const renameButton = screen.getByText('Rename')
-      
+
       await act(async () => {
         fireEvent.click(renameButton)
       })
@@ -216,7 +216,7 @@ describe('RenameTVShowView', () => {
       // The payload should reflect the current state, not stale values
       expect(mockBatchRenameTorrentFiles).toHaveBeenCalled()
       const calledWith = mockBatchRenameTorrentFiles.mock.calls[0][1] as any[]
-      
+
       // Verify the payload contains the updated entries
       expect(calledWith).toHaveLength(2)
       expect(calledWith[0].filename).toContain('Testing.Bad.01')
@@ -257,7 +257,7 @@ describe('RenameTVShowView', () => {
 
       // Trigger rename
       const renameButton = screen.getByText('Rename')
-      
+
       await act(async () => {
         fireEvent.click(renameButton)
       })
@@ -300,7 +300,7 @@ describe('RenameTVShowView', () => {
 
       // Trigger rename
       const renameButton = screen.getByText('Rename')
-      
+
       await act(async () => {
         fireEvent.click(renameButton)
       })
@@ -352,7 +352,7 @@ describe('RenameTVShowView', () => {
 
       // Trigger rename
       const renameButton = screen.getByText('Rename')
-      
+
       await act(async () => {
         fireEvent.click(renameButton)
       })
@@ -360,7 +360,7 @@ describe('RenameTVShowView', () => {
       // The payload should use the latest entries, not stale closure values
       expect(mockBatchRenameTorrentFiles).toHaveBeenCalled()
       const calledWith = mockBatchRenameTorrentFiles.mock.calls[0][1] as any[]
-      
+
       // Verify the payload contains the updated entries (S02, not S01)
       expect(calledWith).toHaveLength(2)
       expect(calledWith[0].filename).toContain('Testing.Bad.S02')
@@ -401,7 +401,7 @@ describe('RenameTVShowView', () => {
 
       // Trigger rename immediately after rapid changes
       const renameButton = screen.getByText('Rename')
-      
+
       await act(async () => {
         fireEvent.click(renameButton)
       })
@@ -409,7 +409,7 @@ describe('RenameTVShowView', () => {
       // The payload should reflect the latest state, not intermediate values
       expect(mockBatchRenameTorrentFiles).toHaveBeenCalled()
       const calledWith = mockBatchRenameTorrentFiles.mock.calls[0][1] as any[]
-      
+
       // Verify the payload contains the latest entries
       expect(calledWith).toHaveLength(3)
       expect(calledWith[0].filename).toContain('Testing.Bad.01')
@@ -447,7 +447,7 @@ describe('RenameTVShowView', () => {
 
       // Trigger rename
       const renameButton = screen.getByText('Rename')
-      
+
       await act(async () => {
         fireEvent.click(renameButton)
       })
@@ -503,7 +503,7 @@ describe('RenameTVShowView', () => {
 
       // Trigger rename
       const renameButton = screen.getByText('Rename')
-      
+
       await act(async () => {
         fireEvent.click(renameButton)
       })

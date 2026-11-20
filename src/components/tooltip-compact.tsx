@@ -16,7 +16,7 @@ export const TooltipCompact: FC<TooltipCompactProps> = ({ children, tooltipChild
         <TooltipContent>
           {tooltipChildren}
         </TooltipContent>
-        <TooltipTrigger asChild>
+        <TooltipTrigger>
           {children}
         </TooltipTrigger>
       </Tooltip>
